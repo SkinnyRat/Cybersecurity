@@ -323,7 +323,17 @@ function addVar() {
 marked.use({
   gfm: true,
   renderer: {
-    code({ text, lang }) {
+    code(codeOrToken, infostring) {
+      // marked <12 calls this positionally: code(codeString, infostring).
+      // marked >=12 passes a single token object: { text, lang }.
+      let text, lang;
+      if (codeOrToken && typeof codeOrToken === 'object') {
+        text = codeOrToken.text; lang = codeOrToken.lang;
+      } else {
+        text = codeOrToken; lang = infostring;
+      }
+      text = text || '';
+      lang = (lang || '').match(/\S*/)[0];  // infostring may carry extra words
       const language = (lang && hljs.getLanguage(lang)) ? lang : 'plaintext';
       let highlighted;
       try { highlighted = hljs.highlight(text, { language }).value; }
