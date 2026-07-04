@@ -28,24 +28,24 @@ Get-DomainTrustMapping
 ## 4. `powershell` _(output omitted)_
 
 ```powershell
-Get-DomainUser -Domain LOGISTICS.INLANEFREIGHT.LOCAL | select SamAccountName
+Get-DomainUser -Domain LOGISTICS.{{DOMAIN_UPPER}} | select SamAccountName
 ```
 
 ## 5. `cmd` _(output omitted)_
 
 ```cmd
-netdom query /domain:inlanefreight.local trust
+netdom query /domain:{{DOMAIN}} trust
 ```
 
 ## 6. `cmd` _(output omitted)_
 
 ```cmd
-netdom query /domain:inlanefreight.local dc
+netdom query /domain:{{DOMAIN}} dc
 ```
 
 ## 7. `cmd` _(output omitted)_
 
 ```cmd
-netdom query /domain:inlanefreight.local workstation
+netdom query /domain:{{DOMAIN}} workstation
 ```
 

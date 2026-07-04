@@ -9,25 +9,25 @@
 ## 1. `shellsession` _(output omitted)_
 
 ```bash
-crackmapexec smb 172.16.5.5 -u avazquez -p Password123 --pass-pol
+crackmapexec smb {{DC_IP}} -u avazquez -p Password123 --pass-pol
 ```
 
 ## 2. `shellsession` _(output omitted)_
 
 ```bash
-rpcclient -U "" -N 172.16.5.5
+rpcclient -U "" -N {{DC_IP}}
 ```
 
 ## 3. `shellsession` _(output omitted)_
 
 ```bash
-enum4linux -P 172.16.5.5
+enum4linux -P {{DC_IP}}
 ```
 
 ## 4. `shellsession` _(output omitted)_
 
 ```bash
-enum4linux-ng -P 172.16.5.5 -oA ilfreight
+enum4linux-ng -P {{DC_IP}} -oA ilfreight
 ```
 
 ## 5. `shellsession` _(output omitted)_
@@ -63,7 +63,7 @@ net use \\DC01\ipc$ "password" /u:guest
 ## 10. `shellsession` _(output omitted)_
 
 ```bash
-ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
+ldapsearch -h {{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
 ```
 
 ## 11. `cmd` _(output omitted)_

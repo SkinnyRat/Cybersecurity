@@ -28,10 +28,10 @@ Address: 206.189.119.186
 ## Block 2 — `shellsession`
 
 ```shellsession
-flickpeesai@htb[/htb]$ sudo python3 dehashed.py -q inlanefreight.local -p
+flickpeesai@htb[/htb]$ sudo python3 dehashed.py -q {{DOMAIN}} -p
 
 id : 5996447501
-email : roger.grimes@inlanefreight.local
+email : roger.grimes@{{DOMAIN}}
 username : rgrimes
 password : Ilovefishing!
 hashed_password : 
@@ -42,7 +42,7 @@ phone :
 database_name : ModBSolutions
 
 id : 7344467234
-email : jane.yu@inlanefreight.local
+email : jane.yu@{{DOMAIN}}
 username : jyu
 password : Starlight1982_!
 hashed_password : 

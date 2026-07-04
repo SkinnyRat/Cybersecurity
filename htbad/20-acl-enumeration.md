@@ -47,7 +47,7 @@ Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName > ad_users.t
 ## 7. `powershell` _(output omitted)_
 
 ```powershell
-foreach($line in [System.IO.File]::ReadLines("C:\Users\htb-student\Desktop\ad_users.txt")) {get-acl  "AD:\$(Get-ADUser $line)" | Select-Object Path -ExpandProperty Access | Where-Object {$_.IdentityReference -match 'INLANEFREIGHT\\wley'}}
+foreach($line in [System.IO.File]::ReadLines("C:\Users\htb-student\Desktop\ad_users.txt")) {get-acl  "AD:\$(Get-ADUser $line)" | Select-Object Path -ExpandProperty Access | Where-Object {$_.IdentityReference -match '{{DOMAIN_NB}}\\wley'}}
 ```
 
 ## 8. `powershell` _(output omitted)_

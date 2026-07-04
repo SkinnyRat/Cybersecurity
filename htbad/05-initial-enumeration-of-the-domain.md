@@ -87,5 +87,5 @@ sudo mv kerbrute_linux_amd64 /usr/local/bin/kerbrute
 ## 14. `shellsession` _(output omitted)_
 
 ```bash
-kerbrute userenum -d INLANEFREIGHT.LOCAL --dc 172.16.5.5 jsmith.txt -o valid_ad_users
+kerbrute userenum -d {{DOMAIN_UPPER}} --dc {{DC_IP}} jsmith.txt -o valid_ad_users
 ```

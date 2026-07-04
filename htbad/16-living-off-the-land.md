@@ -93,7 +93,7 @@ dsquery computer
 ## 14. `powershell` _(output omitted)_
 
 ```powershell
-dsquery * "CN=Users,DC=INLANEFREIGHT,DC=LOCAL"
+dsquery * "CN=Users,DC={{DOMAIN_NB}},DC=LOCAL"
 ```
 
 ## 15. `powershell` _(output omitted)_
