@@ -91,7 +91,10 @@ there's no local module file to link here.
 | Bleeding edge vulns (PetitPotam, PrintNightmare, ZeroLogon, etc.) | [25](25-bleeding-edge-vulnerabilities.md) | [ ] | 0 | check which still apply to exam-patched boxes |
 | Misc misconfigurations | [26](26-miscellaneous-misconfigurations.md) | [ ] | 0 | |
 
-## Phase 10 — Domain Trusts (lower priority for OSCP, but 1 rep worth doing)
+## Phase 10 — Domain Trusts (optional/stretch — not in OSCP scope)
+The OSCP AD set is a single domain; trust-hopping isn't tested on the exam itself. Don't spend
+weekend 1–3 time here — only pick this up after Phases 1–8 are solid, since it's real-world
+value (and useful beyond OSCP) rather than exam-required.
 | Node | Source | Status | Reps | Notes |
 |---|---|---|---|---|
 | Domain trusts primer | [27](27-domain-trusts-primer.md) | [ ] | 0 | |
