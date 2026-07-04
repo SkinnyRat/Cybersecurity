@@ -6,25 +6,17 @@
 
 > Terminal output is omitted; only commands & scripts are captured.
 
-## 1. `shellsession` _(output omitted)_
-
 ```bash
 responder -h
 ```
-
-## 2. `shellsession` _(output omitted)_
 
 ```bash
 ls
 ```
 
-## 3. `bash`
-
 ```bash
 sudo responder -I ens224
 ```
-
-## 4. `shellsession` _(output omitted)_
 
 ```bash
 hashcat -m 5600 forend_ntlmv2 /usr/share/wordlists/rockyou.txt 

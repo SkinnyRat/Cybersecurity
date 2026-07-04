@@ -68,6 +68,24 @@ html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(
 }
 .editor-panel textarea::placeholder { color: var(--tx2); opacity: 0.7; }
 
+/* ── Collapsible editor ───────────────────────── */
+.editor-panel { position: relative; transition: flex-grow 0.15s ease, flex-basis 0.15s ease; }
+.collapse-btn { font-size: 15px; line-height: 1; padding: 1px 8px 3px; }
+.ed-rail { display: none; }
+.editor-panel.collapsed { flex: 0 0 34px; min-width: 34px; }
+.editor-panel.collapsed textarea { display: none; }
+.editor-panel.collapsed .ed-title,
+.editor-panel.collapsed .ed-tool,
+.editor-panel.collapsed .hd-space { display: none; }
+.editor-panel.collapsed .panel-hd { padding: 0; justify-content: center; }
+.editor-panel.collapsed .collapse-btn { transform: rotate(180deg); }
+.editor-panel.collapsed .ed-rail {
+  display: flex; align-items: center; justify-content: center; flex: 1; min-height: 0;
+  writing-mode: vertical-rl; text-orientation: mixed; cursor: pointer; user-select: none;
+  color: var(--tx2); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.editor-panel.collapsed .ed-rail:hover { color: var(--ac); }
+
 /* ── Preview panel ────────────────────────────── */
 .preview-panel { flex: 3; background: var(--bg0); }
 .preview-scroll { flex: 1; overflow-y: auto; min-height: 0; }
@@ -154,18 +172,20 @@ html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(
   </aside>
 
   <!-- ─── Editor panel ─── -->
-  <div class="panel editor-panel">
+  <div class="panel editor-panel" id="editor-panel">
     <div class="panel-hd">
-      <span>Markdown</span>
+      <span class="ed-title">Markdown</span>
       <span class="hd-space"></span>
-      <label class="hd-btn" title="Load a .md file">
+      <label class="hd-btn ed-tool" title="Load a .md file">
         ↑ import
         <input type="file" accept=".md,.txt,.text" style="display:none" onchange="importFile(this)">
       </label>
-      <button class="hd-btn" onclick="resetAll()">reset</button>
+      <button class="hd-btn ed-tool" onclick="resetAll()">reset</button>
+      <button class="hd-btn collapse-btn" onclick="toggleEditor()" title="Collapse / expand markdown panel">‹</button>
     </div>
     <textarea id="editor" spellcheck="false"
-      placeholder="Paste your methodology markdown here.&#10;&#10;Use {{VAR_NAME}} placeholders, e.g.:&#10;  nmap -sV {{TARGET_IP}}&#10;  nc -lvnp {{LPORT}}&#10;  ssh {{USERNAME}}@{{TARGET_IP}}"></textarea>
+      placeholder="Paste your methodology markdown here.&#10;&#10;Use {{VAR_NAME}} placeholders, e.g.:&#10;  crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}}&#10;  secretsdump.py {{DOMAIN_UPPER}}/{{USERNAME}}@{{DC_IP}} -just-dc"></textarea>
+    <div class="ed-rail" onclick="toggleEditor()" title="Expand markdown panel">Markdown</div>
   </div>
 
   <!-- ─── Preview panel ─── -->
@@ -470,6 +490,12 @@ function resetAll() {
   }
 }
 
+/* ─── Collapse / expand the markdown panel ────────── */
+function toggleEditor() {
+  const collapsed = el('editor-panel').classList.toggle('collapsed');
+  try { localStorage.setItem('oscp-ed-collapsed', collapsed ? '1' : '0'); } catch(e) {}
+}
+
 /* ─── Utils ───────────────────────────────────────── */
 const el = id => document.getElementById(id);
 function esc(s) {
@@ -482,6 +508,10 @@ function esc(s) {
 loadState();
 renderVars();
 render();
+
+try {
+  if (localStorage.getItem('oscp-ed-collapsed') === '1') el('editor-panel').classList.add('collapsed');
+} catch(e) {}
 
 el('editor').addEventListener('input', () => { saveState(); render(); });
 el('editor').addEventListener('keydown', e => {

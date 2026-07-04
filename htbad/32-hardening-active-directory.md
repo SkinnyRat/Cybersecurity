@@ -6,8 +6,6 @@
 
 > Terminal output is omitted; only commands & scripts are captured.
 
-## 1. `powershell` _(output omitted)_
-
 ```powershell
 Get-ADGroup -Identity "Protected Users" -Properties Name,Description,Members
 ```

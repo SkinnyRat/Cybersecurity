@@ -6,8 +6,6 @@
 
 > Terminal output is omitted; only commands & scripts are captured.
 
-## 1. `bash`
-
 ```bash
 #!/bin/bash
 

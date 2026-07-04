@@ -6,26 +6,18 @@
 
 > Terminal output is omitted; only commands & scripts are captured.
 
-## 1. `powershell` _(output omitted)_
-
 ```powershell
 Import-Module .\Inveigh.ps1
 (Get-Command Invoke-Inveigh).Parameters
 ```
 
-## 2. `powershell` _(output omitted)_
-
 ```powershell
 Invoke-Inveigh Y -NBNS Y -ConsoleOutput Y -FileOutput Y
 ```
 
-## 3. `powershell` _(output omitted)_
-
 ```powershell
 .\Inveigh.exe
 ```
-
-## 4. `powershell`
 
 ```powershell
 $regkey = "HKLM:SYSTEM\CurrentControlSet\services\NetBT\Parameters\Interfaces"

