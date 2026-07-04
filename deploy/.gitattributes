@@ -1,0 +1,5 @@
+# Shell scripts must stay LF or bash on Kali fails with `\r` errors.
+*.sh        text eol=lf
+*.service   text eol=lf
+# Freeze vendored assets — don't let autocrlf touch them.
+vendor/*    -text
