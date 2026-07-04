@@ -3,6 +3,12 @@
 Commands and scripts collected from every section of the Hack The Box Academy module
 **[Active Directory Enumeration & Attacks](https://academy.hackthebox.com/module/details/143)** (module 143, 36 sections).
 
+## Attack journey map
+
+A visual overview of how the sections connect — from foothold to forest compromise:
+
+![AD attack journey map](ad-attack-journey-map.png)
+
 ## How this was collected
 
 Each section page was read and its code blocks extracted. To keep the files focused on
