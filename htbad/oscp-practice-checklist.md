@@ -62,20 +62,36 @@ Track reps here separately, fed by the 50 standalone boxes:
 | ACL enumeration (BloodHound + manual) | [20](20-acl-enumeration.md) | [ ] | 0 | |
 | ACL abuse tactics (GenericAll, WriteDACL, ForceChangePassword, etc.) | [21](21-acl-abuse-tactics.md) | [ ] | 0 | |
 
-## Phase 7 — Domain Dominance
+## Phase 7 — AD CS Abuse (ESC1–ESC8) — gap, not in HTB module 143
+Module 143 predates HTB's dedicated ADCS content, but certificate services misconfigs are one
+of the fastest DA-in-minutes paths in modern environments — not just old unpatched ones. Source
+your reps from Certipy/Certify.exe docs and SpecterOps' "Certified Pre-Owned" research since
+there's no local module file to link here.
+
+| Node | Status | Reps | Notes |
+|---|---|---|---|
+| CA/template enum (find vulnerable templates) | [ ] | 0 | `certipy find` / `Certify.exe find` |
+| ESC1 — misconfigured template (requester-supplied SAN) | [ ] | 0 | |
+| ESC2/ESC3 — Any Purpose EKU / enrollment agent abuse | [ ] | 0 | |
+| ESC4 — vulnerable template ACL | [ ] | 0 | |
+| ESC6/ESC7 — vulnerable CA config/ACL | [ ] | 0 | |
+| ESC8 — NTLM relay to HTTP enrollment endpoint | [ ] | 0 | pair with coercion (PetitPotam) from Phase 9 |
+| Cert-based auth → PKINIT (get a TGT from a cert) | [ ] | 0 | |
+
+## Phase 8 — Domain Dominance
 | Node | Source | Status | Reps | Notes |
 |---|---|---|---|---|
 | DCSync | [22](22-dcsync.md) | [ ] | 0 | |
 | Privileged access abuse (PtH/PtT/overpass-the-hash) | [23](23-privileged-access.md) | [ ] | 0 | |
 | Kerberos double-hop problem | [24](24-kerberos-double-hop-problem.md) | [ ] | 0 | |
 
-## Phase 8 — Bleeding Edge & Misconfigs
+## Phase 9 — Bleeding Edge & Misconfigs
 | Node | Source | Status | Reps | Notes |
 |---|---|---|---|---|
 | Bleeding edge vulns (PetitPotam, PrintNightmare, ZeroLogon, etc.) | [25](25-bleeding-edge-vulnerabilities.md) | [ ] | 0 | check which still apply to exam-patched boxes |
 | Misc misconfigurations | [26](26-miscellaneous-misconfigurations.md) | [ ] | 0 | |
 
-## Phase 9 — Domain Trusts (lower priority for OSCP, but 1 rep worth doing)
+## Phase 10 — Domain Trusts (lower priority for OSCP, but 1 rep worth doing)
 | Node | Source | Status | Reps | Notes |
 |---|---|---|---|---|
 | Domain trusts primer | [27](27-domain-trusts-primer.md) | [ ] | 0 | |
@@ -84,7 +100,7 @@ Track reps here separately, fed by the 50 standalone boxes:
 | Cross-forest — Windows | [30](30-attacking-domain-trusts-cross-forest-from-windows.md) | [ ] | 0 | |
 | Cross-forest — Linux | [31](31-attacking-domain-trusts-cross-forest-from-linux.md) | [ ] | 0 | |
 
-## Phase 10 — Skills Assessments (the real reps)
+## Phase 11 — Skills Assessments (the real reps)
 | Node | Source | Status | Reps | Notes |
 |---|---|---|---|---|
 | Skills Assessment Part I — untimed | [34](34-skills-assessment-part-i.md) | [ ] | 0 | do open-book first |
@@ -113,7 +129,8 @@ chaining under pressure, not node-by-node recall.
 
 ## How this ties to the [3-month plan](../README.md#plan-next-3-months)
 - **Weekend 1–3 (lab redo):** work this checklist top to bottom against PEN-200 → THM → HTB AD
-  labs respectively. Goal by end of weekend 3: every Phase 1–7 node at `[x]`.
+  labs respectively. Goal by end of weekend 3: every Phase 1–8 node at `[x]` (Phase 7 ADCS reps
+  come from Certipy/Certify.exe labs, not the HTB module, since it's a gap in the module itself).
 - **Weekend 4:** PJPT exam.
 - **Weekend 5–11:** one full-chain drill per weekend from the table above, timed, notes-as-you-go
   in exam format. Track time-to-DC-compromise trend across the 6-7 sets.
