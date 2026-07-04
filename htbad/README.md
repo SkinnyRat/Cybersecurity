@@ -9,6 +9,9 @@ A visual overview of how the sections connect — from foothold to forest compro
 
 ![AD attack journey map](ad-attack-journey-map.png)
 
+Reading the map ≠ executing the chain from memory under a clock. Track actual reps against it
+in the **[OSCP practice checklist](oscp-practice-checklist.md)**.
+
 ## How this was collected
 
 Each section page was read and its code blocks extracted. To keep the files focused on
