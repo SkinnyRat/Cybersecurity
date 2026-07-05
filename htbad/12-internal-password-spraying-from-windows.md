@@ -2,7 +2,7 @@
 
 - Module: Active Directory Enumeration & Attacks (143)
 - URL: https://academy.hackthebox.com/app/module/143/section/1422
-- Code/command blocks: 1
+- Code/command blocks: 2
 
 > Terminal output is omitted; only commands & scripts are captured.
 

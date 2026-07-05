@@ -2,7 +2,7 @@
 
 - Module: Active Directory Enumeration & Attacks (143)
 - URL: https://academy.hackthebox.com/app/module/143/section/1262
-- Code blocks: 3
+- Code blocks: 9
 
 ## Block 1 — `shellsession`
 
