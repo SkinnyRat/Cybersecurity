@@ -42,6 +42,34 @@ sudo mv kerbrute_linux_amd64 /usr/local/bin/kerbrute
 kerbrute userenum -d {{DOMAIN}} --dc {{DC_IP}} {{USERLIST}} -o valid_ad_users
 ```
 
+## Find the domain controller (from a foothold)
+
+> 90% shortcut: in an AD domain the box's **DNS server = the DC**, so `ipconfig /all` (Windows) or `/etc/resolv.conf` (Linux) usually hands you the DC IP. The `nltest` / `LOGONSERVER` commands then confirm it by name.
+
+### Windows foothold
+
+```cmd
+echo %LOGONSERVER%                        :: the DC that logged you in (\\DCNAME)
+nltest /dsgetdc:{{DOMAIN}}               :: DC name + IP + site
+nltest /dclist:{{DOMAIN}}                :: list ALL DCs
+systeminfo | findstr /B /C:"Domain"      :: confirm the domain name
+ipconfig /all                            :: DNS server ~= the DC
+nslookup -type=srv _ldap._tcp.dc._msdcs.{{DOMAIN}}
+```
+
+```powershell
+$env:LOGONSERVER
+Resolve-DnsName -Type SRV _ldap._tcp.dc._msdcs.{{DOMAIN}}
+```
+
+### Linux foothold
+
+```bash
+cat /etc/resolv.conf                     # nameserver is usually the DC
+nslookup -type=SRV _ldap._tcp.dc._msdcs.{{DOMAIN}}
+dig SRV _ldap._tcp.dc._msdcs.{{DOMAIN}}
+```
+
 ## SPN enumeration (Windows, LOLBIN)
 
 > Built-in `setspn.exe` — no tools to drop. Works from any domain context (domain user, or SYSTEM / machine account on a domain-joined host).

