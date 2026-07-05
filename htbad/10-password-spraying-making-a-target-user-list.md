@@ -19,7 +19,7 @@ crackmapexec smb {{DC_IP}} --users
 ```
 
 ```bash
-ldapsearch -h {{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
+ldapsearch -H ldap://{{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "
 ```
 
 ```bash
@@ -27,10 +27,10 @@ ldapsearch -h {{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "(&(objectclass
 ```
 
 ```bash
- kerbrute userenum -d {{DOMAIN}} --dc {{DC_IP}} /opt/jsmith.txt 
+ kerbrute userenum -d {{DOMAIN}} --dc {{DC_IP}} {{USERLIST}} 
 ```
 
 ```bash
-sudo crackmapexec smb {{DC_IP}} -u htb-student -p Academy_student_AD! --users
+sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --users
 ```
 
