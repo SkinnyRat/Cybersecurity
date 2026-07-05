@@ -7,19 +7,15 @@
 > Terminal output is omitted; only commands & scripts are captured.
 
 ```bash
-sudo -E wireshark
+sudo tcpdump -i tun0
 ```
 
 ```bash
-sudo tcpdump -i ens224
+sudo responder -I tun0 -A
 ```
 
 ```bash
-sudo responder -I ens224 -A
-```
-
-```bash
-fping -asgq 172.16.5.0/23
+fping -asgq {{SUBNET}}
 ```
 
 ```bash
@@ -43,14 +39,6 @@ sudo make all
 ```
 
 ```bash
-ls dist/
-```
-
-```bash
-./kerbrute_linux_amd64 
-```
-
-```bash
 echo $PATH
 ```
 
@@ -59,5 +47,5 @@ sudo mv kerbrute_linux_amd64 /usr/local/bin/kerbrute
 ```
 
 ```bash
-kerbrute userenum -d {{DOMAIN_UPPER}} --dc {{DC_IP}} jsmith.txt -o valid_ad_users
+kerbrute userenum -d {{DOMAIN_UPPER}} --dc {{DC_IP}} {{USERLIST}} -o valid_ad_users
 ```
