@@ -45,7 +45,9 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable --now workflowhelper.service
+systemctl enable workflowhelper.service
+# restart (not just enable --now) so re-running this applies unit/script changes
+systemctl restart workflowhelper.service
 
 echo
 systemctl --no-pager --full status workflowhelper.service | head -n 12 || true
