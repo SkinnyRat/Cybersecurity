@@ -25,8 +25,8 @@ Get-DomainUser -UACFilter PASSWD_NOTREQD | Select-Object samaccountname,useracco
 Creds in **SYSVOL logon scripts** (readable by any domain user):
 
 ```powershell
-ls \\{{MACHINE_NAME}}\SYSVOL\{{DOMAIN_UPPER}}\scripts
-cat \\{{MACHINE_NAME}}\SYSVOL\{{DOMAIN_UPPER}}\scripts\reset_local_admin_pass.vbs
+ls \\{{COMPUTER_NAME}}\SYSVOL\{{DOMAIN_UPPER}}\scripts
+cat \\{{COMPUTER_NAME}}\SYSVOL\{{DOMAIN_UPPER}}\scripts\reset_local_admin_pass.vbs
 ```
 
 ## GPP passwords (cpassword in SYSVOL)
