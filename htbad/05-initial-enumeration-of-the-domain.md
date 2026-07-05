@@ -39,7 +39,7 @@ sudo mv kerbrute_linux_amd64 /usr/local/bin/kerbrute
 ```
 
 ```bash
-kerbrute userenum -d {{DOMAIN_UPPER}} --dc {{DC_IP}} {{USERLIST}} -o valid_ad_users
+kerbrute userenum -d {{DOMAIN}} --dc {{DC_IP}} {{USERLIST}} -o valid_ad_users
 ```
 
 ## SPN enumeration (Windows, LOLBIN)

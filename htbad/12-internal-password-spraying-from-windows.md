@@ -8,6 +8,6 @@
 
 ```powershell
 Import-Module .\DomainPasswordSpray.ps1
-Invoke-DomainPasswordSpray -Password Welcome1 -OutFile spray_success -ErrorAction SilentlyContinue
+Invoke-DomainPasswordSpray -Password {{PASSWORD}} -OutFile spray_success -ErrorAction SilentlyContinue
 ```
 

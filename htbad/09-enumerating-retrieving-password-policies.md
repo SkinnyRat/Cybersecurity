@@ -38,10 +38,6 @@ net use \\DC01\ipc$ "" /u:guest
 net use \\DC01\ipc$ "password" /u:guest
 ```
 
-```cmd
-net use \\DC01\ipc$ "password" /u:guest
-```
-
 ```bash
 ldapsearch -H ldap://{{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
 ```
