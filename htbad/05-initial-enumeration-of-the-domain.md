@@ -19,7 +19,7 @@ fping -asgq {{SUBNET}}
 ```
 
 ```bash
-sudo nmap -v -A -iL hosts.txt -oN /home/htb-student/Documents/host-enum
+sudo nmap -v -A -iL hosts.txt -oN /home/user/Documents/host-enum
 ```
 
 ```bash
@@ -31,15 +31,7 @@ sudo git clone https://github.com/ropnop/kerbrute.git
 ```
 
 ```bash
-make help
-```
-
-```bash
 sudo make all
-```
-
-```bash
-echo $PATH
 ```
 
 ```bash
