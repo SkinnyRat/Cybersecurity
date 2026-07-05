@@ -75,7 +75,7 @@ kerbrute userenum -d {{DOMAIN}} --dc {{DC_IP}} /opt/jsmith.txt
 ```
 
 ```bash
-GetNPUsers.py {{DOMAIN_UPPER}}/ -dc-ip {{DC_IP}} -no-pass -usersfile valid_ad_users 
+impacket-GetNPUsers {{DOMAIN_UPPER}}/ -dc-ip {{DC_IP}} -no-pass -usersfile valid_ad_users 
 b62d45bc3c0f4c306402a205ebdbbc623d77ad016e657337630c70f651451400329545fb634c9d329ed024ef145bdc2afd4af498b2f0092766effe6ae12b3c3beac28e6ded0b542e85d3fe52467945d98a722cb52e2b37325a53829ecf127d10ee98f8a583d7912e6ae3c702b946b65153bac16c97b7f8f2d4c2811b7feba92d8bd99cdeacc8114289573ef225f7c2913647db68aafc43a1c98aa032c123b2c9db06d49229c9de94b4b476733a5f3dc5cc1bd7a9a34c18948edf8c9c124c52a36b71d2b1ed40e081abbfee564da3a0ebc734781fdae75d3882f3d1d68afdb2ccb135028d70d1aa3c0883165b3321e7a1c5c8d7c215f12da8bba9
 ```
 

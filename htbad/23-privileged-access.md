@@ -52,10 +52,10 @@ PS C:\htb>  Import-Module .\PowerUpSQL.ps1
 ```
 
 ```bash
-mssqlclient.py 
+impacket-mssqlclient 
 ```
 
 ```bash
-mssqlclient.py {{DOMAIN_NB}}/DAMUNDSEN@172.16.5.150 -windows-auth
+impacket-mssqlclient {{DOMAIN_NB}}/DAMUNDSEN@172.16.5.150 -windows-auth
 ```
 

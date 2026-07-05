@@ -7,7 +7,7 @@
 > Terminal output is omitted; only commands & scripts are captured.
 
 ```bash
-crackmapexec smb {{DC_IP}} -u avazquez -p Password123 --pass-pol
+crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --pass-pol
 ```
 
 ```bash
@@ -43,7 +43,7 @@ net use \\DC01\ipc$ "password" /u:guest
 ```
 
 ```bash
-ldapsearch -h {{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
+ldapsearch -H ldap://{{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
 ```
 
 ```cmd

