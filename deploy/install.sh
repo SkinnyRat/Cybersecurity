@@ -26,7 +26,7 @@ echo "  url  : http://127.0.0.1:18888/WorkflowHelper.html"
 
 cat > "$UNIT" <<EOF
 [Unit]
-Description=WorkflowHelper — git pull + static serve on :18888
+Description=WorkflowHelper — git pull, notes on :18888, toolbox on :80
 After=network-online.target
 Wants=network-online.target
 
@@ -35,6 +35,8 @@ Type=simple
 User=$RUN_USER
 WorkingDirectory=$REPO_DIR
 ExecStart=$SERVE
+# Let the unprivileged user bind port 80 for the toolbox server (no root needed).
+AmbientCapabilities=CAP_NET_BIND_SERVICE
 Restart=on-failure
 RestartSec=5
 
