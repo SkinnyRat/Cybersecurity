@@ -41,3 +41,25 @@ sudo mv kerbrute_linux_amd64 /usr/local/bin/kerbrute
 ```bash
 kerbrute userenum -d {{DOMAIN_UPPER}} --dc {{DC_IP}} {{USERLIST}} -o valid_ad_users
 ```
+
+## SPN enumeration (Windows, LOLBIN)
+
+> Built-in `setspn.exe` — no tools to drop. Works from any domain context (domain user, or SYSTEM / machine account on a domain-joined host).
+
+List every SPN in the domain:
+
+```cmd
+setspn.exe -T {{DOMAIN}} -Q */*
+```
+
+Query a specific SPN to find the account it's registered to (answers "submit the account name"):
+
+```cmd
+setspn.exe -Q {{SPN}}
+```
+
+Pure-LDAP alternative (no RSAT needed):
+
+```powershell
+([adsisearcher]'(servicePrincipalName={{SPN}})').FindAll().Properties.samaccountname
+```
