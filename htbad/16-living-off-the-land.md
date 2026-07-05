@@ -53,8 +53,10 @@ net group /domain
 ```
 
 ```powershell
-net user /domain wrouse
+net user /domain {{USERNAME}}
 ```
+
+> **Caveat:** `dsquery` needs **RSAT / AD DS tools** — present on DCs and admin boxes, **not** on a stock member/web server. On a typical foothold it errors out (and an `nc` shell often hides the stderr, so you just see blank output). Use the `net` commands above or the `[adsisearcher]` block below as the no-RSAT fallback. Also note `dsquery` needs an object type or `*` — `dsquery <name>` alone is invalid; use `dsquery user -name svc_sql`.
 
 ```powershell
 dsquery user
@@ -74,6 +76,35 @@ dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountContro
 
 ```powershell
 dsquery * -filter "(userAccountControl:1.2.840.113556.1.4.803:=8192)" -limit 5 -attr sAMAccountName
+```
+
+## Pure PowerShell LDAP via ADSI (no RSAT)
+
+> Built into PowerShell — works on any domain-joined box (or as SYSTEM = machine account) with **no tools to install**. The reliable stand-in for `dsquery` on a foothold.
+
+```powershell
+# all users
+([adsisearcher]'(objectClass=user)').FindAll().Properties.samaccountname
+```
+
+```powershell
+# a specific user's SPNs / attributes
+([adsisearcher]'(samaccountname={{USERNAME}})').FindAll().Properties.serviceprincipalname
+```
+
+```powershell
+# all computers
+([adsisearcher]'(objectClass=computer)').FindAll().Properties.name
+```
+
+```powershell
+# a specific computer by name
+([adsisearcher]'(name={{COMPUTER_NAME}})').FindAll().Properties.dnshostname
+```
+
+```powershell
+# arbitrary LDAP filter (e.g. accounts with an SPN — kerberoastable)
+([adsisearcher]'(servicePrincipalName=*)').FindAll().Properties.samaccountname
 ```
 
 ## Getting tools onto a box (HTTP / SMB pull)
@@ -154,30 +185,32 @@ netstat -antup    # or: ss -antup
 
 ### Ping-sweep an internal /24 (from the foothold)
 
+> `{{NETWORK}}` = the internal /24 **prefix** — first 3 octets only, no trailing dot or mask (e.g. `10.10.10`). The loop appends the last octet (`$_` / `%i` / `$i`).
+
 ```cmd
 :: Windows cmd
-for /L %i in (1,1,254) do @ping -n 1 -w 100 10.10.10.%i | find "Reply"
+for /L %i in (1,1,254) do @ping -n 1 -w 100 {{NETWORK}}.%i | find "Reply"
 ```
 
 ```powershell
 # PowerShell
-1..254 | % { $ip="10.10.10.$_"; if (Test-Connection -Count 1 -Quiet -ComputerName $ip) { "$ip up" } }
+1..254 | % { $ip="{{NETWORK}}.$_"; if (Test-Connection -Count 1 -Quiet -ComputerName $ip) { "$ip up" } }
 ```
 
 ```bash
 # Linux (parallel)
-for i in $(seq 1 254); do (ping -c1 -W1 10.10.10.$i >/dev/null && echo "10.10.10.$i up") & done; wait
+for i in $(seq 1 254); do (ping -c1 -W1 {{NETWORK}}.$i >/dev/null && echo "{{NETWORK}}.$i up") & done; wait
 ```
 
 ### Port-check sweep (when ICMP is blocked)
 
 ```powershell
 # PowerShell — check a single port across the /24 (e.g. 445)
-1..254 | % { $ip="10.10.10.$_"; if ((New-Object Net.Sockets.TcpClient).ConnectAsync($ip,445).Wait(200)) { "$ip:445 open" } }
+1..254 | % { $ip="{{NETWORK}}.$_"; if ((New-Object Net.Sockets.TcpClient).ConnectAsync($ip,445).Wait(200)) { "$ip:445 open" } }
 ```
 
 ```bash
 # Linux — bash /dev/tcp, no nmap needed
-for i in $(seq 1 254); do (echo > /dev/tcp/10.10.10.$i/445) 2>/dev/null && echo "10.10.10.$i:445 open"; done
+for i in $(seq 1 254); do (echo > /dev/tcp/{{NETWORK}}.$i/445) 2>/dev/null && echo "{{NETWORK}}.$i:445 open"; done
 ```
 
