@@ -3,7 +3,7 @@
 - Module: PEN-200 / Module 6 — Information Gathering + Module 7 — Vulnerability Scanning (OSCP)
 - URL (M6): https://portal.offsec.com/courses/pen-200-44065/learning/information-gathering-44134
 - URL (M7): https://portal.offsec.com/courses/pen-200-44065/learning/vulnerability-scanning-48659
-- Code/command blocks: 35
+- Code/command blocks: 34
 
 > Terminal output is omitted; only commands & scripts are captured.
 > Placeholders: `{{DOMAIN}}` target domain, `{{TARGET_IP}}` a single host, `{{SUBNET}}` full CIDR (e.g. `192.168.50.0/24`), `{{NETWORK}}` 3-octet prefix (e.g. `192.168.50`).
@@ -47,49 +47,7 @@ Reverse — WHOIS an IP:
 whois 38.100.193.70 -h 192.168.50.251
 ```
 
-## 6.2.2 Google hacking (dorks)
-
-> Search operators refine results down to exposed files, directories and tech stacks. Operators work across most engines. Prefix `-` excludes.
-
-```text
-site:{{DOMAIN}}                         # limit search to one domain + subdomains
-ext:php                                 # find pages by extension (also ext:xml, ext:py)
-site:{{DOMAIN}} -filetype:html          # exclude HTML to surface interesting non-HTML pages
-intitle:"index of" "parent directory"  # find open directory listings
-```
-
-> Also check `{{DOMAIN}}/robots.txt` — `Allow`/`Disallow` entries can leak hidden paths (e.g. `/nanites.php`) that were never meant to be found.
-
-## 6.2.3 Netcraft
-
-> Web portal — no CLI. Passive: Netcraft interacts with the target, not you.
-> - DNS search: `https://searchdns.netcraft.com/` → enumerate `*.{{DOMAIN}}` subdomains and shared netblocks.
-> - Site report: per-host tech stack + hosting history.
-
-## 6.2.4 Open-source code
-
-> Search public code repos for leaked creds, tech stack, internal hostnames. These platforms support the same Google-style operators.
-> - GitHub · GitHub Gist · GitLab · SourceForge
-
-## 6.2.5 Shodan
-
-> Search engine for internet-connected devices (servers, routers, IoT) — indexes banners/services, not web content. Free account needed. Still passive: Shodan did the scanning, not you.
-
-```text
-hostname:{{DOMAIN}}     # IPs, open services and banners for the domain's footprint
-```
-
-## 6.2.6 Security headers and SSL/TLS
-
-> Third-party scanners that blur passive/active (the site, not you, initiates the check).
-> - Security Headers — `https://securityheaders.com/` → flags missing `Content-Security-Policy`, `X-Frame-Options`, etc.
-> - Qualys SSL Labs — `https://www.ssllabs.com/ssltest/` → TLS config, weak ciphers/protocols.
-
----
-
-# 6.3 — LLM-powered passive information gathering
-
-> Awareness only (not on the OSCP exam). Feed collected OSINT to an LLM to summarise a target's footprint, infer org structure, and draft candidate subdomain/username wordlists. Always verify — LLMs hallucinate hosts.
+> Trimmed for exam relevance: 6.2.2–6.2.6 (Google dorking, Netcraft, open-source code, Shodan, security-header/SSL scanners) and 6.3/6.5 (LLM-aided) were internet-facing OSINT — not applicable to the OSCP exam's internal engagement. See git history if you want them back.
 
 ---
 
@@ -123,9 +81,19 @@ for ip in $(seq 64 79); do host 167.114.21.$ip; done | grep -Ev "not found|timed
 Automated tooling:
 
 ```bash
-dnsrecon -d {{DOMAIN}} -t std          # standard enum (SOA/NS/MX/A/TXT)
+dnsrecon -d {{DOMAIN}} -t std          # standard enum (SOA/NS/MX/A/TXT) — also attempts AXFR
 dnsrecon -d {{DOMAIN}} -D ~/list.txt -t brt   # brute-force subdomains
-dnsenum {{DOMAIN}}
+dnsenum {{DOMAIN}}                     # enum + auto zone-transfer attempt ("Trying Zone Transfers...")
+```
+
+Zone transfer (AXFR) — the manual check:
+
+> A zone transfer *replicates* the whole DNS zone between name servers. A misconfigured NS that allows AXFR from anyone hands you every record (internal hostnames + IPs) in one request — a top DNS finding. The course only does this implicitly via `dnsenum` / `dnsrecon -t std`; do it manually too, since tools sometimes miss it. First get the NS names, then ask each one for the zone.
+
+```bash
+host -t ns {{DOMAIN}}                        # list the domain's name servers
+host -l {{DOMAIN}} ns1.{{DOMAIN}}            # request the zone from a specific NS
+dig axfr @ns1.{{DOMAIN}} {{DOMAIN}}          # dig equivalent (try every NS you found)
 ```
 
 From Windows (querying an internal AD DNS server directly):
@@ -324,41 +292,9 @@ snmpwalk -c public -v1 {{TARGET_IP}} 1.3.6.1.2.1.6.13.1.3             # open TCP
 
 ---
 
-# 6.5 — LLM-powered active information gathering
-
-> Awareness only (not on the OSCP exam). Use an LLM to generate targeted subdomain/username wordlists (e.g. "produce 1000 unique lowercase subdomain candidates for {{DOMAIN}}") and to parse/summarise raw nmap/enum output. Validate everything against real scans.
-
----
-
-# 6.6 — Wrapping up
-
-> Workflow: passive OSINT (WHOIS, dorks, Netcraft, Shodan, code repos) → active DNS + port scanning (nmap/nc) → per-service enumeration (SMB, SMTP, SNMP). Feed everything into the next phase: vulnerability scanning and initial foothold.
-
----
----
-
-# 7.1 — Vulnerability Scanning: Theory
-
-> Module 7. Automated discovery of *known* vulnerabilities: the scanner fingerprints each service, then matches versions/responses against a signature/plugin database of CVEs. Fast breadth, but expect false positives — always confirm manually before reporting or exploiting.
-
-> **Scan types**
-> - **Unauthenticated** — no creds; sees what a remote attacker sees (exposed services, banners, default pages).
-> - **Authenticated (credentialed)** — give the scanner SSH/SMB creds so it logs in and checks patch levels, local misconfigs, and installed software. Much deeper, far fewer false positives.
-> - Also **active** (sends probes) vs **passive** (sniffs traffic), plus **compliance** scans.
-
-> **Things to consider** — scans are noisy (not stealthy); can crash fragile/OT/legacy devices; mind bandwidth & timing windows; stay in scope. Triage findings by severity + CVSS, then verify.
-
----
-
-# 7.2 — Vulnerability Scanning with Nessus — SKIPPED (banned in the OSCP exam)
-
-> **Not allowed in the OSCP exam.** Automated vulnerability scanners (Nessus, OpenVAS/Nexpose, and similar) are explicitly prohibited — the same restriction list that bans automatic exploitation tools and limits Metasploit. So this module's Nessus material (Tenable GUI scanner, web UI `https://localhost:8834`, free *Essentials* = 16-IP cap; install → scan templates → severity/CVSS triage → authenticated creds → plugin families) is omitted here. Use Nessus freely in the PWK labs / CTFs for exposure, but for the exam reach for Nmap NSE (below) instead.
-
----
-
 # 7.3 — Vulnerability Scanning with Nmap (NSE)
 
-> Lightweight, scriptable alternative to Nessus using the NSE `vuln` script category. NSE basics (`--script`, `--script-help`) are in **6.4.3**.
+> Trimmed for exam relevance: 6.5 (LLM-aided active), 6.6/7.4 (wrap-ups), 7.1 (vuln-scan theory) and **7.2 Nessus** (automated scanners are banned in the OSCP exam) removed. NSE `vuln` scripts are the exam-permitted automated vuln check — confirm every hit manually before exploiting. NSE basics (`--script`, `--script-help`) are in **6.4.3**.
 
 ## 7.3.1 NSE vulnerability scripts
 
@@ -385,9 +321,3 @@ sudo nmap --script-updatedb
 ```bash
 sudo nmap -sV -p 443 --script "http-vuln-cve2021-41773" {{TARGET_IP}}
 ```
-
----
-
-# 7.4 — Wrapping up
-
-> Nessus is banned in the OSCP exam, so **Nmap NSE `vuln` is your permitted automated check** — quick, targeted, CLI, scriptable, and you can drop in custom CVE PoCs. Confirm every hit manually, then move to exploitation.
