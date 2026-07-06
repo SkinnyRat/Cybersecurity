@@ -55,11 +55,13 @@ Each discovery unlocks a follow-up scan. Loop until nothing new appears.
 | An **SNMP community string** | `snmpwalk` more OIDs — users, processes, software, listening ports |
 | **Usernames** (web, SMTP VRFY, SNMP) | Build a `{{USERLIST}}` → spray / brute the exposed login |
 | A **foothold / shell** | Re-enumerate from inside: local ports (`ss -tlnp`), new subnets → sweep `{{NETWORK}}.1-254` / `{{SUBNET}}` |
+| A **service + version** | `searchsploit` it, and run the Nmap NSE `vuln` category against the port (Nessus is exam-banned — NSE is the allowed automated check; see scanning.md §7.3) |
 
 ```bash
 # targeted NSE once you know the service (examples)
 nmap -p 445 --script "smb-os-discovery,smb-enum-shares,smb-enum-users" {{TARGET_IP}}
 nmap -p 80,443 --script "http-title,http-headers,http-enum" {{TARGET_IP}}
+sudo nmap -sV -p <found-ports> --script "vuln" {{TARGET_IP}}   # known-CVE checks
 ```
 
 ```bash
