@@ -3,7 +3,7 @@
 Enumeration playbook for standalone boxes. Notes here template with **BoxHelper.html**
 (`{{TARGET_IP}}`, `{{DOMAIN}}`, `{{URL}}`, `{{SUBNET}}`, `{{NETWORK}}`, `{{WORDLIST}}`, …).
 
-- [information-gathering.md](information-gathering.md) — PEN-200 Module 6: passive OSINT + active DNS/port/SMB/SMTP/SNMP enumeration.
+- [scanning.md](scanning.md) — PEN-200 Module 6 (Information Gathering): passive OSINT + active DNS/port/SMB/SMTP/SNMP enumeration — and Module 7 (Vulnerability Scanning): Nessus + Nmap NSE `vuln` scripts.
 
 > **The one rule:** enumeration is a *loop*, not a checklist. Every fact you discover
 > (a hostname, a version, a credential, a share, a new subnet) gets fed back in and you

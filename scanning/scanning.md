@@ -1,11 +1,31 @@
-# Scanning & Enumeration — Information Gathering
+# Scanning & Enumeration
 
-- Module: PEN-200 / Module 6 — Information Gathering (OSCP)
-- URL: https://portal.offsec.com/courses/pen-200-44065/learning/information-gathering-44134
-- Code/command blocks: 31
+- Module: PEN-200 / Module 6 — Information Gathering + Module 7 — Vulnerability Scanning (OSCP)
+- URL (M6): https://portal.offsec.com/courses/pen-200-44065/learning/information-gathering-44134
+- URL (M7): https://portal.offsec.com/courses/pen-200-44065/learning/vulnerability-scanning-48659
+- Code/command blocks: 35
 
 > Terminal output is omitted; only commands & scripts are captured.
 > Placeholders: `{{DOMAIN}}` target domain, `{{TARGET_IP}}` a single host, `{{SUBNET}}` full CIDR (e.g. `192.168.50.0/24`), `{{NETWORK}}` 3-octet prefix (e.g. `192.168.50`).
+
+---
+
+# 6.1 — The Penetration Testing Lifecycle
+
+> Theory only — no commands. Included as framing; information gathering is stage 2 and feeds every stage after it.
+
+A pentest runs through these stages, each relying on the quality of recon done early:
+
+1. **Defining the Scope** — which IP ranges/hosts/apps are in vs out of scope.
+2. **Information Gathering** — collect as much actionable data on the target as possible (this module).
+3. **Vulnerability Detection**
+4. **Initial Foothold**
+5. **Privilege Escalation**
+6. **Lateral Movement**
+7. **Reporting / Analysis**
+8. **Lessons Learned / Remediation**
+
+> **Passive vs active** — passive info gathering never interacts with the target directly (a third party does), so it's stealthy but limited; active sends packets to the target, which is louder but far richer. Covered next in 6.2 (passive) and 6.4 (active).
 
 ---
 
@@ -313,3 +333,61 @@ snmpwalk -c public -v1 {{TARGET_IP}} 1.3.6.1.2.1.6.13.1.3             # open TCP
 # 6.6 — Wrapping up
 
 > Workflow: passive OSINT (WHOIS, dorks, Netcraft, Shodan, code repos) → active DNS + port scanning (nmap/nc) → per-service enumeration (SMB, SMTP, SNMP). Feed everything into the next phase: vulnerability scanning and initial foothold.
+
+---
+---
+
+# 7.1 — Vulnerability Scanning: Theory
+
+> Module 7. Automated discovery of *known* vulnerabilities: the scanner fingerprints each service, then matches versions/responses against a signature/plugin database of CVEs. Fast breadth, but expect false positives — always confirm manually before reporting or exploiting.
+
+> **Scan types**
+> - **Unauthenticated** — no creds; sees what a remote attacker sees (exposed services, banners, default pages).
+> - **Authenticated (credentialed)** — give the scanner SSH/SMB creds so it logs in and checks patch levels, local misconfigs, and installed software. Much deeper, far fewer false positives.
+> - Also **active** (sends probes) vs **passive** (sniffs traffic), plus **compliance** scans.
+
+> **Things to consider** — scans are noisy (not stealthy); can crash fragile/OT/legacy devices; mind bandwidth & timing windows; stay in scope. Triage findings by severity + CVSS, then verify.
+
+---
+
+# 7.2 — Vulnerability Scanning with Nessus — SKIPPED (banned in the OSCP exam)
+
+> **Not allowed in the OSCP exam.** Automated vulnerability scanners (Nessus, OpenVAS/Nexpose, and similar) are explicitly prohibited — the same restriction list that bans automatic exploitation tools and limits Metasploit. So this module's Nessus material (Tenable GUI scanner, web UI `https://localhost:8834`, free *Essentials* = 16-IP cap; install → scan templates → severity/CVSS triage → authenticated creds → plugin families) is omitted here. Use Nessus freely in the PWK labs / CTFs for exposure, but for the exam reach for Nmap NSE (below) instead.
+
+---
+
+# 7.3 — Vulnerability Scanning with Nmap (NSE)
+
+> Lightweight, scriptable alternative to Nessus using the NSE `vuln` script category. NSE basics (`--script`, `--script-help`) are in **6.4.3**.
+
+## 7.3.1 NSE vulnerability scripts
+
+> List every script tagged `vuln`, then run the whole category against a target.
+
+```bash
+cd /usr/share/nmap/scripts/
+cat script.db | grep "\"vuln\""          # list all vuln-category scripts
+```
+
+```bash
+sudo nmap -sV -p 443 --script "vuln" {{TARGET_IP}}
+```
+
+## 7.3.2 Working with NSE scripts (custom / downloaded)
+
+> Drop a third-party `.nse` (e.g. a CVE PoC) into the scripts dir, rebuild the script DB, then call it by name.
+
+```bash
+sudo cp /home/kali/Downloads/http-vuln-cve-2021-41773.nse /usr/share/nmap/scripts/http-vuln-cve2021-41773.nse
+sudo nmap --script-updatedb
+```
+
+```bash
+sudo nmap -sV -p 443 --script "http-vuln-cve2021-41773" {{TARGET_IP}}
+```
+
+---
+
+# 7.4 — Wrapping up
+
+> Nessus is banned in the OSCP exam, so **Nmap NSE `vuln` is your permitted automated check** — quick, targeted, CLI, scriptable, and you can drop in custom CVE PoCs. Confirm every hit manually, then move to exploitation.
