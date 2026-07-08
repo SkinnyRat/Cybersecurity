@@ -8,6 +8,8 @@
 > Terminal output is omitted; only commands & scripts are captured.
 > Placeholders: `{{DOMAIN}}` target domain, `{{TARGET_IP}}` a single host, `{{SUBNET}}` full CIDR (e.g. `192.168.50.0/24`), `{{NETWORK}}` 3-octet prefix (e.g. `192.168.50`).
 
+> **⚡ Quick jump:** [6.4.3 Port scanning with Nmap](#643-port-scanning-with-nmap) · [6.4.4 SMB enumeration](#644-smb-enumeration)
+
 ---
 
 # 6.1 — The Penetration Testing Lifecycle

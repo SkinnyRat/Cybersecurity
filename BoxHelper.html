@@ -448,6 +448,30 @@ function render() {
 
   el('preview').innerHTML = html;
 
+  // Give headings GitHub-style slug ids so in-page "jump"/TOC links resolve
+  (function () {
+    const seen = {};
+    el('preview').querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(h => {
+      let slug = h.textContent.trim().toLowerCase()
+        .replace(/[^\w\- ]+/g, '')   // drop punctuation (keep letters/digits/_ - space)
+        .replace(/\s+/g, '-');       // spaces -> hyphens
+      if (!slug) return;
+      if (seen[slug] != null) { seen[slug]++; slug += '-' + seen[slug]; } else seen[slug] = 0;
+      h.id = slug;
+    });
+  })();
+
+  // Make in-page anchor links scroll within the preview panel (attach once)
+  if (!window._anchorNavInit) {
+    window._anchorNavInit = true;
+    el('preview').addEventListener('click', e => {
+      const a = e.target.closest('a[href^="#"]');
+      if (!a) return;
+      const t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+      if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  }
+
   // Status indicator
   const remaining = (filled.match(/\{\{[A-Z0-9_]+\}\}/g) || []);
   const ps = el('preview-status');
