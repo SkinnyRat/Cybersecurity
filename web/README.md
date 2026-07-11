@@ -8,7 +8,7 @@ vulnerability classes to reach a foothold. Covers PEN-200 **Modules 8, 9, 10**. 
 | Note | Covers | OffSec source |
 |---|---|---|
 | [enumeration.md](enumeration.md) | Assessment methodology, tooling (Nmap/whatweb, Gobuster/ffuf, **Burp**), source/header/sitemap inspection, **API enumeration & abuse** | Module 8 §8.1–8.3, 8.5 |
-| [directories-and-files.md](directories-and-files.md) | **Directory traversal**, **file inclusion** (LFI+log-poisoning / PHP wrappers / RFI), **file upload**, **command injection** — plus PortSwigger bypass cheats | Module 9 §9.1–9.5 |
+| [directories_files.md](directories_files.md) | **Directory traversal**, **file inclusion** (LFI+log-poisoning / PHP wrappers / RFI), **file upload**, **command injection** — plus PortSwigger bypass cheats | Module 9 §9.1–9.5 |
 | [attacks.md](attacks.md) | **SQL injection** (error / UNION / blind, manual RCE) and **XSS** (stored/reflected/DOM, privesc) — plus PortSwigger cheat sheets | Module 10 (all) + Module 8 §8.4 |
 
 > XSS lives in `attacks.md` (with SQLi), **not** in the enumeration note — both are injection attacks. Enumeration
@@ -27,7 +27,7 @@ vulnerability classes to reach a foothold. Covers PEN-200 **Modules 8, 9, 10**. 
    - input into an **OS command** → command injection
    - input into a **SQL query** → SQL injection
    - input reflected into **HTML/JS** → XSS
-4. **Exploit** with the matching payload set. *(directories-and-files.md / attacks.md)*
+4. **Exploit** with the matching payload set. *(directories_files.md / attacks.md)*
 5. **Upgrade** — webshell → reverse shell → stabilise → re-enumerate, and feed any looted creds/keys/hashes back
    into `../exploits` (cracking, reuse) and `../scanning` (new services).
 
