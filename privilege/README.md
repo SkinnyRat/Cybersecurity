@@ -17,6 +17,54 @@ Privesc playbook for standalone boxes, split by OS. Notes here template with **B
 
 ---
 
+## 0 · Toolbox — set this up *before* the exam
+
+### Install on Kali
+
+| Tool | Package / source | Used for |
+|---|---|---|
+| `unix-privesc-check` | preinstalled (`/usr/bin/unix-privesc-check`) | Linux automated baseline — linux.md §18.1.3 |
+| LinPEAS | `sudo apt install peass` → `/usr/share/peass/linpeas/` (mirrored in `../linpeas/`) | Linux automated enum — linux.md §18.1.3 |
+| LinEnum | `git clone https://github.com/rebootuser/LinEnum` | Linux automated enum, lighter than LinPEAS — linux.md §18.1.3 |
+| winPEAS | `sudo apt install peass` → `/usr/share/peass/winpeas/winPEASx64.exe` (mirrored in `../winpeas/`) | Windows automated enum — windows.md §17.1.5 |
+| PowerUp.ps1 | `sudo apt install windows-resources` → `/usr/share/windows-resources/powersploit/Privesc/PowerUp.ps1` | Service/scheduled-task abuse detection + automation — windows.md §17.2, §17.3.1 |
+| evil-winrm | `sudo apt install evil-winrm` (or `gem install evil-winrm`) | WinRM shell after recovering creds — windows.md §17.1.4 |
+| mingw-w64 | `sudo apt install gcc-mingw-w64` | cross-compile Windows EXE/DLL payloads on Kali — windows.md §17.2.1–17.2.2 |
+| SigmaPotato | `wget` the GitHub release (no apt package) | `SeImpersonatePrivilege` abuse — windows.md §17.3.2 |
+| searchsploit / exploitdb | preinstalled (`sudo apt update && apt install exploitdb` to refresh) | kernel/app exploit lookup — linux.md §18.4.3, windows.md §17.3.2 |
+| Seatbelt / JAWS *(optional)* | GitHub release / source (GhostPack, `..\JAWS\`) | fallback if AV blocks winPEAS — windows.md §17.1.5 |
+
+### Copy to targets
+
+| Target | File | Comes from | Notes |
+|---|---|---|---|
+| Linux | `linpeas.sh` | `/usr/share/peass/linpeas/` or `../linpeas/` | serve via `python3 -m http.server`, pull with `wget`/`curl` |
+| Linux | `unix-privesc-check` | `/usr/bin/unix-privesc-check` | single self-contained bash script |
+| Linux | compiled kernel exploit (e.g. `cve-2017-16995.c`) | `searchsploit -m <EDB-ID>`, then **compile on the target** | matches target's own libs/arch — linux.md §18.4.3 |
+| Windows | `winPEASx64.exe` (or x86 build) | `/usr/share/peass/winpeas/` or `../winpeas/` | match target architecture |
+| Windows | `PowerUp.ps1` | `/usr/share/windows-resources/powersploit/Privesc/` | dot-source (`. .\PowerUp.ps1`), then call its functions |
+| Windows | `SigmaPotato.exe` | GitHub release | needs `SeImpersonatePrivilege` |
+| Windows | cross-compiled payload (`adduser.exe`, `TextShaping.dll`, …) | build on Kali with `mingw-w64`, match target arch (x86_64 vs i686) | windows.md §17.2.1–17.2.2 |
+| Windows | precompiled kernel exploit (e.g. `CVE-2023-29360.exe`) | Exploit-DB / GitHub PoC release | verify against the target's missing KB first — windows.md §17.3.2 |
+
+### Lighter alternatives — less smoke, more signal
+
+LinPEAS/winPEAS check *everything* and print all of it. These trade some coverage for output you
+can actually read on a timer:
+
+| Tool | OS | Install on Kali | Copy to target | Why it's lighter |
+|---|---|---|---|---|
+| **lse.sh** (linux-smart-enumeration) | Linux | `git clone https://github.com/diego-treitos/linux-smart-enumeration` | `lse.sh` | verbosity **levels** — `./lse.sh -l0` only prints what's actually flagged as interesting; `-l1`/`-l2` add detail on demand instead of dumping it all upfront |
+| **traitor** | Linux | `go install github.com/liamg/traitor@latest` (or grab the release binary — no Go needed) | `traitor` | doesn't just report misconfigs, **auto-exploits** the common ones (SUID, sudo, capabilities, cron) it finds — skips the read-then-act step entirely |
+| **PrivescCheck** | Windows | `git clone https://github.com/itm4n/PrivescCheck` | `PrivescCheck.ps1` | one structured, color-coded results table grouped by category, instead of winPEAS's stream-of-consciousness scroll |
+| **SharpUp** | Windows | build from source (`github.com/GhostPack/SharpUp`) or grab a compiled release | `SharpUp.exe` | ports only PowerUp's curated checks (services, tasks, unquoted paths, etc.) — a fixed, short list instead of winPEAS's everything-and-the-registry |
+
+> Good workflow: run the lighter tool first for a fast read, then reach for LinPEAS/winPEAS only if
+> it comes up empty and you suspect something more obscure (DPAPI blobs, credential-manager entries,
+> etc. — the long tail winPEAS covers that the lighter tools intentionally skip).
+
+---
+
 ## 1 · Same shape, different levers
 
 Both OSes reduce to the same four questions; only the mechanism differs:
