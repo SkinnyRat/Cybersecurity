@@ -2,7 +2,7 @@
 
 - Module: PEN-200 · 22. Active Directory Introduction and Enumeration
 - Source: portal.offsec.com · module `active-directory-introduction-and-enumeration-45847` (§22.2.1)
-- Code blocks: 5
+- Code blocks: 6
 
 > Assumed breach: we authenticate to a domain-joined Win11 box as the low-priv user `{{USERNAME}}`
 > and start with the "low-hanging fruit". Terminal output omitted.
@@ -11,6 +11,11 @@
 
 ```bash
 xfreerdp /u:{{USERNAME}} /d:{{DOMAIN}} /v:{{TARGET_IP}}
+```
+
+```bash
+# non-interactive: accept the target cert and pass the password inline
+xfreerdp /cert:ignore /u:{{USERNAME}} /d:{{DOMAIN}} /p:{{PASSWORD}} /v:{{TARGET_IP}}
 ```
 
 > **Prefer RDP over WinRM / PowerShell Remoting.** WinRM triggers the **Kerberos double-hop**
