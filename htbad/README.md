@@ -7,7 +7,7 @@ Commands and scripts collected from every section of the Hack The Box Academy mo
 
 A visual overview of how the sections connect — from foothold to forest compromise:
 
-![AD attack journey map](ad-attack-journey-map.png)
+![AD attack journey map](../active/ad-attack-journey-map.png)
 
 Reading the map ≠ executing the chain from memory under a clock. Track actual reps against it
 in the **[OSCP practice checklist](oscp-practice-checklist.md)**.
