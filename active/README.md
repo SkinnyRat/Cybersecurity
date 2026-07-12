@@ -20,6 +20,17 @@ Phases follow steps **1–4** of the attack journey map:
 Phases **5 (trusts/forests)** and **6 (defense)** of the map are out of scope here — see the
 per-section files in `htbad/` (27–33) and `offad/`.
 
+## Where do I start? — triage
+
+The journey map above shows **what connects to what**. This decision tree shows **what to try
+first** — check the cheap wins, then let the result route you to one of the four canonical chains,
+looping until Domain Admin:
+
+![OSCP AD triage decision tree](ad-triage-decision-tree.png)
+
+Worked end-to-end example of one chain (spray → Kerberoast → ACL → DCSync → PtH) is in
+[4-escalate.md](4-escalate.md).
+
 ## Conventions
 
 - `{{VAR}}` placeholders are the same ones used across the repo, filled by

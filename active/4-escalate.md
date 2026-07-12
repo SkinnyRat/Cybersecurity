@@ -7,6 +7,9 @@
 > Condensed from `htbad/` (17, 18, 20, 21, 22, 23, 24, 25, 26) and `offad/` (10, 17, 19–22, 24–31).
 > `{{VAR}}` placeholders filled by [WorkflowHelper.html](../WorkflowHelper.html). `{{SID}}` is filled
 > by hand.
+>
+> **Not sure which technique to reach for?** See the [triage decision tree](ad-triage-decision-tree.png)
+> (in [README](README.md)) — it routes "what you have" to one of the four canonical chains.
 
 ---
 
