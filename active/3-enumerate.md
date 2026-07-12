@@ -312,3 +312,10 @@ ip a; ip route; ip neigh; cat /etc/hosts; ss -antup
 for i in $(seq 1 254); do (ping -c1 -W1 {{NETWORK}}.$i >/dev/null && echo "{{NETWORK}}.$i up") & done; wait
 for i in $(seq 1 254); do (echo > /dev/tcp/{{NETWORK}}.$i/445) 2>/dev/null && echo "{{NETWORK}}.$i:445 open"; done
 ```
+
+### Reach an internal host through the foothold (pivoting)
+
+> **Found a host Kali can't route to?** Forward a port through the foothold to reach it — full
+> playbook (netsh portproxy, chisel, ssh `-L`/`-D`/`-R`, sshuttle, plink, dnscat2) in
+> [`../tunnelling/tunnelling.md`](../tunnelling/tunnelling.md). OSCP go-to: **chisel** reverse
+> SOCKS or **`ssh -D`** + proxychains for a whole subnet.
