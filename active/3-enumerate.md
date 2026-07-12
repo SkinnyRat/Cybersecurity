@@ -245,6 +245,23 @@ Invoke-BloodHound -CollectionMethod All -OutputDirectory {{OUTPUT}} -OutputPrefi
 .\SharpHound.exe -c All --zipfilename {{OUTPUT}}
 ```
 
+### Get the output off the foothold
+
+> Collected on a remote foothold (e.g. `bloodhound-python` writes `*_users.json` etc. to `~`)? Pull
+> it to the box running the GUI. Zip first — BloodHound ingests the zip directly.
+
+```bash
+# on the foothold
+zip bh.zip *.json
+# from the box with the GUI — <foothold-user> is the SSH login (e.g. htb-student), NOT your AD user
+# quote the glob so YOUR shell doesn't expand it before scp runs
+scp <foothold-user>@<foothold-ip>:bh.zip .
+scp <foothold-user>@<foothold-ip>:'*.json' .        # or grab the raw files
+```
+
+> No scp? Serve + fetch: `python3 -m http.server 8000` on the foothold, `wget` each file from the GUI
+> box. Or skip the copy entirely if BloodHound/neo4j is installed **on the foothold** — run it there.
+
 ### Analyze on Kali
 
 ```bash
@@ -263,6 +280,44 @@ docker compose logs bloodhound | Select-String "Initial"   # grab admin password
 **GUI workflow:** Upload Data → drag the SharpHound zip → *Find Shortest Paths to Domain Admins* →
 right-click your controlled objects → *Mark as Owned* → *Shortest Paths from Owned Principals*.
 Right-click any edge → **Help** for Abuse/Opsec/References.
+
+### Cypher cheat-sheet (Explore → Cypher tab)
+
+> Node names are UPPERCASE `SAM@DOMAIN.LOCAL`; group filters like `STARTS WITH "DOMAIN ADMINS"` keep
+> queries domain-agnostic. `owned:true` / `highvalue:true` only exist after you **Mark as Owned/High
+> Value** in the GUI — an empty "from owned" result usually means you forgot to mark a node.
+
+```cypher
+-- the money queries
+MATCH p=shortestPath((u {owned:true})-[*1..]->(t {highvalue:true})) RETURN p   -- owned → high value
+MATCH (u:User)-[:MemberOf*1..]->(g:Group) WHERE g.name STARTS WITH "DOMAIN ADMINS" RETURN u
+MATCH p=(u {owned:true})-[r]->(m) RETURN p                       -- one-hop: what owned can touch
+
+-- roasting / cred targets
+MATCH (u:User) WHERE u.hasspn=true AND NOT u.name STARTS WITH "KRBTGT" RETURN u   -- Kerberoastable
+MATCH (u:User) WHERE u.dontreqpreauth=true RETURN u              -- AS-REP roastable
+MATCH (u:User) WHERE u.description IS NOT NULL RETURN u.name,u.description  -- creds in description
+
+-- privileges / delegation
+MATCH (u {owned:true})-[:AdminTo]->(c:Computer) RETURN u,c       -- boxes owned user admins
+MATCH (u {owned:true})-[:DCSync|GetChanges|GetChangesAll]->(d:Domain) RETURN u  -- DCSync rights
+MATCH (c:Computer) WHERE c.unconstraineddelegation=true RETURN c -- unconstrained delegation
+MATCH (u:User) WHERE u.admincount=true RETURN u                  -- protected/admin-tagged users
+
+-- who can TAKE OVER a target object (e.g. "who has GenericAll over Domain Admins")
+MATCH p=(n)-[:GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns|AddMember*1..]->(g:Group {name:"DOMAIN ADMINS@DOMAIN.LOCAL"}) RETURN p
+MATCH p=(n)-[r]->(t {name:"<TARGET>@DOMAIN.LOCAL"}) WHERE r.isacl RETURN p   -- ALL inbound control edges on any object
+
+-- filtering idioms
+MATCH (n:User) WHERE n.name =~ "(?i).*SVC.*" RETURN n            -- case-insensitive regex (service accts)
+MATCH (n:User) WHERE n.enabled=true RETURN n.name               -- enabled accounts only
+MATCH (n) RETURN n LIMIT 500                                     -- "show everything" (small domains only)
+```
+
+> **Set owned via Cypher** (instead of clicking each): `MATCH (u:User) WHERE u.name IN
+> ["AB920@INLANEFREIGHT.LOCAL","BR086@INLANEFREIGHT.LOCAL"] SET u.owned=true RETURN u`.
+> **Trust the DC over the graph** for roasting — a `bloodhound-python` run under one low-priv user can
+> miss SPNs; confirm with `GetUserSPNs.py` (phase 4) before concluding "nothing roastable".
 
 ---
 

