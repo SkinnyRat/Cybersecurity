@@ -175,6 +175,19 @@ const el = id => document.getElementById(id);
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+// Rewrite relative <img>/<a> so a topic README's assets resolve against its folder.
+function fixRelativeAssets(container, base) {
+  if (!base) return;
+  const isRel = v => v && !/^([a-z][a-z0-9+.-]*:|\/\/|\/|#)/i.test(v);
+  container.querySelectorAll('img[src]').forEach(img => {
+    const s = img.getAttribute('src');
+    if (isRel(s)) img.setAttribute('src', base + s);
+  });
+  container.querySelectorAll('a[href]').forEach(a => {
+    const h = a.getAttribute('href');
+    if (isRel(h)) a.setAttribute('href', base + h);
+  });
+}
 function helperFile(h) { return h === 'box' ? 'deploy/BoxHelper.html' : 'deploy/WorkflowHelper.html'; }
 
 let manifest = null, current = null;
@@ -263,6 +276,7 @@ async function openReadme() {
     const res = await fetch(current.dir + '/' + current.readme, { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     body.innerHTML = window.marked ? marked.parse(await res.text()) : '<pre>' + esc(await res.text()) + '</pre>';
+    fixRelativeAssets(body, current.dir + '/');
   } catch (e) {
     body.innerHTML = '<div class="err">Could not load README (' + esc(String(e)) + ')</div>';
   }

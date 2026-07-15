@@ -459,6 +459,7 @@ async function toggleReadme() {
       const res = await fetch('../' + topicObj.dir + '/' + topicObj.readme, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       el('readme-body').innerHTML = marked.parse(await res.text());
+      fixRelativeAssets(el('readme-body'), '../' + topicObj.dir + '/');
     } catch(e) {
       el('readme-body').innerHTML = '<p>README could not be loaded (' + esc(String(e)) + ').</p>';
     }
@@ -559,6 +560,28 @@ function fillPlaceholders(text) {
   );
 }
 
+/* Folder a note's relative images/links resolve against, from this page in deploy/. */
+function assetBase() {
+  const dir = topicObj ? topicObj.dir : TOPIC;
+  return dir ? ('../' + dir + '/') : '';
+}
+
+/* Rewrite relative <img>/<a> targets so notes served from deploy/ still find
+   images that live next to the markdown (e.g. active/ad-attack-journey-map.png).
+   Absolute URLs, data: URIs, root paths and #anchors are left untouched. */
+function fixRelativeAssets(container, base) {
+  if (!base) return;
+  const isRel = v => v && !/^([a-z][a-z0-9+.-]*:|\/\/|\/|#)/i.test(v);
+  container.querySelectorAll('img[src]').forEach(img => {
+    const s = img.getAttribute('src');
+    if (isRel(s)) img.setAttribute('src', base + s);
+  });
+  container.querySelectorAll('a[href]').forEach(a => {
+    const h = a.getAttribute('href');
+    if (isRel(h)) a.setAttribute('href', base + h);
+  });
+}
+
 function render() {
   const raw = el('editor').value;
   const filled = fillPlaceholders(raw);
@@ -573,6 +596,7 @@ function render() {
     (_, k) => `<span class="unfilled" title="{{${k}}} is not set">{{${k}}}</span>`);
 
   el('preview').innerHTML = html;
+  fixRelativeAssets(el('preview'), assetBase());
 
   // Status indicator
   const remaining = (filled.match(/\{\{[A-Z0-9_]+\}\}/g) || []);
@@ -678,8 +702,9 @@ function esc(s) {
 boot();
 
 try {
-  if (localStorage.getItem('oscp-ed-collapsed') === '1') el('editor-panel').classList.add('collapsed');
-} catch(e) {}
+  // Markdown pane is collapsed by default; only an explicit expand ('0') keeps it open.
+  if (localStorage.getItem('oscp-ed-collapsed') !== '0') el('editor-panel').classList.add('collapsed');
+} catch(e) { el('editor-panel').classList.add('collapsed'); }
 
 el('editor').addEventListener('input', () => { saveState(); render(); });
 el('editor').addEventListener('keydown', e => {
