@@ -1,0 +1,416 @@
+{
+  "topics": [
+    {
+      "id": "active",
+      "title": "AD Playbook",
+      "helper": "workflow",
+      "dir": "active",
+      "readme": "README.md",
+      "blurb": "Consolidated foothold -> harvest -> enumerate -> escalate AD attack playbook.",
+      "files": [
+        {
+          "file": "1-foothold.md",
+          "title": "1 · Foothold"
+        },
+        {
+          "file": "2-harvest.md",
+          "title": "2 · Harvest"
+        },
+        {
+          "file": "3-enumerate.md",
+          "title": "3 · Enumerate"
+        },
+        {
+          "file": "4-escalate.md",
+          "title": "4 · Escalate"
+        }
+      ]
+    },
+    {
+      "id": "htbad",
+      "title": "HTB Academy · Active Directory",
+      "helper": "workflow",
+      "dir": "htbad",
+      "readme": "README.md",
+      "blurb": "Full HTB Academy 'AD Enumeration & Attacks' module, start to finish.",
+      "files": [
+        {
+          "file": "01-introduction-to-ad-enumeration-attacks.md",
+          "title": "01 · Introduction to AD Enumeration Attacks"
+        },
+        {
+          "file": "02-tools-of-the-trade.md",
+          "title": "02 · Tools of the Trade"
+        },
+        {
+          "file": "03-scenario.md",
+          "title": "03 · Scenario"
+        },
+        {
+          "file": "04-external-recon-and-enumeration-principles.md",
+          "title": "04 · External Recon and Enumeration Principles"
+        },
+        {
+          "file": "05-initial-enumeration-of-the-domain.md",
+          "title": "05 · Initial Enumeration of the Domain"
+        },
+        {
+          "file": "06-llmnr-nbtns-poisoning-from-linux.md",
+          "title": "06 · LLMNR NBT-NS Poisoning from Linux"
+        },
+        {
+          "file": "07-llmnr-nbtns-poisoning-from-windows.md",
+          "title": "07 · LLMNR NBT-NS Poisoning from Windows"
+        },
+        {
+          "file": "08-password-spraying-overview.md",
+          "title": "08 · Password Spraying Overview"
+        },
+        {
+          "file": "09-enumerating-retrieving-password-policies.md",
+          "title": "09 · Enumerating Retrieving Password Policies"
+        },
+        {
+          "file": "10-password-spraying-making-a-target-user-list.md",
+          "title": "10 · Password Spraying Making a Target User List"
+        },
+        {
+          "file": "11-internal-password-spraying-from-linux.md",
+          "title": "11 · Internal Password Spraying from Linux"
+        },
+        {
+          "file": "12-internal-password-spraying-from-windows.md",
+          "title": "12 · Internal Password Spraying from Windows"
+        },
+        {
+          "file": "13-enumerating-security-controls.md",
+          "title": "13 · Enumerating Security Controls"
+        },
+        {
+          "file": "14-credentialed-enumeration-from-linux.md",
+          "title": "14 · Credentialed Enumeration from Linux"
+        },
+        {
+          "file": "15-credentialed-enumeration-from-windows.md",
+          "title": "15 · Credentialed Enumeration from Windows"
+        },
+        {
+          "file": "16-living-off-the-land.md",
+          "title": "16 · Living off the Land"
+        },
+        {
+          "file": "17-kerberoasting-from-linux.md",
+          "title": "17 · Kerberoasting from Linux"
+        },
+        {
+          "file": "18-kerberoasting-from-windows.md",
+          "title": "18 · Kerberoasting from Windows"
+        },
+        {
+          "file": "19-access-control-list-acl-abuse-primer.md",
+          "title": "19 · Access Control List ACL Abuse Primer"
+        },
+        {
+          "file": "20-acl-enumeration.md",
+          "title": "20 · ACL Enumeration"
+        },
+        {
+          "file": "21-acl-abuse-tactics.md",
+          "title": "21 · ACL Abuse Tactics"
+        },
+        {
+          "file": "22-dcsync.md",
+          "title": "22 · DCSync"
+        },
+        {
+          "file": "23-privileged-access.md",
+          "title": "23 · Privileged Access"
+        },
+        {
+          "file": "24-kerberos-double-hop-problem.md",
+          "title": "24 · Kerberos Double Hop Problem"
+        },
+        {
+          "file": "25-bleeding-edge-vulnerabilities.md",
+          "title": "25 · Bleeding Edge Vulnerabilities"
+        },
+        {
+          "file": "26-miscellaneous-misconfigurations.md",
+          "title": "26 · Miscellaneous Misconfigurations"
+        },
+        {
+          "file": "27-domain-trusts-primer.md",
+          "title": "27 · Domain Trusts Primer"
+        },
+        {
+          "file": "28-attacking-domain-trusts-child-parent-from-windows.md",
+          "title": "28 · Attacking Domain Trusts Child Parent from Windows"
+        },
+        {
+          "file": "29-attacking-domain-trusts-child-parent-from-linux.md",
+          "title": "29 · Attacking Domain Trusts Child Parent from Linux"
+        },
+        {
+          "file": "30-attacking-domain-trusts-cross-forest-from-windows.md",
+          "title": "30 · Attacking Domain Trusts Cross Forest from Windows"
+        },
+        {
+          "file": "31-attacking-domain-trusts-cross-forest-from-linux.md",
+          "title": "31 · Attacking Domain Trusts Cross Forest from Linux"
+        },
+        {
+          "file": "32-hardening-active-directory.md",
+          "title": "32 · Hardening Active Directory"
+        },
+        {
+          "file": "33-additional-ad-auditing-techniques.md",
+          "title": "33 · Additional AD Auditing Techniques"
+        },
+        {
+          "file": "34-skills-assessment-part-i.md",
+          "title": "34 · Skills Assessment Part I"
+        },
+        {
+          "file": "35-skills-assessment-part-ii.md",
+          "title": "35 · Skills Assessment Part II"
+        },
+        {
+          "file": "36-beyond-this-module.md",
+          "title": "36 · Beyond This Module"
+        },
+        {
+          "file": "oscp-practice-checklist.md",
+          "title": "OSCP Practice Checklist"
+        }
+      ]
+    },
+    {
+      "id": "offad",
+      "title": "OffSec PEN-200 · Active Directory",
+      "helper": "workflow",
+      "dir": "offad",
+      "readme": "README.md",
+      "blurb": "PEN-200 AD modules 22-24: enumeration, auth attacks, lateral movement.",
+      "files": [
+        {
+          "file": "01-active-directory-introduction.md",
+          "title": "01 · Active Directory Introduction"
+        },
+        {
+          "file": "02-enumeration-defining-our-goals.md",
+          "title": "02 · Enumeration Defining our Goals"
+        },
+        {
+          "file": "03-enumeration-using-legacy-windows-tools.md",
+          "title": "03 · Enumeration Using Legacy Windows Tools"
+        },
+        {
+          "file": "04-powershell-and-net-classes.md",
+          "title": "04 · PowerShell and .NET Classes"
+        },
+        {
+          "file": "05-adding-search-functionality-to-our-script.md",
+          "title": "05 · Adding Search Functionality to our Script"
+        },
+        {
+          "file": "06-ad-enumeration-with-powerview.md",
+          "title": "06 · AD Enumeration with PowerView"
+        },
+        {
+          "file": "07-enumerating-operating-systems.md",
+          "title": "07 · Enumerating Operating Systems"
+        },
+        {
+          "file": "08-permissions-and-logged-on-users.md",
+          "title": "08 · Permissions and Logged on Users"
+        },
+        {
+          "file": "09-enumeration-through-service-principal-names.md",
+          "title": "09 · Enumeration Through Service Principal Names"
+        },
+        {
+          "file": "10-enumerating-object-permissions.md",
+          "title": "10 · Enumerating Object Permissions"
+        },
+        {
+          "file": "11-enumerating-domain-shares.md",
+          "title": "11 · Enumerating Domain Shares"
+        },
+        {
+          "file": "12-collecting-data-with-sharphound.md",
+          "title": "12 · Collecting Data with SharpHound"
+        },
+        {
+          "file": "13-analysing-data-with-bloodhound.md",
+          "title": "13 · Analysing Data with BloodHound"
+        },
+        {
+          "file": "14-wrapping-up.md",
+          "title": "14 · Wrapping Up"
+        },
+        {
+          "file": "15-ntlm-authentication.md",
+          "title": "15 · NTLM Authentication"
+        },
+        {
+          "file": "16-kerberos-authentication.md",
+          "title": "16 · Kerberos Authentication"
+        },
+        {
+          "file": "17-cached-ad-credentials.md",
+          "title": "17 · Cached AD Credentials"
+        },
+        {
+          "file": "18-password-attacks.md",
+          "title": "18 · Password Attacks"
+        },
+        {
+          "file": "19-as-rep-roasting.md",
+          "title": "19 · AS-REP Roasting"
+        },
+        {
+          "file": "20-kerberoasting.md",
+          "title": "20 · Kerberoasting"
+        },
+        {
+          "file": "21-silver-tickets.md",
+          "title": "21 · Silver Tickets"
+        },
+        {
+          "file": "22-domain-controller-synchronization.md",
+          "title": "22 · Domain Controller Synchronization"
+        },
+        {
+          "file": "23-attacking-ad-authentication-wrapping-up.md",
+          "title": "23 · Attacking AD Authentication Wrapping Up"
+        },
+        {
+          "file": "24-wmi-and-winrm.md",
+          "title": "24 · WMI and WinRM"
+        },
+        {
+          "file": "25-psexec.md",
+          "title": "25 · PsExec"
+        },
+        {
+          "file": "26-pass-the-hash.md",
+          "title": "26 · Pass the Hash"
+        },
+        {
+          "file": "27-overpass-the-hash.md",
+          "title": "27 · Overpass the Hash"
+        },
+        {
+          "file": "28-pass-the-ticket.md",
+          "title": "28 · Pass the Ticket"
+        },
+        {
+          "file": "29-dcom.md",
+          "title": "29 · DCOM"
+        },
+        {
+          "file": "30-golden-ticket.md",
+          "title": "30 · Golden Ticket"
+        },
+        {
+          "file": "31-shadow-copies.md",
+          "title": "31 · Shadow Copies"
+        },
+        {
+          "file": "32-lateral-movement-wrapping-up.md",
+          "title": "32 · Lateral Movement Wrapping Up"
+        },
+        {
+          "file": "ad-practice-plan.md",
+          "title": "AD Practice Plan"
+        }
+      ]
+    },
+    {
+      "id": "scanning",
+      "title": "Scanning & Enumeration",
+      "helper": "box",
+      "dir": "scanning",
+      "readme": "README.md",
+      "blurb": "Host discovery, port scanning, and service enumeration.",
+      "files": [
+        {
+          "file": "scanning.md",
+          "title": "Scanning"
+        }
+      ]
+    },
+    {
+      "id": "web",
+      "title": "Web Attacks",
+      "helper": "box",
+      "dir": "web",
+      "readme": "README.md",
+      "blurb": "Web enumeration, content discovery, and common web exploitation.",
+      "files": [
+        {
+          "file": "enumeration.md",
+          "title": "Enumeration"
+        },
+        {
+          "file": "directories_files.md",
+          "title": "Directories & Files"
+        },
+        {
+          "file": "attacks.md",
+          "title": "Attacks"
+        }
+      ]
+    },
+    {
+      "id": "exploits",
+      "title": "Exploitation",
+      "helper": "box",
+      "dir": "exploits",
+      "readme": "README.md",
+      "blurb": "Finding and running public exploits; MSSQL notes.",
+      "files": [
+        {
+          "file": "exploits.md",
+          "title": "Exploits"
+        },
+        {
+          "file": "mssql.md",
+          "title": "MSSQL"
+        }
+      ]
+    },
+    {
+      "id": "privilege",
+      "title": "Privilege Escalation",
+      "helper": "box",
+      "dir": "privilege",
+      "readme": "README.md",
+      "blurb": "Local privilege escalation on Linux and Windows.",
+      "files": [
+        {
+          "file": "linux.md",
+          "title": "Linux"
+        },
+        {
+          "file": "windows.md",
+          "title": "Windows"
+        }
+      ]
+    },
+    {
+      "id": "tunnelling",
+      "title": "Tunnelling & Port Forwarding",
+      "helper": "box",
+      "dir": "tunnelling",
+      "readme": "README.md",
+      "blurb": "Pivoting, port forwarding, and tunnelling through a foothold.",
+      "files": [
+        {
+          "file": "tunnelling.md",
+          "title": "Tunnelling"
+        }
+      ]
+    }
+  ]
+}

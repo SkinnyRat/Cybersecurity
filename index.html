@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSCP Notes</title>
+<link rel="stylesheet" href="deploy/vendor/github-markdown-dark.css">
+<link rel="stylesheet" href="deploy/vendor/highlight-github-dark.min.css">
+<script src="deploy/vendor/marked.min.js"></script>
+<script src="deploy/vendor/highlight.min.js"></script>
+<style>
+:root {
+  --bg0: #0d1117; --bg1: #161b22; --bg2: #21262d; --bd: #30363d;
+  --tx: #e6edf3; --tx2: #7d8590; --ac: #3fb950; --box: #58a6ff;
+  --mono: 'SF Mono','JetBrains Mono','Fira Code',Consolas,monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg0); color: var(--tx);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+body { overflow-y: auto; }
+
+.site-hd {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  padding: 18px 32px; background: var(--bg1); border-bottom: 1px solid var(--bd);
+}
+.brand { font-size: 18px; font-weight: 700; letter-spacing: 0.01em; }
+.sub { color: var(--tx2); font-size: 12.5px; }
+
+main { max-width: 1120px; margin: 0 auto; padding: 26px 32px 60px; }
+
+/* ── Topic groups ─────────────────────────────── */
+.group { margin-bottom: 34px; }
+.group h2 {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--tx2); margin-bottom: 14px; border-bottom: 1px solid var(--bd); padding-bottom: 8px;
+}
+.pill {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: none;
+  padding: 2px 8px; border-radius: 10px; border: 1px solid var(--bd);
+}
+.pill-ad  { color: var(--ac);  border-color: rgba(63,185,80,0.4);  background: rgba(63,185,80,0.08); }
+.pill-box { color: var(--box); border-color: rgba(88,166,255,0.4); background: rgba(88,166,255,0.08); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 14px; }
+.card {
+  text-align: left; background: var(--bg1); border: 1px solid var(--bd); border-radius: 10px;
+  padding: 16px 18px; cursor: pointer; color: var(--tx); font: inherit;
+  display: flex; flex-direction: column; gap: 8px; min-height: 118px;
+  transition: border-color 0.12s, transform 0.12s, background 0.12s;
+}
+.card:hover { border-color: var(--ac); background: var(--bg2); transform: translateY(-2px); }
+.group[data-helper="box"] .card:hover { border-color: var(--box); }
+.card-title { font-size: 15px; font-weight: 600; }
+.card-blurb { font-size: 12.5px; color: var(--tx2); line-height: 1.5; flex: 1; }
+.card-meta {
+  font-family: var(--mono); font-size: 11px; color: var(--tx2);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-meta .go { margin-left: auto; color: var(--ac); }
+.group[data-helper="box"] .card-meta .go { color: var(--box); }
+
+/* ── File submenu view ────────────────────────── */
+.back {
+  background: none; border: 1px solid var(--bd); border-radius: 6px; color: var(--tx2);
+  font: inherit; font-size: 12.5px; padding: 5px 12px; cursor: pointer; margin-bottom: 18px;
+  transition: all 0.12s;
+}
+.back:hover { border-color: var(--tx2); color: var(--tx); }
+.files-hd { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+.files-hd h2 { font-size: 20px; font-weight: 700; }
+.files-hd .hd-space { flex: 1; }
+.blurb { color: var(--tx2); font-size: 13px; margin-bottom: 18px; }
+.file-list { display: flex; flex-direction: column; gap: 7px; }
+.file-row {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+  background: var(--bg1); border: 1px solid var(--bd); border-radius: 8px;
+  padding: 11px 16px; cursor: pointer; color: var(--tx); font: inherit;
+  transition: border-color 0.12s, background 0.12s;
+}
+.file-row:hover { border-color: var(--ac); background: var(--bg2); }
+.fr-idx { font-family: var(--mono); font-size: 12px; color: var(--tx2); min-width: 22px; }
+.fr-title { flex: 1; font-size: 13.5px; }
+.fr-go { font-family: var(--mono); font-size: 11px; color: var(--ac); opacity: 0; transition: opacity 0.12s; }
+.file-row:hover .fr-go { opacity: 1; }
+
+.hd-btn {
+  display: inline-flex; align-items: center; gap: 5px; background: none;
+  border: 1px solid var(--bd); border-radius: 6px; color: var(--tx2);
+  cursor: pointer; font: inherit; font-size: 12.5px; padding: 5px 12px;
+  transition: all 0.12s; text-decoration: none;
+}
+.hd-btn:hover { border-color: var(--ac); color: var(--ac); }
+
+/* ── README modal ─────────────────────────────── */
+.readme-overlay {
+  position: fixed; inset: 0; z-index: 60; background: rgba(1,4,9,0.6);
+  display: flex; align-items: center; justify-content: center; padding: 4vh 3vw;
+}
+.readme-overlay[hidden] { display: none; }
+.readme-modal {
+  width: min(860px, 100%); max-height: 92vh; background: var(--bg0);
+  border: 1px solid var(--bd); border-radius: 12px; display: flex; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55); overflow: hidden;
+}
+.readme-hd {
+  display: flex; align-items: center; height: 46px; padding: 0 16px;
+  background: var(--bg2); border-bottom: 1px solid var(--bd); flex-shrink: 0;
+  font-size: 13px; font-weight: 600;
+}
+.readme-hd .hd-space { flex: 1; }
+.readme-body { flex: 1; overflow-y: auto; min-height: 0; padding: 26px 32px; }
+.markdown-body { background: transparent !important; color: var(--tx) !important; }
+.markdown-body h1, .markdown-body h2 { border-bottom-color: var(--bd) !important; }
+.markdown-body a { color: var(--box); }
+.markdown-body pre { background: var(--bg1) !important; border: 1px solid var(--bd); border-radius: 8px; }
+.markdown-body code:not(.hljs) { background: rgba(110,118,129,0.18); border-radius: 4px; padding: 0.15em 0.4em; }
+
+.loading, .err { color: var(--tx2); padding: 40px 0; text-align: center; }
+.err { color: #f85149; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--tx2); }
+</style>
+</head>
+<body>
+<header class="site-hd">
+  <span class="brand">🗂️ OSCP Notes</span>
+  <span class="sub">Pick a topic. AD notes open in <b>WorkflowHelper</b>, standalone-box notes in <b>BoxHelper</b>.</span>
+</header>
+
+<main>
+  <!-- Topic grid -->
+  <div id="topics-view">
+    <section class="group" data-helper="workflow">
+      <h2>Active Directory <span class="pill pill-ad">WorkflowHelper</span></h2>
+      <div class="cards" id="cards-workflow"></div>
+    </section>
+    <section class="group" data-helper="box">
+      <h2>Standalone Box <span class="pill pill-box">BoxHelper</span></h2>
+      <div class="cards" id="cards-box"></div>
+    </section>
+    <div id="boot-msg" class="loading">Loading topics…</div>
+  </div>
+
+  <!-- File submenu (for topics with more than one note) -->
+  <div id="files-view" hidden>
+    <button class="back" onclick="showTopics()">‹ all topics</button>
+    <div class="files-hd">
+      <h2 id="files-title"></h2>
+      <span class="hd-space"></span>
+      <button class="hd-btn" id="files-readme" onclick="openReadme()">📖 README</button>
+    </div>
+    <p class="blurb" id="files-blurb"></p>
+    <div class="file-list" id="file-list"></div>
+  </div>
+</main>
+
+<!-- README modal -->
+<div class="readme-overlay" id="readme-overlay" hidden>
+  <div class="readme-modal">
+    <div class="readme-hd">
+      <span id="readme-title">README</span>
+      <span class="hd-space"></span>
+      <button class="hd-btn" onclick="closeReadme()">× close</button>
+    </div>
+    <div class="readme-body markdown-body" id="readme-body"></div>
+  </div>
+</div>
+
+<script>
+const el = id => document.getElementById(id);
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function helperFile(h) { return h === 'box' ? 'deploy/BoxHelper.html' : 'deploy/WorkflowHelper.html'; }
+
+let manifest = null, current = null;
+
+if (window.marked) marked.use({ gfm: true });
+
+async function init() {
+  try {
+    const res = await fetch('deploy/manifest.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    manifest = await res.json();
+  } catch (e) {
+    el('boot-msg').className = 'err';
+    el('boot-msg').textContent = 'Could not load deploy/manifest.json — serve this folder over HTTP (the systemd service), then reload. (' + e + ')';
+    return;
+  }
+  el('boot-msg').hidden = true;
+  renderCards();
+  // Deep-link support: index.html#topic=web opens that submenu directly.
+  const h = new URLSearchParams(location.hash.slice(1));
+  const t = h.get('topic') && manifest.topics.find(x => x.id === h.get('topic'));
+  if (t && t.files.length > 1) selectTopic(t);
+}
+
+function renderCards() {
+  const wf = el('cards-workflow'), bx = el('cards-box');
+  wf.innerHTML = bx.innerHTML = '';
+  manifest.topics.forEach(t => {
+    const n = t.files.length;
+    const card = document.createElement('button');
+    card.className = 'card';
+    card.innerHTML =
+      `<div class="card-title">${esc(t.title)}</div>` +
+      `<div class="card-blurb">${esc(t.blurb || '')}</div>` +
+      `<div class="card-meta"><span>${n} note${n !== 1 ? 's' : ''}</span>` +
+        `<span class="go">${n > 1 ? 'choose ›' : 'open ›'}</span></div>`;
+    card.onclick = () => selectTopic(t);
+    (t.helper === 'box' ? bx : wf).appendChild(card);
+  });
+}
+
+function openFile(topic, file) {
+  location.href = helperFile(topic.helper) +
+    '?topic=' + encodeURIComponent(topic.id) + '&file=' + encodeURIComponent(file);
+}
+
+function selectTopic(t) {
+  if (t.files.length === 0) return;
+  if (t.files.length === 1) { openFile(t, t.files[0].file); return; }
+  current = t;
+  el('files-title').textContent = t.title;
+  el('files-blurb').textContent = t.blurb || '';
+  el('files-readme').style.display = t.readme ? '' : 'none';
+  const list = el('file-list');
+  list.innerHTML = '';
+  t.files.forEach((f, i) => {
+    const row = document.createElement('button');
+    row.className = 'file-row';
+    row.innerHTML =
+      `<span class="fr-idx">${String(i + 1).padStart(2, '0')}</span>` +
+      `<span class="fr-title">${esc(f.title)}</span>` +
+      `<span class="fr-go">open ›</span>`;
+    row.onclick = () => openFile(t, f.file);
+    list.appendChild(row);
+  });
+  el('topics-view').hidden = true;
+  el('files-view').hidden = false;
+  location.hash = 'topic=' + t.id;
+  window.scrollTo(0, 0);
+}
+
+function showTopics() {
+  el('files-view').hidden = true;
+  el('topics-view').hidden = false;
+  history.replaceState(null, '', location.pathname + location.search);
+  window.scrollTo(0, 0);
+}
+
+async function openReadme() {
+  if (!current || !current.readme) return;
+  el('readme-title').textContent = current.title + ' — ' + current.readme;
+  const body = el('readme-body');
+  body.innerHTML = '<div class="loading">Loading…</div>';
+  el('readme-overlay').hidden = false;
+  try {
+    const res = await fetch(current.dir + '/' + current.readme, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    body.innerHTML = window.marked ? marked.parse(await res.text()) : '<pre>' + esc(await res.text()) + '</pre>';
+  } catch (e) {
+    body.innerHTML = '<div class="err">Could not load README (' + esc(String(e)) + ')</div>';
+  }
+}
+function closeReadme() { el('readme-overlay').hidden = true; }
+
+el('readme-overlay').addEventListener('click', e => {
+  if (e.target === el('readme-overlay')) closeReadme();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { if (!el('readme-overlay').hidden) closeReadme(); else if (!el('files-view').hidden) showTopics(); }
+});
+
+init();
+</script>
+</body>
+</html>

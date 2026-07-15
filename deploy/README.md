@@ -1,28 +1,48 @@
 # deploy/
 
-Everything needed to run **WorkflowHelper.html** offline and serve it on Kali at boot.
+Everything needed to run the notes site offline and serve it on Kali at boot.
 
 ```
-deploy/
-├── vendor/            # the 4 CDN assets, downloaded locally (no internet needed)
-│   ├── github-markdown-dark.css
-│   ├── highlight-github-dark.min.css
-│   ├── marked.min.js
-│   └── highlight.min.js
-├── serve.sh           # git pull + two http.server instances (notes + toolbox)
-├── install.sh         # installs & enables the systemd service
-└── README.md
+repo/
+├── index.html               # main menu — pick a topic (served at /)
+├── <topic folders>/         # the markdown notes (htbad, offad, web, ...)
+└── deploy/
+    ├── WorkflowHelper.html   # viewer for AD notes (kill-chain template)
+    ├── BoxHelper.html        # viewer for standalone-box notes
+    ├── manifest.json         # topic -> viewer + ordered note list (generated)
+    ├── gen-manifest.py       # rebuilds manifest.json by scanning the folders
+    ├── vendor/               # the 4 CDN assets, downloaded locally (no internet needed)
+    │   ├── github-markdown-dark.css
+    │   ├── highlight-github-dark.min.css
+    │   ├── marked.min.js
+    │   └── highlight.min.js
+    ├── serve.sh              # git pull + two http.server instances (notes + toolbox)
+    ├── install.sh            # installs & enables the systemd service
+    └── README.md
+```
+
+**How it fits together:** `index.html` reads `deploy/manifest.json` and shows a card per
+topic. Picking a topic opens the right viewer with `?topic=<id>&file=<note.md>`; the viewer
+fetches that note, and reads the manifest itself to power the **‹ prev / next ›** cycling,
+the topic title, and the **📖 README** drawer. AD topics open **WorkflowHelper.html**,
+standalone-box topics open **BoxHelper.html** — that mapping lives in the manifest.
+
+After adding, renaming, or reordering notes, rebuild the index:
+
+```bash
+python3 deploy/gen-manifest.py
 ```
 
 The service runs **two** servers:
 
 | What | URL | Serves | Reachable from |
 |------|-----|--------|----------------|
-| Notes | `http://127.0.0.1:18888/WorkflowHelper.html` | the repo | localhost only |
+| Notes | `http://127.0.0.1:18888/` | the repo (main menu + viewers) | localhost only |
 | Toolbox | `http://0.0.0.0:80/` | `/home/user/Documents` | anyone on the network (for pushing tools to targets) |
 
-`WorkflowHelper.html` (repo root) now references `deploy/vendor/*` instead of the CDNs,
-so it works fully offline — you can also just double-click it into Firefox.
+The viewers reference `vendor/*` (relative to `deploy/`) instead of the CDNs, so the whole
+thing works fully offline. It must be **served over HTTP** (the systemd service does this) —
+the viewers `fetch()` notes from disk, which the `file://` protocol blocks.
 
 ## Install the boot service (Kali)
 
@@ -37,7 +57,7 @@ This auto-detects the repo path and your username, writes
 `/etc/systemd/system/workflowhelper.service`, and enables it. From now on, every boot:
 
 1. `git pull --ff-only` refreshes the notes (best-effort — a failed/offline pull won't stop the servers)
-2. the **notes** server starts on `http://127.0.0.1:18888/WorkflowHelper.html` (localhost only)
+2. the **notes** server starts on `http://127.0.0.1:18888/` — the main menu (localhost only)
 3. the **toolbox** server starts on `http://0.0.0.0:80/` serving `/home/user/Documents`
 
 The unit is granted `CAP_NET_BIND_SERVICE` so your normal user can bind port 80 without

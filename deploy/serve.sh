@@ -38,5 +38,5 @@ fi
 # (Under systemd, KillMode=control-group already reaps the whole cgroup.)
 trap '[[ -n "$TOOLBOX_PID" ]] && kill "$TOOLBOX_PID" 2>/dev/null' INT TERM EXIT
 
-echo "[workflowhelper] notes:   http://$BIND:$PORT/WorkflowHelper.html"
+echo "[workflowhelper] notes:   http://$BIND:$PORT/   (main menu — index.html)"
 python3 -m http.server "$PORT" --bind "$BIND" --directory "$REPO_DIR"

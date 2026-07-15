@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OSCP Notepad</title>
-<link rel="stylesheet" href="deploy/vendor/github-markdown-dark.css">
-<link rel="stylesheet" href="deploy/vendor/highlight-github-dark.min.css">
-<script src="deploy/vendor/marked.min.js"></script>
-<script src="deploy/vendor/highlight.min.js"></script>
+<link rel="stylesheet" href="vendor/github-markdown-dark.css">
+<link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
+<script src="vendor/marked.min.js"></script>
+<script src="vendor/highlight.min.js"></script>
 <style>
 :root {
   --bg0: #0d1117;
@@ -25,7 +25,7 @@
 html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(--tx); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; }
 
 /* ── App shell ────────────────────────────────── */
-.app { display: flex; height: 100vh; }
+.app { display: flex; flex: 1 1 auto; min-height: 0; }
 .panel { display: flex; flex-direction: column; border-right: 1px solid var(--bd); min-width: 0; }
 .panel:last-child { border-right: none; }
 .panel-hd {
@@ -153,9 +153,45 @@ html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--tx2); }
+
+/* ── Top navigation bar ───────────────────────── */
+body { display: flex; flex-direction: column; }
+.topbar {
+  display: flex; align-items: center; gap: 8px; height: 40px; flex-shrink: 0;
+  padding: 0 12px; background: var(--bg1); border-bottom: 1px solid var(--bd);
+}
+.tb-space { flex: 1; }
+.tb-title { font-size: 12px; font-weight: 600; color: var(--tx); min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-title .tb-sub { color: var(--tx2); font-weight: 500; }
+.tb-pos { font-family: var(--mono); font-size: 11px; color: var(--tx2); flex-shrink: 0; }
+
+/* ── README drawer ────────────────────────────── */
+.readme-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(1,4,9,0.55);
+  display: flex; justify-content: flex-end; }
+.readme-overlay[hidden] { display: none; }
+.readme-drawer { width: min(760px, 94vw); background: var(--bg0); border-left: 1px solid var(--bd);
+  display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.45); }
+.readme-hd { display: flex; align-items: center; height: 40px; padding: 0 14px;
+  background: var(--bg2); border-bottom: 1px solid var(--bd); flex-shrink: 0;
+  font-size: 12px; font-weight: 600; color: var(--tx); }
+.readme-hd .hd-space { flex: 1; }
+.readme-body { flex: 1; overflow-y: auto; min-height: 0; padding: 24px 30px; }
 </style>
 </head>
 <body>
+
+<!-- ─── Top navigation bar ─── -->
+<div class="topbar">
+  <a class="hd-btn" href="../index.html" title="Back to the topic menu">☰ Menu</a>
+  <span class="tb-title" id="tb-title"></span>
+  <span class="tb-space"></span>
+  <span class="tb-pos" id="tb-pos"></span>
+  <button class="hd-btn" id="prev-btn" onclick="cycle(-1)" title="Previous note (Alt+←)">‹ prev</button>
+  <button class="hd-btn" id="next-btn" onclick="cycle(1)" title="Next note (Alt+→)">next ›</button>
+  <button class="hd-btn" id="readme-btn" onclick="toggleReadme()" title="Show this topic's README (Esc closes)">📖 README</button>
+</div>
+
 <div class="app">
 
   <!-- ─── Variables panel ─── -->
@@ -202,6 +238,19 @@ html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(
   </div>
 
 </div>
+
+<!-- ─── README drawer ─── -->
+<div class="readme-overlay" id="readme-overlay" hidden>
+  <div class="readme-drawer">
+    <div class="readme-hd">
+      <span id="readme-title">README</span>
+      <span class="hd-space"></span>
+      <button class="hd-btn" onclick="toggleReadme()" title="Close (Esc)">× close</button>
+    </div>
+    <div class="readme-body markdown-body" id="readme-body"></div>
+  </div>
+</div>
+
 <script>
 /* ─── Default content ─────────────────────────────── */
 const DEFAULT_VARS = [
@@ -295,24 +344,127 @@ secretsdump.py {{DOMAIN_UPPER}}/{{USERNAME}}:'{{PASSWORD}}'@{{DC_IP}} -just-dc
 /* ─── State ───────────────────────────────────────── */
 let vars = [];
 
-/* ─── Persistence ─────────────────────────────────── */
+/* ─── Topic navigation ────────────────────────────── */
+/* Opened as WorkflowHelper.html?topic=<id>&file=<name.md>. With no params it
+   falls back to the classic free-form scratchpad. Sibling notes + the README
+   come from ../deploy/manifest.json so we can title, cycle, and pop the README. */
+const VARS_KEY = 'oscp-vars';       // target-specific vars, shared across all notes
+const SCRATCH_MD_KEY = 'oscp-md';   // free-form editor when no topic is selected
+const MD_PREFIX = 'wf-md';          // per-note edited copies:  wf-md:<topic>/<file>
+
+const params = new URLSearchParams(location.search);
+const TOPIC = params.get('topic');
+const FILE  = params.get('file');
+let manifest = null, topicObj = null, fileIdx = -1, readmeLoaded = false;
+
+function mdKey() {
+  return (TOPIC && FILE) ? (MD_PREFIX + ':' + TOPIC + '/' + FILE) : SCRATCH_MD_KEY;
+}
+
 function saveState() {
   try {
-    localStorage.setItem('oscp-vars', JSON.stringify(vars));
-    localStorage.setItem('oscp-md', el('editor').value);
+    localStorage.setItem(VARS_KEY, JSON.stringify(vars));
+    localStorage.setItem(mdKey(), el('editor').value);
   } catch(e) {}
 }
 
-function loadState() {
+function loadVars() {
   try {
-    const sv = localStorage.getItem('oscp-vars');
-    const sm = localStorage.getItem('oscp-md');
+    const sv = localStorage.getItem(VARS_KEY);
     vars = sv ? JSON.parse(sv) : DEFAULT_VARS.map(v => ({...v}));
-    el('editor').value = (sm !== null) ? sm : DEFAULT_MD;
+  } catch(e) { vars = DEFAULT_VARS.map(v => ({...v})); }
+}
+
+async function loadFromDisk() {
+  const dir = topicObj ? topicObj.dir : TOPIC;
+  try {
+    const res = await fetch('../' + dir + '/' + FILE, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    el('editor').value = await res.text();
   } catch(e) {
-    vars = DEFAULT_VARS.map(v => ({...v}));
-    el('editor').value = DEFAULT_MD;
+    el('editor').value = '# Could not load ' + FILE + '\n\n> ' + e +
+      '\n\nServe the repo over HTTP (the systemd service) so notes can be fetched,\n' +
+      'or open the note directly and paste it in.';
   }
+  saveState();
+}
+
+async function boot() {
+  loadVars();
+  renderVars();
+
+  // No topic selected → classic free-form scratchpad.
+  if (!TOPIC || !FILE) {
+    let sm = null;
+    try { sm = localStorage.getItem(SCRATCH_MD_KEY); } catch(e) {}
+    el('editor').value = (sm !== null) ? sm : DEFAULT_MD;
+    setTopbar(null);
+    render();
+    return;
+  }
+
+  // Topic mode → load the manifest so we can title / cycle / pop the README.
+  try {
+    const res = await fetch('manifest.json', { cache: 'no-store' });
+    manifest = await res.json();
+    topicObj = manifest.topics.find(t => t.id === TOPIC) || null;
+    if (topicObj) fileIdx = topicObj.files.findIndex(f => f.file === FILE);
+  } catch(e) { topicObj = null; }
+
+  // Prefer a previously edited copy of this exact note; else pull from disk.
+  let saved = null;
+  try { saved = localStorage.getItem(mdKey()); } catch(e) {}
+  if (saved !== null) el('editor').value = saved;
+  else await loadFromDisk();
+
+  setTopbar(topicObj);
+  render();
+}
+
+function setTopbar(t) {
+  const prevB = el('prev-btn'), nextB = el('next-btn'), rmB = el('readme-btn');
+  if (!t) {
+    el('tb-title').textContent = 'Scratchpad';
+    el('tb-pos').textContent = '';
+    prevB.style.display = nextB.style.display = rmB.style.display = 'none';
+    return;
+  }
+  const fileTitle = (fileIdx >= 0 && t.files[fileIdx]) ? t.files[fileIdx].title : FILE;
+  el('tb-title').innerHTML = '<span class="tb-sub">' + esc(t.title) + '</span>&nbsp; · &nbsp;' + esc(fileTitle);
+  const n = t.files.length;
+  if (n > 1 && fileIdx >= 0) {
+    el('tb-pos').textContent = (fileIdx + 1) + ' / ' + n;
+    prevB.style.display = nextB.style.display = '';
+  } else {
+    el('tb-pos').textContent = '';
+    prevB.style.display = nextB.style.display = 'none';
+  }
+  rmB.style.display = t.readme ? '' : 'none';
+}
+
+function cycle(dir) {
+  if (!topicObj || topicObj.files.length < 2 || fileIdx < 0) return;
+  const n = topicObj.files.length;
+  const nf = topicObj.files[(fileIdx + dir + n) % n].file;
+  location.search = '?topic=' + encodeURIComponent(TOPIC) + '&file=' + encodeURIComponent(nf);
+}
+
+async function toggleReadme() {
+  const ov = el('readme-overlay');
+  if (!ov.hidden) { ov.hidden = true; return; }
+  if (!topicObj || !topicObj.readme) return;
+  if (!readmeLoaded) {
+    el('readme-title').textContent = topicObj.title + ' — ' + topicObj.readme;
+    try {
+      const res = await fetch('../' + topicObj.dir + '/' + topicObj.readme, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      el('readme-body').innerHTML = marked.parse(await res.text());
+    } catch(e) {
+      el('readme-body').innerHTML = '<p>README could not be loaded (' + esc(String(e)) + ').</p>';
+    }
+    readmeLoaded = true;
+  }
+  ov.hidden = false;
 }
 
 /* ─── Variable management ─────────────────────────── */
@@ -499,10 +651,12 @@ function exportMd() {
 }
 
 function resetAll() {
-  if (confirm('Reset everything to the default template and variables?')) {
-    el('editor').value = DEFAULT_MD;
-    vars = DEFAULT_VARS.map(v => ({...v}));
-    renderVars(); saveState(); render();
+  if (TOPIC && FILE) {
+    if (confirm('Reload this note from disk and discard your edits to it?\n(Your variables are kept.)')) {
+      loadFromDisk().then(render);
+    }
+  } else if (confirm('Reset the scratchpad to the default template?')) {
+    el('editor').value = DEFAULT_MD; saveState(); render();
   }
 }
 
@@ -521,9 +675,7 @@ function esc(s) {
 }
 
 /* ─── Init ────────────────────────────────────────── */
-loadState();
-renderVars();
-render();
+boot();
 
 try {
   if (localStorage.getItem('oscp-ed-collapsed') === '1') el('editor-panel').classList.add('collapsed');
@@ -538,6 +690,16 @@ el('editor').addEventListener('keydown', e => {
     t.value = t.value.substring(0, s) + '  ' + t.value.substring(t.selectionEnd);
     t.selectionStart = t.selectionEnd = s + 2;
   }
+});
+
+/* ─── Navigation shortcuts + README close ─────────── */
+el('readme-overlay').addEventListener('click', e => {
+  if (e.target === el('readme-overlay')) el('readme-overlay').hidden = true;
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { el('readme-overlay').hidden = true; return; }
+  if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); cycle(1); }
+  else if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); cycle(-1); }
 });
 </script>
 </body>

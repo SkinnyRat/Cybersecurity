@@ -22,7 +22,7 @@ chmod +x "$SERVE"
 echo "Installing $UNIT"
 echo "  repo : $REPO_DIR"
 echo "  user : $RUN_USER"
-echo "  url  : http://127.0.0.1:18888/WorkflowHelper.html"
+echo "  url  : http://127.0.0.1:18888/"
 
 cat > "$UNIT" <<EOF
 [Unit]
@@ -52,5 +52,5 @@ systemctl restart workflowhelper.service
 echo
 systemctl --no-pager --full status workflowhelper.service | head -n 12 || true
 echo
-echo "Done. Open  http://127.0.0.1:18888/WorkflowHelper.html"
+echo "Done. Open  http://127.0.0.1:18888/   (main menu)"
 echo "Logs:  journalctl -u workflowhelper -f"
