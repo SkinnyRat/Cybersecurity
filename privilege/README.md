@@ -17,6 +17,15 @@ Privesc playbook for standalone boxes, split by OS. Notes here template with **B
 
 ---
 
+## Privesc cheat-scroll
+
+A one-glance map of the whole privesc space — enumerate, find the lever, exploit. Open the
+📖 README drawer in BoxHelper (or click to zoom on GitHub) to view it full-width.
+
+![Privilege escalation cheat-scroll — Linux and Windows, enumeration to exploit](privesc_scroll.png)
+
+---
+
 ## 0 · Toolbox — set this up *before* the exam
 
 ### Install on Kali
