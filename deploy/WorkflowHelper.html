@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
 <script src="vendor/marked.min.js"></script>
 <script src="vendor/highlight.min.js"></script>
+<script src="vendor/hljs-powershell.min.js"></script>
+<script src="vendor/hljs-dos.min.js"></script>
 <style>
 :root {
   --bg0: #0d1117;
@@ -108,7 +110,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(
 
 /* ── Custom code blocks ───────────────────────── */
 .code-block {
-  background: var(--bg1); border: 1px solid var(--bd); border-radius: 6px;
+  background: #300a24; border: 1px solid var(--bd); border-radius: 6px;
   overflow: hidden; margin: 9px 0;
 }
 .code-hd {
@@ -126,6 +128,20 @@ html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(
 .copy-btn.copied { border-color: var(--ac); color: var(--ac); background: rgba(63,185,80,0.08); }
 .code-block pre { margin: 0 !important; padding: 9px 12px !important; overflow-x: auto; }
 .code-block pre code { font-size: 13px !important; font-family: var(--mono) !important; background: transparent !important; }
+
+/* ── Syntax highlighting — brighter, higher-contrast tokens (bash/powershell/cmd) ── */
+.hljs { color: var(--tx); background: transparent; }
+.hljs-comment, .hljs-quote { color: #73d778 !important; font-style: italic; }
+.hljs-keyword, .hljs-literal, .hljs-selector-tag, .hljs-doctag { color: #ff8c7a !important; }
+.hljs-built_in, .hljs-title, .hljs-title.function_, .hljs-section, .hljs-name { color: #e0b8ff !important; }
+.hljs-string, .hljs-regexp, .hljs-meta .hljs-string, .hljs-symbol, .hljs-bullet, .hljs-link { color: #a5d6ff !important; }
+.hljs-variable, .hljs-template-variable, .hljs-params { color: #ffb26b !important; }
+.hljs-number, .hljs-meta, .hljs-operator { color: #79c0ff !important; }
+.hljs-type, .hljs-title.class_, .hljs-attr, .hljs-attribute, .hljs-selector-attr, .hljs-selector-class, .hljs-selector-id { color: #7ee787 !important; }
+.hljs-addition { color: #7ee787 !important; }
+.hljs-deletion { color: #ffa198 !important; }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 600; }
 
 /* ── Unfilled placeholder highlight ──────────── */
 .unfilled {

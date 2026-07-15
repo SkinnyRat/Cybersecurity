@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="deploy/vendor/highlight-github-dark.min.css">
 <script src="deploy/vendor/marked.min.js"></script>
 <script src="deploy/vendor/highlight.min.js"></script>
+<script src="deploy/vendor/hljs-powershell.min.js"></script>
+<script src="deploy/vendor/hljs-dos.min.js"></script>
 <style>
 :root {
   --bg0: #0d1117; --bg1: #161b22; --bg2: #21262d; --bd: #30363d;
@@ -114,8 +116,20 @@ main { max-width: 1120px; margin: 0 auto; padding: 26px 32px 60px; }
 .markdown-body { background: transparent !important; color: var(--tx) !important; }
 .markdown-body h1, .markdown-body h2 { border-bottom-color: var(--bd) !important; }
 .markdown-body a { color: var(--box); }
-.markdown-body pre { background: var(--bg1) !important; border: 1px solid var(--bd); border-radius: 8px; }
+.markdown-body pre { background: #300a24 !important; border: 1px solid var(--bd); border-radius: 8px; }
 .markdown-body code:not(.hljs) { background: rgba(110,118,129,0.18); border-radius: 4px; padding: 0.15em 0.4em; }
+
+/* ── Syntax highlighting — brighter, higher-contrast tokens (bash/powershell/cmd) ── */
+.hljs { color: var(--tx); background: transparent !important; }
+.hljs-comment, .hljs-quote { color: #73d778 !important; font-style: italic; }
+.hljs-keyword, .hljs-literal, .hljs-selector-tag, .hljs-doctag { color: #ff8c7a !important; }
+.hljs-built_in, .hljs-title, .hljs-title.function_, .hljs-section, .hljs-name { color: #e0b8ff !important; }
+.hljs-string, .hljs-regexp, .hljs-meta .hljs-string, .hljs-symbol, .hljs-bullet, .hljs-link { color: #a5d6ff !important; }
+.hljs-variable, .hljs-template-variable, .hljs-params { color: #ffb26b !important; }
+.hljs-number, .hljs-meta, .hljs-operator { color: #79c0ff !important; }
+.hljs-type, .hljs-title.class_, .hljs-attr, .hljs-attribute, .hljs-selector-attr, .hljs-selector-class, .hljs-selector-id { color: #7ee787 !important; }
+.hljs-addition { color: #7ee787 !important; }
+.hljs-deletion { color: #ffa198 !important; }
 
 .loading, .err { color: var(--tx2); padding: 40px 0; text-align: center; }
 .err { color: #f85149; }
@@ -277,6 +291,7 @@ async function openReadme() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     body.innerHTML = window.marked ? marked.parse(await res.text()) : '<pre>' + esc(await res.text()) + '</pre>';
     fixRelativeAssets(body, current.dir + '/');
+    if (window.hljs) body.querySelectorAll('pre code').forEach(b => { try { hljs.highlightElement(b); } catch(e) {} });
   } catch (e) {
     body.innerHTML = '<div class="err">Could not load README (' + esc(String(e)) + ')</div>';
   }
