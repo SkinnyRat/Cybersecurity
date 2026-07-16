@@ -10,6 +10,7 @@
 <script src="deploy/vendor/highlight.min.js"></script>
 <script src="deploy/vendor/hljs-powershell.min.js"></script>
 <script src="deploy/vendor/hljs-dos.min.js"></script>
+<script src="deploy/cmd-highlight.js"></script>
 <style>
 :root {
   --bg0: #0d1117; --bg1: #161b22; --bg2: #21262d; --bd: #30363d;
@@ -121,6 +122,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 26px 32px 60px; }
 
 /* ── Syntax highlighting — brighter, higher-contrast tokens (bash/powershell/cmd) ── */
 .hljs { color: var(--tx); background: transparent !important; }
+.hljs-cmd { color: #ffb26b !important; }
 .hljs-comment, .hljs-quote { color: #73d778 !important; font-style: italic; }
 .hljs-keyword, .hljs-literal, .hljs-selector-tag, .hljs-doctag { color: #ff8c7a !important; }
 .hljs-built_in, .hljs-title, .hljs-title.function_, .hljs-section, .hljs-name { color: #e0b8ff !important; }
@@ -292,6 +294,7 @@ async function openReadme() {
     body.innerHTML = window.marked ? marked.parse(await res.text()) : '<pre>' + esc(await res.text()) + '</pre>';
     fixRelativeAssets(body, current.dir + '/');
     if (window.hljs) body.querySelectorAll('pre code').forEach(b => { try { hljs.highlightElement(b); } catch(e) {} });
+    if (window.tagCommands) tagCommands(body);
   } catch (e) {
     body.innerHTML = '<div class="err">Could not load README (' + esc(String(e)) + ')</div>';
   }

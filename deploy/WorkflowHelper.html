@@ -10,6 +10,7 @@
 <script src="vendor/highlight.min.js"></script>
 <script src="vendor/hljs-powershell.min.js"></script>
 <script src="vendor/hljs-dos.min.js"></script>
+<script src="cmd-highlight.js"></script>
 <style>
 :root {
   --bg0: #0d1117;
@@ -131,6 +132,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(
 
 /* ── Syntax highlighting — brighter, higher-contrast tokens (bash/powershell/cmd) ── */
 .hljs { color: var(--tx); background: transparent; }
+.hljs-cmd { color: #ffb26b !important; }
 .hljs-comment, .hljs-quote { color: #73d778 !important; font-style: italic; }
 .hljs-keyword, .hljs-literal, .hljs-selector-tag, .hljs-doctag { color: #ff8c7a !important; }
 .hljs-built_in, .hljs-title, .hljs-title.function_, .hljs-section, .hljs-name { color: #e0b8ff !important; }
@@ -476,6 +478,7 @@ async function toggleReadme() {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       el('readme-body').innerHTML = marked.parse(await res.text());
       fixRelativeAssets(el('readme-body'), '../' + topicObj.dir + '/');
+      if (window.tagCommands) tagCommands(el('readme-body'));
     } catch(e) {
       el('readme-body').innerHTML = '<p>README could not be loaded (' + esc(String(e)) + ').</p>';
     }
@@ -613,6 +616,7 @@ function render() {
 
   el('preview').innerHTML = html;
   fixRelativeAssets(el('preview'), assetBase());
+  if (window.tagCommands) tagCommands(el('preview'));
 
   // Status indicator
   const remaining = (filled.match(/\{\{[A-Z0-9_]+\}\}/g) || []);
