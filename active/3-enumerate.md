@@ -279,7 +279,9 @@ docker compose logs bloodhound | Select-String "Initial"   # grab admin password
 
 **GUI workflow:** Upload Data → drag the SharpHound zip → *Find Shortest Paths to Domain Admins* →
 right-click your controlled objects → *Mark as Owned* → *Shortest Paths from Owned Principals*.
-Right-click any edge → **Help** for Abuse/Opsec/References.
+Right-click any edge → **Help** for Abuse/Opsec/References. Other useful pre-built pulls: *List all
+Kerberoastable Accounts*, *Find Computers where Domain Users are Local Admin*, *Find Workstations /
+Servers where Domain Users can RDP*.
 
 ### Cypher cheat-sheet (Explore → Cypher tab)
 
@@ -292,6 +294,7 @@ Right-click any edge → **Help** for Abuse/Opsec/References.
 MATCH p=shortestPath((u {owned:true})-[*1..]->(t {highvalue:true})) RETURN p   -- owned → high value
 MATCH (u:User)-[:MemberOf*1..]->(g:Group) WHERE g.name STARTS WITH "DOMAIN ADMINS" RETURN u
 MATCH p=(u {owned:true})-[r]->(m) RETURN p                       -- one-hop: what owned can touch
+MATCH p=(c:Computer)-[:HasSession]->(u:User) RETURN p            -- active sessions: who is logged on where
 
 -- roasting / cred targets
 MATCH (u:User) WHERE u.hasspn=true AND NOT u.name STARTS WITH "KRBTGT" RETURN u   -- Kerberoastable

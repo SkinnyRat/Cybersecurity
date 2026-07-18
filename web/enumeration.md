@@ -48,6 +48,24 @@ gobuster dir -u {{URL}} -w {{WORDLIST}} -x php,txt,html -t 10 -o gobuster.txt
 
 > Status-code cheat: **301/302** = redirect (often a dir), **403** = exists but forbidden, **200** = accessible. Investigate the 200/301/403s.
 
+## WPScan — WordPress enumeration (supplement)
+
+> When whatweb / page source (`wp-content`, `wp-includes`) reveals **WordPress**, enumerate
+> core/theme/plugin versions and known vulns with WPScan. Plugins & themes are the usual way in —
+> core is patched fast, community plugins often aren't. `--enumerate p` = popular plugins (`vp` = only
+> vulnerable, `u` = users); `--plugins-detection aggressive` probes known plugin paths even when not
+> linked. A free `--api-token` adds the vuln DB, but enumeration works fine without one.
+
+```bash
+wpscan --url {{URL}} --enumerate p --plugins-detection aggressive -o wpscan.txt
+wpscan --url {{URL}} --enumerate u                          # enumerate usernames
+wpscan --url {{URL}} -U {{USERNAME}} -P {{WORDLIST}}        # brute a login once you have a username
+```
+
+> Take the detected plugin + **version** to `searchsploit`/exploit-db (directory-traversal, RCE, etc.),
+> same workflow as [../exploits/exploits.md](../exploits/exploits.md) §13.4. Post-login WordPress abuse
+> (malicious-plugin RCE, forced-auth relay) is in [attacks.md](attacks.md).
+
 ## 8.2.4 Security Testing with Burp Suite
 
 > GUI proxy platform. Community Edition = manual tools (Proxy, Repeater, Intruder — rate-limited). Launch, use a Temporary project + Burp defaults. Proxy listens on **127.0.0.1:8080**; point Firefox there (`about:preferences` → Network Settings → Manual proxy, all protocols). Disable **Intercept** for normal browsing; requests appear under **Proxy > HTTP history**.

