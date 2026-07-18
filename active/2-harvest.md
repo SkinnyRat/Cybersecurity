@@ -61,6 +61,7 @@ enum4linux -U {{DC_IP}} | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
 rpcclient -U "" -N {{DC_IP}}                                  # then: enumdomusers
 crackmapexec smb {{DC_IP}} --users                           # null session
 sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --users   # authenticated
+crackmapexec smb {{TARGET_IP}} -u {{USERNAME}} -p {{PASSWORD}} --continue-on-success
 ./windapsearch.py --dc-ip {{DC_IP}} -u "" -U
 ldapsearch -H ldap://{{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "(&(objectclass=user))" | grep sAMAccountName: | cut -f2 -d" "
 kerbrute userenum -d {{DOMAIN}} --dc {{DC_IP}} {{USERLIST}}  # no-auth Kerberos user validation

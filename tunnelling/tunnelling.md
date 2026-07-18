@@ -456,6 +456,10 @@ tmux new -s pivot
 ssh -N -D 9999 {{USERNAME}}@<DEEP_IP> \
     -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes
 chisel client {{LHOST}}:8080 R:socks --keepalive 25s   # chisel's own keepalive
+.\chisel.exe client {{LHOST}}:8080 R:80:{{TARGET_IP}}:80
+
+# To kill strays: 
+taskkill /F /IM chisel.exe /IM chisel1.exe /T
 ```
 
 **Auto-reconnect** — for long/unattended pivots that must ride out blips:
