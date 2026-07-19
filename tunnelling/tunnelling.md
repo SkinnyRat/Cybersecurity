@@ -592,7 +592,25 @@ different ports. Test the **exact** port your failing tool needs.
 **5 · One proxy line only.** `tail /etc/proxychains4.conf` — exactly one uncommented
 `socks5 127.0.0.1 <port>`. Old stale lines chain your traffic through dead proxies.
 
-**6 · Clock skew (Kerberos over a pivot).** `KRB_AP_ERR_SKEW(Clock skew too great)` means Kali's clock
+**6 · Tool silently bypasses proxychains (cme/nxc print *nothing*).** netexec/crackmapexec open
+sockets in **async/threaded** code that escapes proxychains' `LD_PRELOAD` hook — you get **no
+`Strict chain …` line**, the tool tries to connect **direct from Kali**, and fails instantly
+(progress bar to 100% in `0:00:00`, zero output). Tells you it never entered the tunnel. Fixes:
+`--threads 1` *sometimes* lets proxychains keep up, but over a pivot prefer **single-threaded
+impacket** tools (they hook cleanly). And **never `sudo proxychains …`** — `sudo` strips
+`LD_PRELOAD`, so the hook is dropped and traffic bypasses the tunnel entirely. Nothing here needs
+root anyway (bloodhound-python, impacket, smbclient all run fine as your user).
+
+**7 · `nc` connects but impacket *times out* → socks4 vs socks5 + tool weight.** If a bare
+`proxychains nc`/`nmap` reaches 445 but `psexec.py` times out on the same port:
+- Switch the proxychains.conf line from `socks4` to **`socks5`** (`ssh -D` serves SOCKS5; SMB's
+  multi-round-trip negotiation is far happier over it than socks4).
+- Don't test auth with **heavy** tools. `psexec.py` uploads a service binary + creates a service =
+  a dozen round trips → it times out over a laggy tunnel *even when the hash is valid*. To verify
+  PtH/auth, use a **light auth-only** call — `smbclient.py` (list shares) or `secretsdump.py`.
+  A `STATUS_LOGON_FAILURE` is a real **rejection**; a **timeout** is just the tunnel choking.
+
+**8 · Clock skew (Kerberos over a pivot).** `KRB_AP_ERR_SKEW(Clock skew too great)` means Kali's clock
 is >5 min off the DC and you **can't NTP it through SOCKS** (NTP is UDP; SOCKS is TCP-only). Read the
 DC's time over the proxy, then wrap the command in `faketime` (full GetUserSPNs syntax in the
 kerberoasting note):
@@ -602,7 +620,7 @@ proxychains -q net time -S {{TARGET_IP}}                       # read the DC clo
 faketime 'YYYY-MM-DD HH:MM:SS' proxychains -q impacket-GetUserSPNs -request -dc-ip {{TARGET_IP}} <DOMAIN>/{{USERNAME}}
 ```
 
-**7 · Still stuck? Skip the pivot.** If you already own a box on the target's subnet (e.g. a
+**9 · Still stuck? Skip the pivot.** If you already own a box on the target's subnet (e.g. a
 relayed SYSTEM shell on a mail/app server), run the attack **from there** — a local LAN hop beats a
 fragile double-SOCKS chain from Kali every time.
 
