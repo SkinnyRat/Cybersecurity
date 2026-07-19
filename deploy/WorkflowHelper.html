@@ -54,13 +54,19 @@ html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(
   cursor: pointer; font-size: 17px; line-height: 1; padding: 2px 5px; border-radius: 4px;
 }
 .var-row .del-btn:hover { color: var(--danger); background: rgba(218,54,51,0.12); }
-.vars-footer { padding: 8px; flex-shrink: 0; border-top: 1px solid var(--bd); }
+.vars-footer { padding: 8px; flex-shrink: 0; border-top: 1px solid var(--bd); display: flex; flex-direction: column; gap: 6px; }
 .add-var-btn {
   width: 100%; padding: 6px 10px; background: none;
   border: 1px dashed var(--bd); border-radius: 5px;
   color: var(--tx2); font-size: 12px; cursor: pointer; transition: all 0.12s;
 }
 .add-var-btn:hover { border-color: var(--ac); color: var(--ac); background: rgba(63,185,80,0.05); }
+.new-box-btn {
+  width: 100%; padding: 6px 10px; background: none;
+  border: 1px solid var(--bd); border-radius: 5px;
+  color: var(--tx2); font-size: 12px; cursor: pointer; transition: all 0.12s;
+}
+.new-box-btn:hover { border-color: var(--warn); color: var(--warn); background: rgba(227,179,65,0.06); }
 
 /* ── Editor panel ─────────────────────────────── */
 .editor-panel { flex: 2; background: var(--bg0); }
@@ -222,6 +228,7 @@ body { display: flex; flex-direction: column; }
     <div class="vars-list" id="vars-list"></div>
     <div class="vars-footer">
       <button class="add-var-btn" onclick="addVar()">+ add variable</button>
+      <button class="new-box-btn" onclick="newBox()" title="Blank every variable value for the next target — keeps the variable names, leaves your notes untouched">↺ new box · clear values</button>
     </div>
   </aside>
 
@@ -525,6 +532,15 @@ function addVar() {
   renderVars();
   const rows = el('vars-list').querySelectorAll('.var-row');
   if (rows.length) rows[rows.length - 1].querySelector('.var-key').focus();
+}
+
+/* Clear every variable's value (keep the names) — a one-click reset between boxes. */
+function newBox() {
+  if (!vars.some(v => v.value)) return;
+  if (confirm('Clear all variable values for a new box?\n(Variable names are kept; your notes are untouched.)')) {
+    vars.forEach(v => v.value = '');
+    renderVars(); saveState(); render();
+  }
 }
 
 /* ─── Marked setup ────────────────────────────────── */
