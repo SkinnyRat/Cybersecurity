@@ -592,14 +592,17 @@ different ports. Test the **exact** port your failing tool needs.
 **5 · One proxy line only.** `tail /etc/proxychains4.conf` — exactly one uncommented
 `socks5 127.0.0.1 <port>`. Old stale lines chain your traffic through dead proxies.
 
-**6 · Tool silently bypasses proxychains (cme/nxc print *nothing*).** netexec/crackmapexec open
-sockets in **async/threaded** code that escapes proxychains' `LD_PRELOAD` hook — you get **no
-`Strict chain …` line**, the tool tries to connect **direct from Kali**, and fails instantly
-(progress bar to 100% in `0:00:00`, zero output). Tells you it never entered the tunnel. Fixes:
-`--threads 1` *sometimes* lets proxychains keep up, but over a pivot prefer **single-threaded
-impacket** tools (they hook cleanly). And **never `sudo proxychains …`** — `sudo` strips
-`LD_PRELOAD`, so the hook is dropped and traffic bypasses the tunnel entirely. Nothing here needs
-root anyway (bloodhound-python, impacket, smbclient all run fine as your user).
+**6 · cme/nxc print *nothing* over a pivot (they still route — it's usually NOT a bypass).**
+proxychains **does** carry crackmapexec/netexec — you'll see the `Strict chain … OK` (or `|S-chain|`)
+lines and results, same as any exercise guide. When you get *no* output the cause is almost always
+one of these, not a hook bypass:
+- **nxc's first run** builds its `~/.nxc` structure and **exits without running** — just run it again.
+- **netexec's progress-bar UI + multiple targets** swallows output (bar to `100%` in `0:00:00`, no
+  result lines). Over a pivot, **run one target at a time** — results print inline, like the guides.
+  (`crackmapexec` on modern Kali is often a symlink to `nxc`, so it inherits this.)
+- **`sudo proxychains …`** — `sudo` strips `LD_PRELOAD`, dropping the hook so traffic bypasses the
+  tunnel. Nothing here needs root; drop the sudo. (This one *is* a real bypass.)
+- A genuinely **slow/laggy target** over the tunnel — add `--threads 1` to serialise, and be patient.
 
 **7 · `nc` connects but impacket *times out* → socks4 vs socks5 + tool weight.** If a bare
 `proxychains nc`/`nmap` reaches 445 but `psexec.py` times out on the same port:
