@@ -9,7 +9,7 @@
 
 > **🎯 Reach for these first in the OSCP:** **[chisel](#d1--http-tunnelling-with-chisel)** (reverse SOCKS, works even through egress filtering) · **[ssh -D + proxychains](#b2--dynamic--d-socks)** (whole-subnet SOCKS when you have creds) · **[ssh -L](#b1--local--l)** (one-service quick bridge) · **[sshuttle](#b5--sshuttle)** (transparent subnet routing, no proxychains). Everything else is situational.
 
-> **⚡ Quick jump:** [The one decision](#the-one-decision--which-technique) · [SSH -L/-D/-R cheat](#ssh-forwarding-cheat-sheet) · [socat](#a2--socat-port-forward) · [ssh -L](#b1--local--l) · [ssh -D](#b2--dynamic--d-socks) · [ssh -R](#b3--remote--r) · [sshuttle](#b5--sshuttle) · [ssh.exe](#c1--sshexe-windows) · [plink](#c2--plink-windows) · [netsh](#c3--netsh-windows) · [net use](#c4--net-use-reach-another-windows-boxs-shares) · [chisel](#d1--http-tunnelling-with-chisel) · [dnscat2](#d2--dns-tunnelling-with-dnscat2) · [keeping tunnels alive](#e--keeping-tunnels-alive)
+> **⚡ Quick jump:** [The one decision](#the-one-decision--which-technique) · [SSH -L/-D/-R cheat](#ssh-forwarding-cheat-sheet) · [socat](#a2--socat-port-forward) · [ssh -L](#b1--local--l) · [ssh -D](#b2--dynamic--d-socks) · [ssh -R](#b3--remote--r) · [sshuttle](#b5--sshuttle) · [ssh.exe](#c1--sshexe-windows) · [plink](#c2--plink-windows) · [netsh](#c3--netsh-windows) · [net use](#c4--net-use-reach-another-windows-boxs-shares) · [chisel](#d1--http-tunnelling-with-chisel) · [dnscat2](#d2--dns-tunnelling-with-dnscat2) · [keeping tunnels alive](#e--keeping-tunnels-alive) · [**proxychains triage**](#g--pivot-triage-why-isnt-my-proxychains-working)
 
 ---
 
@@ -527,6 +527,87 @@ meterpreter > upload chisel.exe C:\\Users\\Public\\chisel.exe
 
 > Same proxychains rules apply (SOCKS is TCP-only → `-sT -Pn`, be patient). For a firewalled / DPI
 > egress path, prefer **chisel** (§D.1) — it looks like HTTP and auto-reconnects.
+
+---
+
+# G — Pivot triage: "why isn't my proxychains working?"
+
+> A dead pivot burns more OSCP time than any exploit. When proxychains gives `Connection refused`,
+> `filtered`, a timeout, or "hangs" — **do not touch the target. Diagnose the path.** These are the
+> traps that actually cost hours; run them in order, each rules out one layer.
+
+**0 · Drop `-q` to see where it fails.** `proxychains -q` hides proxychains' own routing lines — the
+first thing you need. Remove it:
+
+```bash
+proxychains impacket-psexec -hashes …:… {{USERNAME}}@{{TARGET_IP}}
+# [proxychains] …127.0.0.1:1080 … OK          → proxy was reached
+# [proxychains] …{{TARGET_IP}}:445 <--denied   → proxy is FINE; the TARGET refused that port
+# [proxychains] …<--socket error/timeout, or can't reach 1080 → the PROXY itself is dead
+```
+
+**1 · Who actually owns your SOCKS port?** (the #1 silent killer)
+
+```bash
+ss -ltnp | grep 1080
+```
+
+The **process name** must be the tunnel you think is live — `chisel` or `ssh`. If it says **`ruby`**,
+that's a leftover **Metasploit `socks_proxy`** (§F) squatting on 1080; a stale `chisel`/`ssh` from a
+dead session does the same. proxychains happily talks to whatever holds the port — dead route and all.
+Kill the squatter, confirm the port is free, *then* start the real tunnel:
+
+```bash
+kill <pid>               # free 1080
+ss -ltnp | grep 1080     # MUST be empty before you relaunch chisel R:socks
+```
+
+> **Port-collision trap:** if a squatter already holds 1080, chisel's `R:socks` can't bind it and
+> quietly lands on another port (or nowhere) — while proxychains keeps hammering the dead one. Always
+> clear 1080 *first*.
+
+**2 · Did you build a SOCKS, or just a port-forward?** `R:socks` = subnet-wide SOCKS (what proxychains
+needs). `R:80:host:80` = **one** port bridged to **one** service — useless for proxychains and only
+reaches that single host:port. Read the chisel **server** log:
+
+```
+proxy#R:socks: Listening                 ✅ SOCKS — proxychains works
+proxy#R:80⇒172.16.x.x:80: Listening      ❌ port-forward — NOT a SOCKS
+```
+
+**3 · Prove the path with a host you OWN.** Before blaming the target, scan the port on a box you
+already control (the pivot's own internal IP, another owned host) *next to* the target:
+
+```bash
+proxychains -q nmap -sT -Pn -p445 <OWNED_HOST> {{TARGET_IP}}
+```
+
+- Owned host `open` → the path works; the problem is target-specific.
+- Owned host `filtered` → **the tunnel is broken**, not the target. Go back to steps 1–2.
+
+**4 · Right port? A tool that worked doesn't clear the one that fails.** Kerberoast/LDAP ride 88/389;
+psexec/`net use`/secretsdump ride **445**. "My kerberoast worked" proves *nothing* about SMB — they're
+different ports. Test the **exact** port your failing tool needs.
+
+**5 · One proxy line only.** `tail /etc/proxychains4.conf` — exactly one uncommented
+`socks5 127.0.0.1 <port>`. Old stale lines chain your traffic through dead proxies.
+
+**6 · Clock skew (Kerberos over a pivot).** `KRB_AP_ERR_SKEW(Clock skew too great)` means Kali's clock
+is >5 min off the DC and you **can't NTP it through SOCKS** (NTP is UDP; SOCKS is TCP-only). Read the
+DC's time over the proxy, then wrap the command in `faketime` (full GetUserSPNs syntax in the
+kerberoasting note):
+
+```bash
+proxychains -q net time -S {{TARGET_IP}}                       # read the DC clock
+faketime 'YYYY-MM-DD HH:MM:SS' proxychains -q impacket-GetUserSPNs -request -dc-ip {{TARGET_IP}} <DOMAIN>/{{USERNAME}}
+```
+
+**7 · Still stuck? Skip the pivot.** If you already own a box on the target's subnet (e.g. a
+relayed SYSTEM shell on a mail/app server), run the attack **from there** — a local LAN hop beats a
+fragile double-SOCKS chain from Kali every time.
+
+> **Golden rule:** a symptom on the *target* is usually a lie about the *path*. `filtered`/`refused`
+> on a host you own = fix the tunnel, not the exploit.
 
 ---
 
