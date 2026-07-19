@@ -86,4 +86,9 @@ seq 1 254 | xargs -P64 -I{} sh -c 'nc -zw1 <NEWNET>.{} 445 2>/dev/null && echo "
   client UID, so mounting as root on the pivot = root access to the files.)
 - **Bind `0.0.0.0`** on a forward when a *third* box (Kali) must reach it — defaults are loopback-only.
 - Mnemonic: the flag names the side the **listening port opens on** — `-L`/`-D` = your side, `-R` = the far side.
+- **Point proxychains at the *local* SOCKS port**, not the SSH server — `ssh -D` opens the listener on
+  the box you *run it from* (Kali). So `socks5 127.0.0.1 <port>`, never `socks5 <far-end-ip> <port>`.
+- **Tool-fit beats the tunnel.** If `nc` reaches the port but your tool "does nothing"/times out, it's
+  the tool, not the network: single service → `ssh -L` + run native; chatty collectors (SharpHound,
+  mass cme, bloodhound-python) → run **inside** on a domain host, don't tunnel them. See tunnelling.md §G.
 - **Clean up** persistent state: `netsh` portproxy + firewall rules survive reboots; kill backgrounded `chisel`/`ssh -f` procs.

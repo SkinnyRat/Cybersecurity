@@ -624,11 +624,32 @@ faketime 'YYYY-MM-DD HH:MM:SS' proxychains -q impacket-GetUserSPNs -request -dc-
 ```
 
 **9 · Still stuck? Skip the pivot.** If you already own a box on the target's subnet (e.g. a
-relayed SYSTEM shell on a mail/app server), run the attack **from there** — a local LAN hop beats a
-fragile double-SOCKS chain from Kali every time.
+relayed SYSTEM shell on a mail/app server, or an RDP/GUI session on a domain-joined host), run the
+attack **from there** — a local LAN hop beats a fragile double-SOCKS chain from Kali every time.
+
+### Is it the tunnel, or the tool? (SOCKS tool-fit)
+
+If a bare `proxychains nc`/`nmap` reaches the port but your *actual* tool "does nothing" / times out,
+the tunnel is fine — the **tool** is a bad fit for SOCKS. Match the tool to the transport:
+
+| Works fine over SOCKS / `-L` | Fragile over SOCKS (chatty / DNS / UDP / many round-trips) |
+|---|---|
+| `nc` (one TCP connect) | `nxc`/`cme` multi-target (progress-bar UI swallows output) |
+| `xfreerdp` via `-L` (one clean stream) | `bloodhound-python` (DNS SRV lookups — latency/UDP-sensitive) |
+| `smbclient`, `psql`, `secretsdump.py` (single session) | `psexec.py` (service-upload dance = dozens of round trips) |
+
+**The rule this buys you:**
+- **Need one service** (RDP, one web app, one DB)? → a dedicated **`ssh -L`** forward, not SOCKS.
+  One clean TCP stream, zero proxychains/DNS/threading gotchas.
+- **Need a whole subnet** for quick single-connection probes? → `ssh -D`/chisel SOCKS + `proxychains`,
+  but stick to the left-column tools and go **one target at a time**.
+- **Need a chatty/DNS-heavy collector** (SharpHound, mass cme)? → don't tunnel it at all. Get an
+  RDP/shell on an inside domain-joined host and **run it native** (`\\tsclient\<drive>` via
+  `xfreerdp /drive:` is a clean two-way file transfer for the tool in and the loot out).
 
 > **Golden rule:** a symptom on the *target* is usually a lie about the *path*. `filtered`/`refused`
-> on a host you own = fix the tunnel, not the exploit.
+> on a host you own = fix the tunnel, not the exploit. But if `nc` reaches the port and only your
+> *tool* fails, the lie is the other way round — fix the **tool/transport fit**, not the tunnel.
 
 ---
 
