@@ -1,0 +1,2 @@
+# Shell scripts must stay LF so the shebang works when run on Kali/Linux.
+*.sh text eol=lf

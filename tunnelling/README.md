@@ -6,6 +6,16 @@ placeholders `<PIVOT_IP>` / `<DEEP_IP>` name the hops of the pivot chain (see th
 [tunnelling.md](tunnelling.md)).
 
 - [tunnelling.md](tunnelling.md) — PEN-200 Module 19 (Port Redirection and SSH Tunneling): socat, `ssh -L/-D/-R` + remote-dynamic, sshuttle, and the Windows tools ssh.exe/plink/netsh — and Module 20 (Tunneling Through Deep Packet Inspection): HTTP tunnelling with chisel + DNS tunnelling with dnscat2.
+- [pivot.sh](pivot.sh) — one-command SOCKS/`-L` setup + preflight, with every §G gotcha baked in
+  (local socks address, socks5, host-key auto-accept, listener + path verify). Fill in the spawn's
+  IPs and go — collapses the 3-hour plumbing tax to ~2 min:
+  ```bash
+  chmod +x pivot.sh
+  ./pivot.sh socks -j <PIVOT_IP> -i key1 -t 172.16.8.3:445   # -D SOCKS + proxychains + verify
+  ./pivot.sh fwd   -j <PIVOT_IP> -i key1 -L 13389:172.16.8.20:3389   # single-service (RDP)
+  ./pivot.sh check -t 172.16.8.3:445                          # re-run preflight only
+  ./pivot.sh down                                             # tear the SOCKS tunnel down
+  ```
 
 > **The one rule:** pick the technique from the *constraint*, not habit — can Kali connect **in**
 > to the pivot, or must the pivot connect **out** to Kali? That single question chooses `-L`/`-D`
