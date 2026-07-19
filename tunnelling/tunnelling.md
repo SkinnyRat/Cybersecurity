@@ -628,4 +628,17 @@ fragile double-SOCKS chain from Kali every time.
   whole subnet → `-D`+proxychains or sshuttle; DPI HTTP-only → chisel; DNS-only → dnscat2.
 - **proxychains rules:** SOCKS is TCP-only → always `-sT -Pn` with nmap; expect slowness; one proxy
   line at a time in `proxychains4.conf`.
+- **Kernel ops don't proxychain.** proxychains only redirects *userland* TCP `connect()`, so anything
+  the kernel does — notably an **NFS `mount -t nfs`** (RPC/portmapper, often UDP) — can't be tunnelled
+  over SOCKS. Run the mount **on the pivot** (where `2049`/`111` are directly routable), not from Kali:
+
+  ```bash
+  # on the pivot — NFS export found earlier with `showmount -e <TARGET>`
+  mkdir /tmp/DEV01 && mount -t nfs <TARGET>:/DEV01 /tmp/DEV01 && ls -la /tmp/DEV01
+  ```
+
+  NFS trusts the **client's UID** (`AUTH_SYS`): mounting as root on the pivot gives root access to the
+  files — and with `no_root_squash` you can drop a SUID binary. This is why HTB steers you to NFS over
+  SMB here — the export is open to `everyone` (no creds), whereas SMB on the Windows host wants auth.
+  (`smbclient` speaks SMB/445 and can't touch an NFS export on 111/2049 at all — different protocol.)
 - **Clean up** persistent changes (netsh portproxy + firewall rules, backgrounded chisel/ssh procs).

@@ -80,6 +80,10 @@ seq 1 254 | xargs -P64 -I{} sh -c 'nc -zw1 <NEWNET>.{} 445 2>/dev/null && echo "
 
 - Edit `/etc/proxychains4.conf` → last line `socks5 <ip> <port>`; **one** proxy at a time.
 - SOCKS is **TCP-only**: nmap through it must be `-sT -Pn` (no SYN/UDP/ICMP). Expect it to be slow.
+- **Kernel operations can't be proxychained** — proxychains only hooks *userland* TCP `connect()`. An
+  **NFS `mount -t nfs`** (RPC/portmapper, often UDP) won't tunnel: run it **on the pivot** where 2049/111
+  are directly reachable, not over SOCKS from Kali. (NFS export found via `showmount -e`; trusts the
+  client UID, so mounting as root on the pivot = root access to the files.)
 - **Bind `0.0.0.0`** on a forward when a *third* box (Kali) must reach it — defaults are loopback-only.
 - Mnemonic: the flag names the side the **listening port opens on** — `-L`/`-D` = your side, `-R` = the far side.
 - **Clean up** persistent state: `netsh` portproxy + firewall rules survive reboots; kill backgrounded `chisel`/`ssh -f` procs.
