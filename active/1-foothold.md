@@ -14,8 +14,9 @@
 Once you have a host + credentials (from the client, breach data, or a prior step):
 
 ```shellsession
-# RDP
+# RDP add IP:PORT if tunnelling 
 xfreerdp3 /cert:ignore /v:{{TARGET_IP}} /u:{{USERNAME}} /p:{{PASSWORD}}
+xfreerdp /cert:ignore /v:{{TARGET_IP}} /u:{{USERNAME}} /p:{{PASSWORD}} /drive:home,"/home/kali/Documents"
 
 # SSH
 ssh {{USERNAME}}@{{TARGET_IP}}
