@@ -613,8 +613,17 @@ fragile double-SOCKS chain from Kali every time.
 
 # 20.3 / 19.5 — Wrapping up
 
-- **Enumerate the pivot from inside first** (`ip addr`, `ip route`, `ss -ntplu`, sweep the new subnet
-  `for i in $(seq 1 254); do nc -zv -w1 <NET>.$i 445; done`). You can't tunnel to what you haven't found.
+- **Enumerate the pivot from inside first** (`ip addr`, `ip route`, `ss -ntplu`, then sweep the new
+  subnet — quiet + parallel so it finishes in seconds and only prints hits):
+
+  ```bash
+  # on the pivot (direct). From Kali over a SOCKS -D/chisel tunnel, prefix each nc with `proxychains -q`
+  seq 1 254 | xargs -P64 -I{} sh -c 'nc -zw1 <NET>.{} 445 2>/dev/null && echo "<NET>.{}:445 up"'
+  ```
+
+  You can't tunnel to what you haven't found. (`nmap -sT -Pn --open -p445` works too, but over a
+  fragile SOCKS pivot the parallel `nc` sweep is faster and more reliable — nmap's ETA can balloon
+  to an hour.)
 - **Match the tool to the constraint**, not habit: inbound-OK → `-L`/`-D`; inbound-blocked → `-R`;
   whole subnet → `-D`+proxychains or sshuttle; DPI HTTP-only → chisel; DNS-only → dnscat2.
 - **proxychains rules:** SOCKS is TCP-only → always `-sT -Pn` with nmap; expect slowness; one proxy

@@ -58,7 +58,9 @@ The moment you get a shell on a dual-homed host, map what it can see — that de
 ```bash
 ip addr; ip route            # second interface / extra subnet = your pivot path
 ss -ntplu                    # local-only services now reachable via a forward
-for i in $(seq 1 254); do nc -zv -w1 <NEWNET>.$i 445; done   # sweep the new subnet
+# sweep the new subnet — quiet (only hits) + parallel (whole /24 in seconds):
+seq 1 254 | xargs -P64 -I{} sh -c 'nc -zw1 <NEWNET>.{} 445 2>/dev/null && echo "<NEWNET>.{}:445 up"'
+# from Kali over a -D/chisel SOCKS instead of on the pivot: prefix the nc with `proxychains -q`
 ```
 
 ## 2 · Choose the forward
