@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Search</title>
+<link rel="stylesheet" href="vendor/highlight-github-dark.min.css">
+<script src="vendor/highlight.min.js"></script>
+<script src="vendor/hljs-powershell.min.js"></script>
+<script src="vendor/hljs-dos.min.js"></script>
+<script src="cmd-highlight.js"></script>
+<style>
+:root {
+  --bg0: #0d1117; --bg1: #161b22; --bg2: #21262d; --bd: #30363d;
+  --tx: #e6edf3; --tx2: #7d8590; --ac: #3fb950; --box: #58a6ff;
+  --warn: #e3b341; --danger: #da3633;
+  --mono: 'SF Mono','JetBrains Mono','Fira Code',Consolas,monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; background: var(--bg0); color: var(--tx);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; }
+body { display: flex; flex-direction: column; }
+
+/* ── Top bar ─────────────────────────────────── */
+.topbar {
+  display: flex; align-items: center; gap: 10px; height: 44px; flex-shrink: 0;
+  padding: 0 14px; background: var(--bg1); border-bottom: 1px solid var(--bd);
+}
+.tb-title { font-size: 13px; font-weight: 600; }
+.tb-title .em { color: var(--ac); }
+.tb-space { flex: 1; }
+.tb-stat { font-family: var(--mono); font-size: 11px; color: var(--tx2); white-space: nowrap; }
+.hd-btn {
+  display: inline-flex; align-items: center; gap: 5px; background: none;
+  border: 1px solid var(--bd); border-radius: 6px; color: var(--tx2);
+  cursor: pointer; font: inherit; font-size: 12px; padding: 5px 11px;
+  transition: all 0.12s; text-decoration: none; white-space: nowrap;
+}
+.hd-btn:hover { border-color: var(--ac); color: var(--ac); }
+.hd-btn.warn:hover { border-color: var(--warn); color: var(--warn); }
+
+/* ── Layout ──────────────────────────────────── */
+.app { display: flex; flex: 1 1 auto; min-height: 0; }
+.left  { flex: 1.15; display: flex; flex-direction: column; min-width: 0; border-right: 1px solid var(--bd); }
+.right { flex: 1; display: flex; flex-direction: column; min-width: 320px; }
+
+/* ── Variables sidebar ───────────────────────── */
+.vars-panel { width: 234px; flex-shrink: 0; background: var(--bg1); display: flex; flex-direction: column; border-right: 1px solid var(--bd); min-width: 0; }
+.vars-hd { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; background: var(--bg2); border-bottom: 1px solid var(--bd); flex-shrink: 0; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tx2); }
+.vars-hd .n { margin-left: auto; font-family: var(--mono); color: var(--ac); font-size: 11px; text-transform: none; letter-spacing: 0; }
+.vars-list { flex: 1; overflow-y: auto; min-height: 0; padding: 8px; display: flex; flex-direction: column; gap: 5px; }
+.var-row { display: flex; align-items: center; gap: 4px; }
+.var-row input { flex: 1; background: var(--bg0); border: 1px solid var(--bd); border-radius: 5px; color: var(--tx); font-family: var(--mono); font-size: 11px; padding: 5px 7px; outline: none; min-width: 0; transition: border-color 0.12s; }
+.var-row input:focus { border-color: var(--ac); }
+.var-row .var-key { flex: 0.9; font-weight: 600; color: var(--ac); }
+.var-row .del-btn { flex-shrink: 0; background: none; border: none; color: var(--tx2); cursor: pointer; font-size: 17px; line-height: 1; padding: 2px 5px; border-radius: 4px; }
+.var-row .del-btn:hover { color: var(--danger); background: rgba(218,54,51,0.12); }
+.vars-ft { padding: 8px; flex-shrink: 0; border-top: 1px solid var(--bd); display: flex; flex-direction: column; gap: 6px; }
+.vars-ft button { width: 100%; padding: 6px 10px; background: none; border-radius: 5px; color: var(--tx2); font: inherit; font-size: 12px; cursor: pointer; transition: all 0.12s; }
+.vars-ft .add-var { border: 1px dashed var(--bd); }
+.vars-ft .add-var:hover { border-color: var(--ac); color: var(--ac); background: rgba(63,185,80,0.05); }
+.vars-ft .new-box { border: 1px solid var(--bd); }
+.vars-ft .new-box:hover { border-color: var(--warn); color: var(--warn); background: rgba(227,179,65,0.06); }
+.unfilled { background: rgba(227,179,65,0.15); color: var(--warn); border: 1px solid rgba(227,179,65,0.3); border-radius: 3px; padding: 0.05em 0.3em; font-family: var(--mono); font-size: 0.88em; }
+
+/* ── Search bar ──────────────────────────────── */
+.search-bar { padding: 14px 16px 10px; flex-shrink: 0; }
+.search-wrap { position: relative; display: flex; align-items: center; }
+.search-wrap .mag { position: absolute; left: 12px; color: var(--tx2); font-size: 15px; pointer-events: none; }
+#q {
+  width: 100%; background: var(--bg1); border: 1px solid var(--bd); border-radius: 8px;
+  color: var(--tx); font-family: var(--mono); font-size: 15px; padding: 11px 38px 11px 36px;
+  outline: none; transition: border-color 0.12s;
+}
+#q:focus { border-color: var(--ac); }
+#q::placeholder { color: var(--tx2); }
+.clear-q {
+  position: absolute; right: 8px; background: none; border: none; color: var(--tx2);
+  cursor: pointer; font-size: 18px; line-height: 1; padding: 4px 6px; border-radius: 5px;
+}
+.clear-q:hover { color: var(--danger); background: rgba(218,54,51,0.12); }
+
+.opts { display: flex; align-items: center; gap: 14px; margin-top: 9px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--bd); border-radius: 7px; overflow: hidden; }
+.seg button {
+  background: none; border: none; color: var(--tx2); cursor: pointer;
+  font: inherit; font-size: 11.5px; padding: 4px 12px; transition: all 0.12s;
+}
+.seg button.on { background: var(--bg2); color: var(--ac); }
+.chk { display: inline-flex; align-items: center; gap: 5px; color: var(--tx2); cursor: pointer; font-size: 11.5px; user-select: none; }
+.chk input { accent-color: var(--ac); }
+.res-count { font-family: var(--mono); font-size: 11px; color: var(--tx2); margin-left: auto; }
+
+/* ── Quick chips ─────────────────────────────── */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 16px 10px; flex-shrink: 0; }
+.chip {
+  background: var(--bg1); border: 1px solid var(--bd); border-radius: 20px;
+  color: var(--tx); cursor: pointer; font: inherit; font-family: var(--mono);
+  font-size: 11px; padding: 3px 11px; transition: all 0.12s;
+}
+.chip:hover { border-color: var(--ac); color: var(--ac); }
+.chip .c { color: var(--tx2); margin-left: 5px; }
+
+/* ── Results ─────────────────────────────────── */
+.results { flex: 1; overflow-y: auto; min-height: 0; padding: 4px 12px 20px; }
+.empty { color: var(--tx2); text-align: center; padding: 48px 24px; line-height: 1.7; }
+.empty .big { font-size: 15px; color: var(--tx); margin-bottom: 6px; }
+
+.card {
+  background: var(--bg1); border: 1px solid var(--bd); border-radius: 8px;
+  margin: 8px 0; overflow: hidden; transition: border-color 0.12s;
+}
+.card:hover { border-color: #3d4653; }
+.card-cmd { position: relative; }
+.card-cmd pre { margin: 0; padding: 10px 12px; overflow-x: auto; background: #300a24; }
+.card-cmd pre code { font-family: var(--mono) !important; font-size: 12.5px !important; background: transparent !important; line-height: 1.55; }
+.card-cmd.block pre { max-height: 260px; overflow-y: auto; }
+
+.card-cmt { padding: 7px 12px 0; color: #73d778; font-family: var(--mono); font-size: 11.5px; font-style: italic; white-space: pre-wrap; word-break: break-word; }
+
+.card-ft {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px; border-top: 1px solid var(--bd); background: var(--bg1);
+}
+.src { font-size: 11px; color: var(--tx2); text-decoration: none; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.src:hover { color: var(--box); text-decoration: underline; }
+.src .sh { color: var(--tx); }
+.src .hn { color: var(--tx2); }
+.dupe { font-family: var(--mono); font-size: 10px; color: var(--tx2); border: 1px solid var(--bd); border-radius: 10px; padding: 0 6px; flex-shrink: 0; }
+.ft-space { flex: 1; }
+.mini {
+  display: inline-flex; align-items: center; gap: 4px; background: none;
+  border: 1px solid var(--bd); border-radius: 5px; color: var(--tx2);
+  cursor: pointer; font-family: var(--mono); font-size: 10.5px; padding: 2px 8px;
+  transition: all 0.12s; white-space: nowrap; flex-shrink: 0;
+}
+.mini:hover { border-color: var(--ac); color: var(--ac); }
+.mini.add:hover { border-color: var(--box); color: var(--box); }
+.mini.done { border-color: var(--ac); color: var(--ac); background: rgba(63,185,80,0.08); }
+
+.more { text-align: center; color: var(--tx2); font-size: 11.5px; padding: 10px; }
+
+/* ── Basket / editor ─────────────────────────── */
+.basket-hd {
+  display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px;
+  background: var(--bg2); border-bottom: 1px solid var(--bd); flex-shrink: 0;
+}
+.basket-hd .t { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tx2); }
+.basket-hd .n { font-family: var(--mono); font-size: 11px; color: var(--ac); }
+#editor {
+  flex: 1; min-height: 0; width: 100%; resize: none; outline: none; border: none;
+  background: var(--bg0); color: var(--tx); font-family: var(--mono);
+  font-size: 13px; line-height: 1.7; padding: 14px 16px; tab-size: 2;
+}
+#editor::placeholder { color: var(--tx2); }
+.basket-ft { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-top: 1px solid var(--bd); background: var(--bg1); flex-shrink: 0; }
+
+.loader { position: fixed; inset: 0; background: var(--bg0); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px; z-index: 50; }
+.loader .bar { width: 240px; height: 4px; background: var(--bg2); border-radius: 2px; overflow: hidden; }
+.loader .fill { height: 100%; width: 0; background: var(--ac); transition: width 0.2s; }
+.loader .msg { color: var(--tx2); font-size: 12.5px; }
+.loader.err .msg { color: #f85149; max-width: 420px; text-align: center; line-height: 1.6; }
+
+/* ── hljs token colours (match the viewers) ──── */
+.hljs { color: var(--tx); background: transparent !important; }
+.hljs-cmd { color: #ffb26b !important; }
+.hljs-comment, .hljs-quote { color: #73d778 !important; font-style: italic; }
+.hljs-keyword, .hljs-literal, .hljs-selector-tag, .hljs-doctag { color: #ff8c7a !important; }
+.hljs-built_in, .hljs-title, .hljs-title.function_, .hljs-section, .hljs-name { color: #e0b8ff !important; }
+.hljs-string, .hljs-regexp, .hljs-meta .hljs-string, .hljs-symbol, .hljs-bullet, .hljs-link { color: #a5d6ff !important; }
+.hljs-variable, .hljs-template-variable, .hljs-params { color: #ffb26b !important; }
+.hljs-number, .hljs-meta, .hljs-operator { color: #79c0ff !important; }
+.hljs-type, .hljs-title.class_, .hljs-attr, .hljs-attribute, .hljs-selector-attr, .hljs-selector-class, .hljs-selector-id { color: #7ee787 !important; }
+.hljs-addition { color: #7ee787 !important; }
+.hljs-deletion { color: #ffa198 !important; }
+.mark { background: rgba(227,179,65,0.28); color: #ffe08a; border-radius: 2px; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--tx2); }
+
+@media (max-width: 780px) {
+  .app { flex-direction: column; }
+  .vars-panel { width: auto; border-right: none; border-bottom: 1px solid var(--bd); max-height: 190px; }
+  .left { border-right: none; border-bottom: 1px solid var(--bd); }
+  .right { min-height: 200px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="hd-btn" href="../index.html" title="Back to the topic menu">☰ Menu</a>
+  <span class="tb-title">🔎 Command <span class="em">Search</span></span>
+  <span class="tb-space"></span>
+  <span class="tb-stat" id="stat"></span>
+</div>
+
+<div class="app">
+  <!-- ── Variables sidebar ── -->
+  <aside class="vars-panel">
+    <div class="vars-hd"><span>Variables</span><span class="n" id="var-count"></span></div>
+    <div class="vars-list" id="vars-list"></div>
+    <div class="vars-ft">
+      <button class="add-var" onclick="addVar()">+ add variable</button>
+      <button class="new-box" onclick="newBox()" title="Blank every value for the next target — keeps the names">↺ new box · clear values</button>
+    </div>
+  </aside>
+
+  <!-- ── Search + results ── -->
+  <div class="left">
+    <div class="search-bar">
+      <div class="search-wrap">
+        <span class="mag">🔍</span>
+        <input id="q" type="text" spellcheck="false" autocomplete="off"
+               placeholder="Search a command…  e.g. nmap · crackmapexec smb · kerberoast">
+        <button class="clear-q" id="clear-q" title="Clear" style="display:none" onclick="clearQ()">×</button>
+      </div>
+      <div class="opts">
+        <div class="seg" title="Match single command lines, or whole code blocks (scripts)">
+          <button id="mode-lines" class="on" onclick="setMode('lines')">Commands</button>
+          <button id="mode-blocks" onclick="setMode('blocks')">Blocks</button>
+        </div>
+        <label class="chk" title="Prepend the note's # comment when adding to the editor">
+          <input type="checkbox" id="incl-cmt"> include comments
+        </label>
+        <span class="res-count" id="res-count"></span>
+      </div>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="results" id="results"></div>
+  </div>
+
+  <!-- ── Basket / editor ── -->
+  <div class="right">
+    <div class="basket-hd">
+      <span class="t">Editor</span>
+      <span class="n" id="ed-count"></span>
+      <span class="tb-space" style="flex:1"></span>
+      <button class="hd-btn" onclick="copyEditor(this)" title="Copy everything below">⧉ copy all</button>
+      <button class="hd-btn warn" onclick="clearEditor()" title="Empty the editor">↺ clear</button>
+    </div>
+    <textarea id="editor" spellcheck="false"
+      placeholder="Search on the left, then hit  + add  on the commands you want.&#10;They collect here — edit freely, then Copy all."></textarea>
+    <div class="basket-ft">
+      <span class="tb-stat" id="ed-hint">Tip: click a result's command to add it too.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Loading / error overlay ── -->
+<div class="loader" id="loader">
+  <div class="msg" id="loader-msg">Indexing notes…</div>
+  <div class="bar"><div class="fill" id="loader-fill"></div></div>
+</div>
+
+<script>
+const el = id => document.getElementById(id);
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function helperFile(h) { return h === 'box' ? 'BoxHelper.html' : 'WorkflowHelper.html'; }
+
+/* ─── Variables (shared placeholder fills) ────────── */
+const VARS_KEY = 'oscp-search-vars';
+// Union of the two viewers' default sets, in a sensible order.
+const SEED_NAMES = ['DC_IP','TARGET_IP','URL','SUBNET','NETWORK','DOMAIN','DOMAIN_UPPER','DOMAIN_NB',
+  'USERNAME','PASSWORD','NTLM_HASH','USERLIST','PASSLIST','WORDLIST','HASHFILE','NEXT_USER','TARGET_USER',
+  'SESSION_NAME','SPN','SHARE_NAME','GROUP_NAME','COMPUTER_NAME','OUTPUT','LHOST','LPORT'];
+let vars = [];
+
+function seedVars() {
+  let stored = null;
+  try { stored = JSON.parse(localStorage.getItem(VARS_KEY)); } catch (e) {}
+  if (Array.isArray(stored) && stored.length) { vars = stored; return; }
+  // First run: seed the union, pre-filling any values already set in the viewers.
+  const overlay = {};
+  for (const k of ['oscp-vars', 'box-vars']) {
+    try {
+      const a = JSON.parse(localStorage.getItem(k));
+      if (Array.isArray(a)) a.forEach(v => { if (v.key && v.value) overlay[v.key] = v.value; });
+    } catch (e) {}
+  }
+  vars = SEED_NAMES.map(k => ({ key: k, value: overlay[k] || '' }));
+}
+function saveVars() { try { localStorage.setItem(VARS_KEY, JSON.stringify(vars)); } catch (e) {} }
+
+/* Ensure every {{PLACEHOLDER}} used anywhere in the notes has a row. */
+function ensureDiscovered() {
+  const have = new Set(vars.map(v => v.key));
+  const found = new Set();
+  const re = /\{\{([A-Z0-9_]+)\}\}/g;
+  for (const e of LINES) { let m; re.lastIndex = 0; while ((m = re.exec(e.cmd))) found.add(m[1]); }
+  const extra = [...found].filter(k => !have.has(k)).sort();
+  extra.forEach(k => vars.push({ key: k, value: '' }));
+  if (extra.length) saveVars();
+}
+
+function getVarsMap() { const m = {}; vars.forEach(({ key, value }) => { if (key) m[key] = value; }); return m; }
+function fillPlaceholders(text) {
+  const m = getVarsMap();
+  return text.replace(/\{\{([A-Z0-9_]+)\}\}/g, (mm, k) => (k in m && m[k] !== '') ? m[k] : mm);
+}
+
+function renderVars() {
+  const list = el('vars-list'); list.innerHTML = '';
+  vars.forEach((v, i) => {
+    const row = document.createElement('div'); row.className = 'var-row';
+    row.innerHTML =
+      `<input class="var-key" value="${esc(v.key)}" placeholder="KEY" oninput="setKey(${i},this)" autocomplete="off" spellcheck="false">` +
+      `<input class="var-val" value="${esc(v.value)}" placeholder="value" oninput="setVal(${i},this.value)" autocomplete="off" spellcheck="false">` +
+      `<button class="del-btn" onclick="delVar(${i})" title="Remove">×</button>`;
+    list.appendChild(row);
+  });
+  updateVarCount();
+}
+function updateVarCount() {
+  const set = vars.filter(v => v.key && v.value).length;
+  const tot = vars.filter(v => v.key).length;
+  el('var-count').textContent = tot ? set + '/' + tot + ' set' : '';
+}
+function setKey(i, input) {
+  const up = input.value.replace(/[^A-Z0-9_]/gi, '_').toUpperCase();
+  vars[i].key = up;
+  if (input.value !== up) { const p = input.selectionStart; input.value = up; input.setSelectionRange(p, p); }
+  saveVars(); updateVarCount(); render();
+}
+function setVal(i, val) { vars[i].value = val; saveVars(); updateVarCount(); render(); }
+function delVar(i) { vars.splice(i, 1); renderVars(); saveVars(); render(); }
+function addVar() {
+  vars.push({ key: '', value: '' }); renderVars();
+  const rows = el('vars-list').querySelectorAll('.var-row');
+  if (rows.length) rows[rows.length - 1].querySelector('.var-key').focus();
+}
+function newBox() {
+  if (!vars.some(v => v.value)) return;
+  if (confirm('Clear all variable values for a new box?\n(Names are kept; the editor is untouched.)')) {
+    vars.forEach(v => v.value = ''); renderVars(); saveVars(); render();
+  }
+}
+
+/* ─── Index state ─────────────────────────────────── */
+let LINES = [];   // per-command entries
+let BLOCKS = [];  // per-code-block entries
+let mode = 'lines';
+
+/* Map a fenced-block language tag to something highlight.js knows. */
+function normLang(lang) {
+  const l = (lang || '').toLowerCase();
+  if (!l) return 'plaintext';
+  const alias = { sh: 'bash', shell: 'bash', console: 'bash', ps: 'powershell', ps1: 'powershell',
+                  pwsh: 'powershell', bat: 'dos', batch: 'dos', cmd: 'dos', text: 'plaintext', txt: 'plaintext' };
+  const m = alias[l] || l;
+  return hljs.getLanguage(m) ? m : 'plaintext';
+}
+
+/* Pull fenced code blocks out of raw markdown, tagging each with the nearest heading. */
+function extractBlocks(md) {
+  const headings = [];
+  const hre = /^(#{1,6})\s+(.+?)\s*#*$/gm;
+  let hm;
+  while ((hm = hre.exec(md))) headings.push({ pos: hm.index, text: hm[2].trim() });
+  const headingAt = pos => {
+    let h = '';
+    for (const x of headings) { if (x.pos < pos) h = x.text; else break; }
+    return h;
+  };
+  const out = [];
+  const fre = /^[ \t]*```([^\n`]*)\r?\n([\s\S]*?)\r?\n[ \t]*```/gm;
+  let fm;
+  while ((fm = fre.exec(md))) {
+    out.push({ lang: (fm[1] || '').trim().split(/\s+/)[0], body: fm[2].replace(/\s+$/, ''), heading: headingAt(fm.index) });
+  }
+  return out;
+}
+
+/* Join backslash-continued lines so a multi-line command stays one entry. */
+function logicalLines(body) {
+  const raw = body.split('\n');
+  const out = [];
+  let buf = null;
+  for (const line of raw) {
+    buf = (buf === null) ? line : buf + '\n' + line;
+    if (/\\[ \t]*$/.test(line)) continue;   // continues onto next line
+    out.push(buf); buf = null;
+  }
+  if (buf !== null) out.push(buf);
+  return out;
+}
+
+function isComment(line, lang) {
+  const t = line.trim();
+  if (!t) return false;
+  if (t.startsWith('#')) return true;                     // bash / powershell / generic
+  if (/^(rem\b|::)/i.test(t) && (lang === 'dos')) return true;
+  return false;
+}
+function isPrompt(line) { return /^[\s$>#]*$/.test(line); }  // bare $, >, blank
+
+/* ─── Build the two indexes from all notes ────────── */
+function ingest(md, src) {
+  for (const blk of extractBlocks(md)) {
+    if (!blk.body.trim()) continue;
+    BLOCKS.push({ cmd: blk.body, comment: '', heading: blk.heading, lang: blk.lang, src, isBlock: true });
+
+    const lines = logicalLines(blk.body);
+    let pendingCmt = '';
+    for (const ln of lines) {
+      if (!ln.trim()) { pendingCmt = ''; continue; }
+      if (isComment(ln, blk.lang)) { pendingCmt = ln.trim().replace(/^#+\s?/, ''); continue; }
+      if (isPrompt(ln)) continue;
+      LINES.push({ cmd: ln.replace(/\s+$/, ''), comment: pendingCmt, heading: blk.heading, lang: blk.lang, src });
+    }
+  }
+}
+
+/* Collapse exact-duplicate entries, remembering every source they came from. */
+function dedupe(list) {
+  const map = new Map();
+  for (const e of list) {
+    const key = e.cmd;
+    if (map.has(key)) {
+      const g = map.get(key);
+      if (!g.srcs.some(s => s.dir === e.src.dir && s.file === e.src.file)) g.srcs.push(e.src);
+    } else {
+      map.set(key, { cmd: e.cmd, comment: e.comment, heading: e.heading, lang: e.lang,
+                     src: e.src, srcs: [e.src], isBlock: !!e.isBlock });
+    }
+  }
+  return [...map.values()];
+}
+
+/* ─── Load everything ─────────────────────────────── */
+async function boot() {
+  let manifest;
+  try {
+    const res = await fetch('manifest.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    manifest = await res.json();
+  } catch (e) {
+    return fail('Could not load manifest.json — serve the repo over HTTP (the systemd service), then reload.<br><br>' + esc(String(e)));
+  }
+
+  // Flatten every note (+ each topic README) into a fetch list.
+  const jobs = [];
+  for (const t of manifest.topics) {
+    for (const f of t.files)
+      jobs.push({ dir: t.dir, file: f.file, fileTitle: f.title, helper: t.helper, topic: t.id, title: t.title });
+    if (t.readme)
+      jobs.push({ dir: t.dir, file: t.readme, fileTitle: 'README', helper: t.helper, topic: t.id, title: t.title });
+  }
+
+  let done = 0, ok = 0;
+  await Promise.all(jobs.map(async job => {
+    try {
+      const r = await fetch('../' + job.dir + '/' + job.file, { cache: 'no-store' });
+      if (r.ok) { ingest(await r.text(), job); ok++; }
+    } catch (e) { /* skip unreachable file */ }
+    done++;
+    el('loader-fill').style.width = Math.round(done / jobs.length * 100) + '%';
+    el('loader-msg').textContent = `Indexing notes…  ${done}/${jobs.length}`;
+  }));
+
+  if (!ok) return fail('Fetched the manifest but none of the notes loaded. Is the notes server running?');
+
+  LINES = dedupe(LINES);
+  BLOCKS = dedupe(BLOCKS);
+  el('stat').textContent = `${LINES.length} commands · ${BLOCKS.length} blocks · ${ok} files`;
+  seedVars();
+  ensureDiscovered();
+  renderVars();
+  buildChips();
+  el('loader').style.display = 'none';
+  el('q').focus();
+  render();
+}
+
+function fail(html) {
+  const l = el('loader');
+  l.className = 'loader err';
+  l.innerHTML = '<div class="msg">' + html + '</div>';
+}
+
+/* ─── Quick chips: the most common tools in the notes ─ */
+function firstTool(cmd) {
+  const toks = cmd.trim().split(/\s+/);
+  let i = 0;
+  while (i < toks.length && /^(sudo|proxychains4?|time|\w+=\S+)$/i.test(toks[i])) i++;
+  const t = (toks[i] || '').toLowerCase();
+  return /^[a-z][a-z0-9._-]{1,}$/.test(t) ? t : null;
+}
+function buildChips() {
+  const freq = new Map();
+  for (const e of LINES) {
+    const t = firstTool(e.cmd);
+    if (t) freq.set(t, (freq.get(t) || 0) + 1);
+  }
+  const top = [...freq.entries()].filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]).slice(0, 22);
+  const box = el('chips');
+  box.innerHTML = '';
+  for (const [tool, n] of top) {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.innerHTML = esc(tool) + '<span class="c">' + n + '</span>';
+    b.onclick = () => { el('q').value = tool; onQuery(); el('q').focus(); };
+    box.appendChild(b);
+  }
+}
+
+/* ─── Search ──────────────────────────────────────── */
+function scoreEntry(e, terms) {
+  const cmdL = e.cmd.toLowerCase();
+  const ctx = (e.comment + ' ' + e.heading + ' ' + e.src.fileTitle + ' ' + e.src.title).toLowerCase();
+  const first = e.cmd.trim().split(/\s+/)[0].toLowerCase();
+  let score = 0;
+  for (const term of terms) {
+    const inCmd = cmdL.includes(term);
+    const inCtx = ctx.includes(term);
+    if (!inCmd && !inCtx) return -1;                       // every term must appear somewhere
+    if (first === term) score += 120;                      // "nmap" -> commands that ARE nmap
+    else if (first.startsWith(term)) score += 60;
+    if (inCmd) {
+      const re = new RegExp('(^|[^a-z0-9])' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z0-9]|$)', 'i');
+      score += re.test(e.cmd) ? 30 : 12;                   // whole-token vs substring
+    }
+    if (inCtx) score += 3;
+  }
+  return score;
+}
+
+function search(query) {
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const list = mode === 'blocks' ? BLOCKS : LINES;
+  if (!terms.length) return null;
+  const hits = [];
+  for (const e of list) {
+    const s = scoreEntry(e, terms);
+    if (s >= 0) hits.push({ e, s });
+  }
+  hits.sort((a, b) => b.s - a.s || a.e.cmd.length - b.e.cmd.length);
+  return hits.map(h => h.e);
+}
+
+/* ─── Render results ──────────────────────────────── */
+const MAX_SHOWN = 250;
+let currentResults = [];
+
+function onQuery() {
+  el('clear-q').style.display = el('q').value ? '' : 'none';
+  render();
+}
+
+function render() {
+  const query = el('q').value.trim();
+  const box = el('results');
+  const results = query ? (search(query) || []) : null;
+  currentResults = results || [];
+
+  if (results === null) {
+    el('res-count').textContent = '';
+    box.innerHTML = '<div class="empty"><div class="big">Type a command to search</div>' +
+      'Every ' + (mode === 'blocks' ? 'code block' : 'command') + ' across all your notes, in one place.<br>' +
+      'Click a chip above, or start typing. Multiple words = all must match.</div>';
+    return;
+  }
+  if (!results.length) {
+    el('res-count').textContent = '0 results';
+    box.innerHTML = '<div class="empty"><div class="big">No matches for “' + esc(query) + '”</div>' +
+      'Try a shorter term, a different tool name, or switch to ' +
+      (mode === 'blocks' ? 'Commands' : 'Blocks') + ' mode.</div>';
+    return;
+  }
+
+  el('res-count').textContent = results.length + (results.length === 1 ? ' result' : ' results') +
+    (results.length > MAX_SHOWN ? ' · showing ' + MAX_SHOWN : '');
+
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const frag = document.createDocumentFragment();
+  results.slice(0, MAX_SHOWN).forEach(e => frag.appendChild(renderCard(e, terms)));
+  box.innerHTML = '';
+  box.appendChild(frag);
+  box.scrollTop = 0;
+}
+
+function highlightTerms(codeEl, terms) {
+  // Wrap matched query terms in <span class="mark"> within already-highlighted code.
+  const walk = document.createTreeWalker(codeEl, NodeFilter.SHOW_TEXT, null);
+  const nodes = [];
+  let n; while ((n = walk.nextNode())) nodes.push(n);
+  const re = new RegExp('(' + terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+  nodes.forEach(node => {
+    const txt = node.nodeValue;
+    if (!re.test(txt)) return;
+    re.lastIndex = 0;
+    const frag = document.createDocumentFragment();
+    let last = 0, m;
+    while ((m = re.exec(txt))) {
+      if (m.index > last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
+      const s = document.createElement('span'); s.className = 'mark'; s.textContent = m[0];
+      frag.appendChild(s); last = m.index + m[0].length;
+      if (m.index === re.lastIndex) re.lastIndex++;
+    }
+    if (last < txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  });
+}
+
+function renderCard(e, terms) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const language = normLang(e.lang);
+  const filled = fillPlaceholders(e.cmd);
+  let hl; try { hl = hljs.highlight(filled, { language }).value; } catch (_) { hl = esc(filled); }
+  // Flag any placeholders still unfilled so missing vars are obvious.
+  hl = hl.replace(/\{\{([A-Z0-9_]+)\}\}/g, (_, k) => '<span class="unfilled" title="{{' + k + '}} not set">{{' + k + '}}</span>');
+
+  const cmdWrap = document.createElement('div');
+  cmdWrap.className = 'card-cmd' + (e.isBlock ? ' block' : '');
+  cmdWrap.title = 'Click to add to the editor';
+  cmdWrap.innerHTML = '<pre><code class="hljs language-' + language + '">' + hl + '</code></pre>';
+  const codeEl = cmdWrap.querySelector('code');
+  if (window.tagCommands) tagCommands(cmdWrap);   // paint tool names orange
+  highlightTerms(codeEl, terms);                  // then mark the search terms
+  cmdWrap.onclick = ev => { if (ev.target.closest('a')) return; addToEditor(e); flash(card); };
+  card.appendChild(cmdWrap);
+
+  if (e.comment) {
+    const c = document.createElement('div');
+    c.className = 'card-cmt';
+    c.textContent = '# ' + e.comment;
+    card.appendChild(c);
+  }
+
+  const ft = document.createElement('div');
+  ft.className = 'card-ft';
+
+  const link = document.createElement('a');
+  link.className = 'src';
+  link.href = helperFile(e.src.helper) + '?topic=' + encodeURIComponent(e.src.topic) + '&file=' + encodeURIComponent(e.src.file);
+  link.title = 'Open this note';
+  link.innerHTML = '<span class="sh">' + esc(e.src.title) + '</span> › ' + esc(e.src.fileTitle) +
+    (e.heading ? ' <span class="hn">›&nbsp;' + esc(e.heading) + '</span>' : '');
+  ft.appendChild(link);
+
+  if (e.srcs && e.srcs.length > 1) {
+    const d = document.createElement('span');
+    d.className = 'dupe'; d.title = 'Also appears in ' + e.srcs.length + ' notes';
+    d.textContent = '×' + e.srcs.length;
+    ft.appendChild(d);
+  }
+
+  const space = document.createElement('span'); space.className = 'ft-space'; ft.appendChild(space);
+
+  const copyB = document.createElement('button');
+  copyB.className = 'mini';
+  copyB.innerHTML = '⧉ copy';
+  copyB.onclick = () => doClipboard(fillPlaceholders(e.cmd), copyB, '⧉ copy', '✓ copied');
+  ft.appendChild(copyB);
+
+  const addB = document.createElement('button');
+  addB.className = 'mini add';
+  addB.innerHTML = '+ add';
+  addB.onclick = () => { addToEditor(e); addB.classList.add('done'); addB.innerHTML = '✓ added';
+    setTimeout(() => { addB.classList.remove('done'); addB.innerHTML = '+ add'; }, 1200); };
+  ft.appendChild(addB);
+
+  card.appendChild(ft);
+  return card;
+}
+
+function flash(card) {
+  card.style.borderColor = 'var(--box)';
+  setTimeout(() => { card.style.borderColor = ''; }, 350);
+}
+
+/* ─── Editor / basket ─────────────────────────────── */
+function editorLines() {
+  return el('editor').value.split('\n').map(s => s.replace(/\s+$/, ''));
+}
+function addToEditor(e) {
+  const includeCmt = el('incl-cmt').checked && e.comment;
+  const piece = (includeCmt ? '# ' + e.comment + '\n' : '') + fillPlaceholders(e.cmd);
+  const ta = el('editor');
+  const cur = ta.value;
+  const sep = (!cur || cur.endsWith('\n')) ? '' : '\n';
+  ta.value = cur + sep + piece + '\n';
+  updateEdCount();
+  ta.scrollTop = ta.scrollHeight;
+}
+function updateEdCount() {
+  const nonEmpty = editorLines().filter(l => l.trim() && !l.trim().startsWith('#')).length;
+  el('ed-count').textContent = nonEmpty ? nonEmpty + (nonEmpty === 1 ? ' line' : ' lines') : '';
+}
+function clearEditor() {
+  if (el('editor').value.trim() && !confirm('Clear the editor?')) return;
+  el('editor').value = ''; updateEdCount(); el('editor').focus();
+}
+function copyEditor(btn) {
+  const t = el('editor').value.replace(/\n+$/, '');
+  if (!t) return;
+  doClipboard(t, btn, '⧉ copy all', '✓ copied');
+}
+
+/* ─── Clipboard ───────────────────────────────────── */
+function doClipboard(text, btn, restore, done) {
+  const write = () => {
+    if (navigator.clipboard) return navigator.clipboard.writeText(text);
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    Object.assign(ta.style, { position: 'fixed', opacity: '0', top: 0, left: 0 });
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    return Promise.resolve();
+  };
+  write().then(() => {
+    if (!btn) return;
+    const prev = btn.innerHTML;
+    btn.innerHTML = done || '✓'; btn.classList.add('done');
+    setTimeout(() => { btn.innerHTML = restore || prev; btn.classList.remove('done'); }, 1200);
+  }).catch(err => console.error('Copy failed:', err));
+}
+
+/* ─── Controls ────────────────────────────────────── */
+function setMode(m) {
+  if (m === mode) return;
+  mode = m;
+  el('mode-lines').classList.toggle('on', m === 'lines');
+  el('mode-blocks').classList.toggle('on', m === 'blocks');
+  render();
+}
+function clearQ() { el('q').value = ''; onQuery(); el('q').focus(); }
+
+let debounce;
+el('q').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(onQuery, 90); });
+el('editor').addEventListener('input', updateEdCount);
+el('editor').addEventListener('keydown', ev => {
+  if (ev.key === 'Tab') { ev.preventDefault(); const t = ev.target, s = t.selectionStart;
+    t.value = t.value.slice(0, s) + '  ' + t.value.slice(t.selectionEnd); t.selectionStart = t.selectionEnd = s + 2; }
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && document.activeElement === el('q')) clearQ();
+  if ((ev.ctrlKey || ev.metaKey) && ev.key === '/') { ev.preventDefault(); el('q').focus(); el('q').select(); }
+});
+
+boot();
+</script>
+</body>
+</html>

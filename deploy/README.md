@@ -9,6 +9,7 @@ repo/
 └── deploy/
     ├── WorkflowHelper.html   # viewer for AD notes (kill-chain template)
     ├── BoxHelper.html        # viewer for standalone-box notes
+    ├── CommandSearch.html    # 🔎 search every command across all notes
     ├── manifest.json         # topic -> viewer + ordered note list (generated)
     ├── gen-manifest.py       # rebuilds manifest.json by scanning the folders
     ├── vendor/               # the 4 CDN assets, downloaded locally (no internet needed)
@@ -26,6 +27,19 @@ topic. Picking a topic opens the right viewer with `?topic=<id>&file=<note.md>`;
 fetches that note, and reads the manifest itself to power the **‹ prev / next ›** cycling,
 the topic title, and the **📖 README** drawer. AD topics open **WorkflowHelper.html**,
 standalone-box topics open **BoxHelper.html** — that mapping lives in the manifest.
+
+The **🔎 Command Search** link in the menu header opens `CommandSearch.html`. It reads the
+same `manifest.json`, fetches every note + README, and extracts the fenced code blocks **in
+the browser at load time** — so there is no separate search index to maintain. Type a tool
+name to pull every matching command (or whole block, in *Blocks* mode) from across all notes
+into one editable pane you can trim and copy. If a note shows up in the menu, it shows up in
+search; the only upkeep is rebuilding the manifest when you add/rename/reorder notes (below).
+
+Like the viewers it has a **Variables** sidebar: fill `{{TARGET_IP}}`, `{{DOMAIN}}`, etc. and
+they're substituted into every result before you copy or add it (unfilled ones show amber). Its
+values live in their own store (`oscp-search-vars`), seeded on first run from the union of both
+viewers' defaults and pre-filled from `oscp-vars`/`box-vars` if you've already set a target; the
+list also auto-grows to include any placeholder found anywhere in the notes.
 
 After adding, renaming, or reordering notes, rebuild the index:
 
