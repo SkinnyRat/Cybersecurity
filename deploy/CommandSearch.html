@@ -224,7 +224,7 @@ body { display: flex; flex-direction: column; }
           <button id="mode-lines" class="on" onclick="setMode('lines')">Commands</button>
           <button id="mode-blocks" onclick="setMode('blocks')">Blocks</button>
         </div>
-        <label class="chk" title="Prepend the note's # comment when adding to the editor">
+        <label class="chk" title="Off: strip inline # comments and skip comment lines. On: keep inline comments and prepend the note's comment line.">
           <input type="checkbox" id="incl-cmt"> include comments
         </label>
         <span class="res-count" id="res-count"></span>
@@ -663,7 +663,7 @@ function renderCard(e, terms) {
   const copyB = document.createElement('button');
   copyB.className = 'mini';
   copyB.innerHTML = '⧉ copy';
-  copyB.onclick = () => doClipboard(fillPlaceholders(e.cmd), copyB, '⧉ copy', '✓ copied');
+  copyB.onclick = () => doClipboard(emitCmd(e), copyB, '⧉ copy', '✓ copied');
   ft.appendChild(copyB);
 
   const addB = document.createElement('button');
@@ -688,7 +688,7 @@ function editorLines() {
 }
 function addToEditor(e) {
   const includeCmt = el('incl-cmt').checked && e.comment;
-  const piece = (includeCmt ? '# ' + e.comment + '\n' : '') + fillPlaceholders(e.cmd);
+  const piece = (includeCmt ? '# ' + e.comment + '\n' : '') + emitCmd(e);
   const ta = el('editor');
   const cur = ta.value;
   const sep = (!cur || cur.endsWith('\n')) ? '' : '\n';
@@ -696,13 +696,40 @@ function addToEditor(e) {
   updateEdCount();
   ta.scrollTop = ta.scrollHeight;
 }
+/* Strip trailing inline "# comment" from a command (per physical line), ignoring
+   any '#' inside quotes or not preceded by whitespace (so URLs #frag, sed 's/#/'
+   and passwords are safe). Pure comment lines are dropped entirely. */
+function stripInlineOne(s) {
+  let q = null;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (q) { if (c === q) q = null; }
+    else if (c === "'" || c === '"' || c === '`') { q = c; }
+    else if (c === '#' && (i === 0 || /\s/.test(s[i - 1]))) return s.slice(0, i).replace(/\s+$/, '');
+  }
+  return s;
+}
+function cleanCmd(text) {
+  const out = [];
+  for (const line of text.split('\n')) {
+    const stripped = stripInlineOne(line);
+    if (/^\s*#/.test(line) && !stripped.trim()) continue;   // drop whole-line comments
+    out.push(stripped);
+  }
+  return out.join('\n');
+}
+/* The command text to emit for a result, honouring the include-comments toggle. */
+function emitCmd(e) {
+  return fillPlaceholders(el('incl-cmt').checked ? e.cmd : cleanCmd(e.cmd));
+}
+
 function addAllToEditor(btn) {
   if (!currentResults.length) return;
   const incl = el('incl-cmt').checked;
   const seen = new Set(editorLines().map(l => l.trim()).filter(Boolean));
   let chunk = '', added = 0;
   for (const e of currentResults) {
-    const cmd = fillPlaceholders(e.cmd);
+    const cmd = emitCmd(e);
     if (seen.has(cmd.trim())) continue;          // skip lines already in the editor
     seen.add(cmd.trim());
     chunk += (incl && e.comment ? '# ' + e.comment + '\n' : '') + cmd + '\n';
