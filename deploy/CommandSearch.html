@@ -228,6 +228,8 @@ body { display: flex; flex-direction: column; }
           <input type="checkbox" id="incl-cmt"> include comments
         </label>
         <span class="res-count" id="res-count"></span>
+        <button class="hd-btn" id="add-all" style="display:none" onclick="addAllToEditor(this)"
+                title="Add every result below into the editor">⤓ add all</button>
       </div>
     </div>
     <div class="chips" id="chips"></div>
@@ -559,6 +561,8 @@ function render() {
   const results = query ? (search(query) || []) : null;
   currentResults = results || [];
 
+  el('add-all').style.display = (results && results.length) ? '' : 'none';
+
   if (results === null) {
     el('res-count').textContent = '';
     box.innerHTML = '<div class="empty"><div class="big">Type a command to search</div>' +
@@ -576,6 +580,7 @@ function render() {
 
   el('res-count').textContent = results.length + (results.length === 1 ? ' result' : ' results') +
     (results.length > MAX_SHOWN ? ' · showing ' + MAX_SHOWN : '');
+  el('add-all').textContent = '⤓ add all ' + results.length;
 
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
   const frag = document.createDocumentFragment();
@@ -691,6 +696,32 @@ function addToEditor(e) {
   updateEdCount();
   ta.scrollTop = ta.scrollHeight;
 }
+function addAllToEditor(btn) {
+  if (!currentResults.length) return;
+  const incl = el('incl-cmt').checked;
+  const seen = new Set(editorLines().map(l => l.trim()).filter(Boolean));
+  let chunk = '', added = 0;
+  for (const e of currentResults) {
+    const cmd = fillPlaceholders(e.cmd);
+    if (seen.has(cmd.trim())) continue;          // skip lines already in the editor
+    seen.add(cmd.trim());
+    chunk += (incl && e.comment ? '# ' + e.comment + '\n' : '') + cmd + '\n';
+    added++;
+  }
+  const ta = el('editor');
+  if (chunk) {
+    const cur = ta.value;
+    ta.value = cur + ((!cur || cur.endsWith('\n')) ? '' : '\n') + chunk;
+    updateEdCount();
+    ta.scrollTop = ta.scrollHeight;
+  }
+  if (btn) {
+    const prev = btn.textContent;
+    btn.textContent = added ? '✓ added ' + added : 'all already added';
+    setTimeout(() => { btn.textContent = prev; }, 1300);
+  }
+}
+
 function updateEdCount() {
   const nonEmpty = editorLines().filter(l => l.trim() && !l.trim().startsWith('#')).length;
   el('ed-count').textContent = nonEmpty ? nonEmpty + (nonEmpty === 1 ? ' line' : ' lines') : '';
