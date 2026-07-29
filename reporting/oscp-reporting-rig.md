@@ -206,9 +206,9 @@ Print
     flameshot gui                      # deliberate high-quality PNG proof shot
 
 # ~/.tmux.conf   (auto-log every pane, incl. SSH/tunnelled — needs moreutils `ts`)
-set-hook -g session-created    "pipe-pane -o '~/docrig/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
-set-hook -g after-new-window   "pipe-pane -o '~/docrig/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
-set-hook -g after-split-window "pipe-pane -o '~/docrig/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
+set-hook -g session-created    "pipe-pane '~/docrig/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
+set-hook -g after-new-window   "pipe-pane '~/docrig/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
+set-hook -g after-split-window "pipe-pane '~/docrig/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
 
 # ~/.zshrc   (precise, timestamped LOCAL command index — does NOT see remote/ssh commands)
 preexec() { print -r -- "$(date +%FT%T.%3N)\t$PWD\t$1" >> "$HOME/oscp-evidence/commands-local.log" }

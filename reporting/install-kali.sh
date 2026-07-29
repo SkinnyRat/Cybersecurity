@@ -83,9 +83,9 @@ EOF
 # --- 4. tmux auto-logging of every pane (captures ssh/tunnelled sessions) ---
 apply_block "$TMUXCONF" <<EOF
 # >>> docrig >>>
-set-hook -g session-created    "pipe-pane -o '$DOCRIG_HOME/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
-set-hook -g after-new-window   "pipe-pane -o '$DOCRIG_HOME/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
-set-hook -g after-split-window "pipe-pane -o '$DOCRIG_HOME/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
+set-hook -g session-created    "pipe-pane '$DOCRIG_HOME/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
+set-hook -g after-new-window   "pipe-pane '$DOCRIG_HOME/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
+set-hook -g after-split-window "pipe-pane '$DOCRIG_HOME/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
 # <<< docrig <<<
 EOF
 
