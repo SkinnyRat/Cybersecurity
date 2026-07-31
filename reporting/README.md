@@ -101,6 +101,23 @@ engine (TinyTeX/MiKTeX). For zero-AI transcription, use `whisper.cpp` locally.
   `narration.opus` yourself, or use local on-device STT — never a cloud/LLM (banned during
   the exam *and* the reporting phase).
 
+## Post-exam cleanup
+
+Raw logs carry terminal noise — the `commands-local.log` field separators, and the ANSI
+colour / line-editor redraw codes in `consoles/*.log`. Tidy a finished set of bundles:
+
+```bash
+python3 reporting/postexam/cleanup.py            # cleans every bundle under ~/oscp-evidence
+python3 reporting/postexam/cleanup.py PATH        # a specific bundle dir or a single log file
+python3 reporting/postexam/cleanup.py --strip-ts PATH   # also drop per-line timestamps
+```
+
+Non-destructive: writes `<name>.clean.txt` next to each original; raw evidence is never
+touched (`--inplace` overwrites but keeps a `.raw` backup). `commands-local.log` stays the
+authoritative record of the exact commands you ran — the `consoles/` cleaner recovers
+command *output* well, but interactive command-entry lines can still carry zsh-autosuggestion
+redraw residue (the shell redraws them per keystroke, so the raw stream is inherently messy).
+
 ## Uninstall
 
 ```bash

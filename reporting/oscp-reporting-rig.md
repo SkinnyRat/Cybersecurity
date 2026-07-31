@@ -211,7 +211,7 @@ set-hook -g after-new-window   "pipe-pane '~/docrig/tmux-log-pane.sh #{session_n
 set-hook -g after-split-window "pipe-pane '~/docrig/tmux-log-pane.sh #{session_name}_#{window_index}_#{pane_index}'"
 
 # ~/.zshrc   (precise, timestamped LOCAL command index — does NOT see remote/ssh commands)
-preexec() { print -r -- "$(date +%FT%T.%3N)\t$PWD\t$1" >> "$HOME/oscp-evidence/commands-local.log" }
+preexec() { printf '%s\t%s\t%s\n' "$(date +%FT%T.%3N)" "$PWD" "$1" >> "$HOME/oscp-evidence/commands-local.log" }
 
 # ~/.xprofile   (start the two always-on daemons at login)
 ~/docrig/ring-capture.sh & ~/docrig/event-logger.sh &

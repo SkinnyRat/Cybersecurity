@@ -75,7 +75,7 @@ apply_block() {  # $1=file ; block content on stdin (must include the markers)
 apply_block "$ZSHRC" <<EOF
 # >>> docrig >>>
 autoload -Uz add-zsh-hook
-_docrig_cmdlog() { print -r -- "\$(date +%FT%T.%3N)\t\$PWD\t\$1" >> "$EVIDENCE_DIR/commands-local.log" }
+_docrig_cmdlog() { printf '%s\t%s\t%s\n' "\$(date +%FT%T.%3N)" "\$PWD" "\$1" >> "$EVIDENCE_DIR/commands-local.log" }
 add-zsh-hook preexec _docrig_cmdlog
 # <<< docrig <<<
 EOF
