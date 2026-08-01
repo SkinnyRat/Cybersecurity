@@ -75,6 +75,8 @@ fping -asgq {{SUBNET}}
 # full scan of discovered hosts
 sudo nmap -v -A -iL hosts.txt -oN host-enum
 nmap -A {{TARGET_IP}}
+
+nmap -p 389 --script ldap-rootdse {{DC_IP}}
 ```
 
 ---
