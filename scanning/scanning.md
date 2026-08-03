@@ -192,6 +192,7 @@ Test-NetConnection -Port 445 {{TARGET_IP}}     # single-port check
 > Ports 139/445. Find hosts, resolve NetBIOS names, then NSE scripts for OS/share detail.
 
 ```bash
+nmap --script smb-vuln-* {{TARGET_IP}} -p 135,139,445
 nmap -v -p 139,445 -oG smb.txt {{NETWORK}}.1-254
 cat smb.txt
 ```
