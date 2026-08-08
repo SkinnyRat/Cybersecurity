@@ -74,7 +74,8 @@ kerbrute userenum -d {{DOMAIN}} --dc {{DC_IP}} {{USERLIST}}  # no-auth Kerberos 
 crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --pass-pol
 enum4linux -P {{DC_IP}}
 enum4linux-ng -P {{DC_IP}} -oA ilfreight
-rpcclient -U "" -N {{DC_IP}}                                  # then: getdompwinfo
+rpcclient -U "" -N {{DC_IP}}    # then: getdompwinfo 
+rpcclient -U "{{USERNAME}}" {{DC_IP}}    # then: enumdomusers enumalsgroups 
 ldapsearch -H ldap://{{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
 ```
 
