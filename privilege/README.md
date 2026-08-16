@@ -15,6 +15,8 @@ Privesc playbook for standalone boxes, split by OS. Notes here template with **B
 > password, a misconfigured permission. The exploit step is usually the easy part once the finding
 > is in hand.
 
+Try PrivescCheck before winPEAS i suppose. 
+
 ---
 
 ## Privesc cheat-scroll
