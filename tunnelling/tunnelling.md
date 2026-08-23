@@ -379,6 +379,7 @@ stable browser session to an internal web app (`R:localport:remotehost:remotepor
 
 ```bash
 /tmp/chisel client {{LHOST}}:8080 R:80:{{TARGET_IP}}:80     # Linux pivot  — Kali:80 -> {{TARGET_IP}}:80
+/tmp/chisel client {{LHOST}}:8080 127.0.0.1:9999:{{TARGET_IP}}:80
 ```
 
 ```cmd

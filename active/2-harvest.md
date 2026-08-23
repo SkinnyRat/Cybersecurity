@@ -67,6 +67,7 @@ crackmapexec smb {{TARGET_IP}} -u {{USERNAME}} -p {{PASSWORD}} --continue-on-suc
 ldapsearch -H ldap://{{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "(&(objectclass=user))" | grep sAMAccountName: | cut -f2 -d" "
 ldapsearch -H ldap://{{DC_IP}} -x -b "DC={{DOMAIN_NB}},DC=LOCAL" -s sub "*" | grep "CN="
 ldapsearch -H ldap://{{DC_IP}} -x -D '{{DOMAIN_NB}}\{{USERNAME}}' -w '{{PASSWORD}}' -b 'CN=Users,DC={{DOMAIN_NB}},DC=LOCAL'
+ldapsearch -x -H ldap://megabank.local -b "DC=megabank,DC=local" "(&(objectClass=user)(objectCategory=person)(description=*))" dn description   # search for pw's in descriptions 
 kerbrute userenum -d {{DOMAIN}} --dc {{DC_IP}} {{USERLIST}}  # no-auth Kerberos user validation
 ```
 

