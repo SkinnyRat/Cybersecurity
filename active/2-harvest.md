@@ -58,6 +58,8 @@ Invoke-Inveigh Y -NBNS Y -ConsoleOutput Y -FileOutput Y
 ```bash
 # null-session / low-priv enumeration of domain users
 enum4linux -U {{DC_IP}} | grep "user:" | cut -f2 -d"[" | cut -f1 -d"]"
+enum4linux -u '{{USERNAME}}' -p '{{PASSWORD}}'  -a {{DC_IP}}
+ncx smb {{DC_IP}} -u '{{USERNAME}}' -p '{{PASSWORD}}' --shares --users
 rpcclient -U "" -N {{DC_IP}}                                  # then: enumdomusers
 crackmapexec smb {{DC_IP}} --users                           # null session
 sudo crackmapexec smb {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} --users   # authenticated

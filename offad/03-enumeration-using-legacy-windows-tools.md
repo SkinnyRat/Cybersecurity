@@ -10,10 +10,6 @@
 ## Connect over RDP
 
 ```bash
-xfreerdp /u:{{USERNAME}} /d:{{DOMAIN}} /v:{{TARGET_IP}}
-```
-
-```bash
 # non-interactive: accept the target cert and pass the password inline
 xfreerdp /cert:ignore /u:{{USERNAME}} /d:{{DOMAIN}} /p:{{PASSWORD}} /v:{{TARGET_IP}}
 ```

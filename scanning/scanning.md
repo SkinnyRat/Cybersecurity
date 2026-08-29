@@ -105,11 +105,6 @@ nslookup mail.megacorptwo.com
 nslookup -type=TXT info.megacorptwo.com 192.168.50.151
 ```
 
-> RDP into a Windows lab host to run the above:
-```bash
-xfreerdp /u:student /p:lab /v:{{TARGET_IP}}
-```
-
 ## 6.4.2 TCP/UDP port scanning theory (netcat)
 
 > Netcat as a crude scanner when nmap isn't available. `-z` zero-I/O (just check), `-w 1` 1s timeout, `-u` UDP.
