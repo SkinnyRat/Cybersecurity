@@ -2,6 +2,12 @@
 #### Extplorer => Filemanager 
 1. Get dora pw from .htusers.php then `hashcat -m 3200` 
 
+#### Press => Flatpress 
+1. Exploit = https://github.com/flatpressblog/flatpress/issues/152 
+
+#### QuackerJack => rConfig 
+1. Exploit = https://gist.github.com/farid007/9f6ad063645d5b1550298c8b9ae953ff 
+
 #### Readys => WP site editor 
 1. Run `wpscan --url http://{{TARGET_IP}} --api-token {{TOKEN}} --enumerate vp` 
 2. Exploit = https://www.exploit-db.com/exploits/44340 on /etc/redis/redis.conf 

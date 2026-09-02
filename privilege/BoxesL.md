@@ -2,8 +2,8 @@
 #### SOP for Linux 
 
 0. Disk group: id => `debugfs -w /dev/sdaX` then `cat /etc/shadow` 
-1. Check sudo -l , su , env 
-2. SUID `find / -perm -4000 -type f 2>/dev/null` = GTFObins (eg strace, env) 
+1. Check sudo -l , su , env ~ (eg env, apt-get) 
+2. SUID `find / -perm -4000 -type f 2>/dev/null` = GTFObins (eg find, strace, gcore) 
 3. Cron jobs in /etc/crontab ; PATH has /dev/shm ? Job is writable? 
 4. Find creds in /var/www 
 5. Find databases like *.db 
