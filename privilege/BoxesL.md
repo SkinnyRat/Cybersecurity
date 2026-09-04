@@ -18,4 +18,4 @@
 - User in mlocate group, run `strings mlocate.db` to find creds file 
 - - Run `ln -sf /path/cred.txt test` then `sudo -u other_user /usr/bin/sync.sh test`. 
 - If Docker try `ln -s /root/.ssh/id_rsa /var/log/gitlab/root_key` then `unzip /opt/backups/backup.zip` 
-- If custom binary (in SUID etc) try --help or just try running it. 
+- If custom binary try `ls -al` and `--help` ; if * in custom path try ../../ too. 

