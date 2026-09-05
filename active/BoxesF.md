@@ -18,7 +18,7 @@
 1. Responder only works with HTTP On and 'http://{{LHOST}}' 
 2. Run ` Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword | Select-Object Name, PrincipalsAllowedToRetrieveManagedPassword ` to check, then `Import-Module .\GMSAPassword.ps1` to dump 
 
-#### Nagoya => Fucking piece of shit 
+#### Nagoya => Fucking piece of shit ticket 
 1. Make users list from website, guess some passwords (eg Summer2023, Nagoya2023) and spray 
 2. In rpcclient, 'fiona' changes pw for 'svc_helpdesk', 'svc_helpdesk' changes pw for 'christopher'. 
 3. Run `Import-Module ActiveDirectory` then `Get-ADDomain` then `Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName` to get sid 
