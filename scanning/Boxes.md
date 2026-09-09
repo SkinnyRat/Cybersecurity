@@ -1,16 +1,6 @@
 
-#### LazySysAdmin => SMB 
-1. Check smb 'share$' to get user & mysql creds. 
-
-#### Nibbles => PostgreSQL 
-1. Just whack default creds when unable to find anything else. 
-2. Exploit = https://github.com/squid22/PostgreSQL_RCE 
-
-
-#### Hepet => Phishing email 
-- Get creds from website, read IMAP emails, attach .ods in phishing email; PowerUp, replace exe with cmd. 
-- IMAP details = https://banua.medium.com/proving-grounds-hepet-oscp-prep-2025-practice-17-3bdc3ad86495 
-
+#### AuthBy => FTP default creds 
+1. Also try admin:admin on FTP! Upload shell.php 
 
 #### ClamAV => SNMP 
 1. nmap -sU -p161 --script *snmp* $target 
@@ -18,6 +8,18 @@
 
 #### Exghost => FTP 
 Try = https://github.com/rix4uni/FTPBruteForce.git 
+
+#### Hepet => Phishing email 
+- Get creds from website, read IMAP emails, attach .ods in phishing email; PowerUp, replace exe with cmd. 
+- IMAP details = https://banua.medium.com/proving-grounds-hepet-oscp-prep-2025-practice-17-3bdc3ad86495 
+
+
+#### LazySysAdmin => SMB 
+1. Check smb 'share$' to get user & mysql creds. 
+
+#### Nibbles => PostgreSQL 
+1. Just whack default creds when unable to find anything else. 
+2. Exploit = https://github.com/squid22/PostgreSQL_RCE 
 
 
 Use to look for exploits: ` sudo nmap -sVC -vvv {{TARGET_IP}} --script vuln ` 
