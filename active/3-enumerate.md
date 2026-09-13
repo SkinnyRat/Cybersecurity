@@ -55,7 +55,7 @@ impacket-wmiexec {{DOMAIN}}/{{USERNAME}}:'{{PASSWORD}}'@{{DC_IP}}
 sudo bloodhound-python -u '{{USERNAME}}' -p '{{PASSWORD}}' -ns {{DC_IP}} -d {{DOMAIN}} -c all
 
 # Ldap domain dump
-ldapdomaindump ldaps://{{DC_IP}} -u '{{DOMAIN}}\{{USERNAME}}' -p '{{PASSWORD}}'
+ldapdomaindump ldap://{{DC_IP}} -u '{{DOMAIN}}\{{USERNAME}}' -p '{{PASSWORD}}'
 ```
 
 ---
