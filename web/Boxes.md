@@ -14,6 +14,10 @@
 1. Run `wpscan --url http://{{TARGET_IP}} --api-token {{TOKEN}} --enumerate vp` 
 2. Exploit = 48979 , look in wp-config.php for next user's creds 
 
+#### Payday => CS-Cart 
+1. Use https://www.exploit-db.com/exploits/48890 to get /etc/passwd users 
+2. Possible to get rev shell but also, spray usernames as passwords! 
+
 #### Press => Flatpress 
 1. Exploit = https://github.com/flatpressblog/flatpress/issues/152 
 
