@@ -43,7 +43,7 @@ whatweb -a 3 {{URL}}                                   # aggression level 3 (mor
 
 ```bash
 gobuster dir -u {{TARGET_IP}} -w /usr/share/wordlists/dirb/common.txt -t 5
-gobuster dir -u {{URL}} -w {{WORDLIST}} -x php,txt,html -t 10 -o gobuster.txt
+gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -u http://{{LHOST}} -x php,txt,html -t 10 -o gobuster.txt 
 ```
 
 > Status-code cheat: **301/302** = redirect (often a dir), **403** = exists but forbidden, **200** = accessible. Investigate the 200/301/403s.

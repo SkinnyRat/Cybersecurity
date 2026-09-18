@@ -5,8 +5,8 @@ source Public/P2/bin/activate
 wget -r ftp://anonymous:anonymous@{{TARGET_IP}}/{{FOLDER}}
 ```
 ```Bash 
-python3 -c 'import pty;pty.spawn("/bin/bash");'
-import os;os.system("/bin/bash")
+python3 -c 'import pty;pty.spawn("/bin/bash");' # import os;os.system("/bin/bash")
+
 find / -perm -4000 -type f 2>/dev/null
 grep -rns "password" . 2>/dev/null 
 find . -name "filename.txt" 2>/dev/null 

