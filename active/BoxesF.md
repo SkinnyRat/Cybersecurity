@@ -1,4 +1,7 @@
 
+#### OSCP A => Ligolo + cred hunting 
+1. Kerberoasting, mssql, smb were all red herrings. Always try spraying creds on **every** machine first! 
+
 #### Secura => Lsassy, MySQL, WriteOwner + GPLink 
 1. On M1 user is admin, run `nxc smb {{TARGET_IP}} -u {{USERNAME}} -p '{{PASSWORD}}' -M lsassy` 
 2. On M2 `mysqldump.exe -u root --all-databases > dump.sql`, bloodhound shows GPO abuse 
@@ -82,4 +85,3 @@ Walkthrough = https://0xdf.gitlab.io/2025/07/19/htb-scepter.html
 2. Check **outbound** control, change 2nd user pw 
 3. Change 1st user altSecurityIdentities to same as 3rd user, request StaffAccessCertificate as 3rd user (2nd user has GenericAll over StaffAccessCertificate, so use bloodyAD to give full control) 
 4. Use 3rd user to set altSecurityIdentities for 4th user and repeat [3]; 4th user can DCsync. 
-

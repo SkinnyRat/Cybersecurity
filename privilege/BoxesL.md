@@ -5,9 +5,9 @@
 2. Check `sudo -l` , su , env ~ (eg env, apt-get, if 'less' then `!sh`, systemctl check service writable!) 
 3. SUID `find / -perm -4000 -type f 2>/dev/null` = just whack everyone in GTFObins (eg find, strace, gcore, wget, rsync) 
 4. Find writable files `find . -type f -writable 2>/dev/null` (eg /etc/passwd then update user to root group) 
-5. Cron in /etc/crontab ; PATH has /dev/shm , /usr/local/bin , & so on? Job is writable? 
+5. Cron in `/etc/crontab` ; PATH has /dev/shm , /usr/local/bin , & so on? Job is writable? 
 6. Find creds in /var/www , databases like *.db 
-7. Run `pspy64` to see creds in running processes (eg mysqldump) or `ss -tulnp` 
+7. Run `pspy64` to find creds in running processes (eg mysqldump) or **writable** [4] processes or `ss -tulnp` 
 8. Exploits, eg Polkit CVE-2021-4034 , CVE-2026-31431, Dirty Frags 
 
 
