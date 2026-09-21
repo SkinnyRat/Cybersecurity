@@ -82,6 +82,6 @@
 
 Use curl -v to check header & version. Wappalyzer? 
 Also check for /webdav , /zm , /login ; and gobuster to find upload folder. 
-For PHP restrictions upload custom ext `.htaccess` (eg shell.dork), or try https://github.com/richardschwabe/chankro3  
+For PHP restrictions upload custom ext `.htaccess` (eg shell.dork), or try https://github.com/kriss-u/chankro-py3/  
 If IP-restricted, try `X-Forwarded-For: 10.10.10.10` header. 
 
