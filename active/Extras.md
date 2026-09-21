@@ -49,6 +49,9 @@ KRB5CCNAME=ticket.ccache impacket-psexec {{DOMAIN}}/administrator@{{COMPUTER_NAM
 > > See https://medium.com/@mu.aktepe18/nagoya-proving-ground-walk-through-afb50d51bb0f 
 
 
+McAfee decryption for sitelist.xml = https://github.com/funoverip/mcafee-sitelist-pwd-decryption 
+
+
 ## Getting user groups, properties, other weird stuff
 
 ```PowerShell
@@ -73,7 +76,4 @@ If have GenericWrite over a user object and want to execute a targeted Kerberoas
 
 If have GenericWrite over a group object and want to add an account to it 
 ` bloodyAD --host <DC_IP> -d <domain> -u <user> -p <pass> add groupMember <TargetGroup> <UserToAdd> `
-
-
-
 
