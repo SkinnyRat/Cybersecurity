@@ -9,7 +9,7 @@
     - Try Print, god, juicy, rogue, sigma ; also check nc or nc64 
     - FullPowers.exe if missing privileges, some need a CLSID, eg Win Server 2008 TrustedInstaller 
 5. Services (eg `ps` or `sc.exe start|stop dns`, and `netstat -ano`) 
-6. Run PowerUp or PrivescCheck (eg `icacls`, replace target exe with cmd, `shutdown /r /t 0`) 
+6. Run PowerUp or PrivescCheck (eg `icacls`, **replace target exe with cmd or rev shell**, `shutdown /r /t 0`) 
 
 #### Unusual exploits 
 - If winPEAS ~ AlwaysInstallElevated = msfvenom **msi** 
