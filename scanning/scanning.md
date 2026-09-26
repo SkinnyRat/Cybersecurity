@@ -218,7 +218,6 @@ nc -nv {{TARGET_IP}} 25                          # banner grab; try VRFY <user>
 Python VRFY user-enumeration script:
 
 ```python
-#!/usr/bin/python
 import socket
 import sys
 
@@ -281,11 +280,12 @@ onesixtyone -c community -i ips
 Walk the MIB tree (`-c` community, `-v1` version 1):
 
 ```bash
-snmpwalk -c public -v1 -t 10 {{TARGET_IP}}                              # full walk (10s timeout)
-snmpwalk -c public -v1 {{TARGET_IP}} 1.3.6.1.4.1.77.1.2.25             # Windows users
-snmpwalk -c public -v1 {{TARGET_IP}} 1.3.6.1.2.1.25.4.2.1.2           # running processes
-snmpwalk -c public -v1 {{TARGET_IP}} 1.3.6.1.2.1.25.6.3.1.2           # installed software
-snmpwalk -c public -v1 {{TARGET_IP}} 1.3.6.1.2.1.6.13.1.3             # open TCP ports
+snmpwalk -c public -v1 -t 10 {{TARGET_IP}}                                      # Full walk (10s timeout)
+snmpwalk -c public -v1 {{TARGET_IP}} 1.3.6.1.4.1.77.1.2.25                      # Windows users
+snmpwalk -c public -v1 {{TARGET_IP}} 1.3.6.1.2.1.25.4.2.1.2                     # running processes
+snmpwalk -c public -v1 {{TARGET_IP}} 1.3.6.1.2.1.25.6.3.1.2                     # installed software
+snmpwalk -c public -v1 {{TARGET_IP}} 1.3.6.1.2.1.6.13.1.3                       # open TCP ports
+snmpwalk -v2c -c public {{TARGET_IP}}  NET-SNMP-EXTEND-MIB::nsExtendObjects     # Used in Kiero box 
 ```
 
 ---

