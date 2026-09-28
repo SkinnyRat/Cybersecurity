@@ -9,8 +9,8 @@
 
 #### OSCP C => Creds in binaries  
 1. Dealing with Autologon64.exe and admintool.exe was such a pain...  
-2. 
-3. 
+2. Use powershell history on MS01 to get to MS02 
+3. Look around and find C:\windows.old then get creds to DC01 
 
 #### Secura => Lsassy, MySQL, WriteOwner + GPLink 
 1. On M1 user is admin, run `nxc smb {{TARGET_IP}} -u {{USERNAME}} -p '{{PASSWORD}}' -M lsassy` 

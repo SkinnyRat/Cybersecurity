@@ -17,6 +17,13 @@
 #### OSCP B, Box 3 => Freeswitch 
 1. When too many things on TCP, try checking weird services' versions. Exploit = 47799. 
 
+#### OSCP C, Box 2 => SNMP, Vesta 
+1. Same snmpwalk scan as OSCP B Box 1 
+2. Exploit = https://github.com/rekter0/exploits/tree/master/VestaCP 
+
+#### OSCP C, Box 3 => Usermin 
+1. If unable to find anything else, run exiftool on PDF files even if they look useless. 
+
 
 ---- 
 
@@ -51,3 +58,4 @@ Try = https://github.com/rix4uni/FTPBruteForce.git
 
 If looking for mysql creds, try 'mysql_user' or 'mysql_pass'. 
 Use to look for exploits: ` sudo nmap -sVC -vvv {{TARGET_IP}} --script vuln `. 
+
