@@ -27,5 +27,13 @@ Check attached IAM policies, and group inheritance:
 
 `aws --profile target iam get-policy-version --policy-arn arn:aws:iam::aws:policy/job-function/SupportUser --version-id v8` (check version id first) 
 
-`aws --profile target iam list-users | tee  users.json` 
+`aws --profile target iam list-users | tee  users.json` (also groups, roles) 
+
+
+#### Using JMESPath to query json data 
+
+`aws --profile target iam get-account-authorization-details --filter User --query "UserDetailList[].UserName"` 
+
+`aws --profile target iam get-account-authorization-details --filter User --query "UserDetailList[0].{Name: UserName,Path: Path,Groups: GroupList}"` 
+> The results might have custom fields worth investigating further. 
 
