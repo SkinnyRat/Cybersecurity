@@ -41,9 +41,11 @@ Check attached IAM policies, and group inheritance:
 ## AWS pentesting 
 
 
-
-
-
-
-
+1. Enum S3 dirs like normal, might have .git repos, jenkins etc, use `aws s3 sync` to get bucket.  
+2. Look for eg cloud formation templates to see what the user or IAM role has access to. 
+3. When a rev shell is obtained, run `env | grep AWS` to grab aws creds and/or `printenv` for containers. 
+4. Enum creds' permissions and create backdoor user, eg <br/> 
+   `aws --profile CompromisedJenkins iam attach-user-policy --user-name backdoor --policy-arn arn:aws:iam::aws:policy/AdministratorAccess` 
+5. Try dep chain hacks, eg uploading some '{package}-utils' and (re)installing on compromised instance or cicd/git. 
+6. Scan the network for accessible resources and do lateral movement. 
 
