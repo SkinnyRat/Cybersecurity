@@ -1,4 +1,4 @@
-## AWS enumeration & pentesting 
+## AWS enumeration 
 
 
 #### Get S3 buckets from public websites 
@@ -36,4 +36,14 @@ Check attached IAM policies, and group inheritance:
 
 `aws --profile target iam get-account-authorization-details --filter User --query "UserDetailList[0].{Name: UserName,Path: Path,Groups: GroupList}"` 
 > The results might have custom fields worth investigating further. 
+
+
+## AWS pentesting 
+
+
+
+
+
+
+
 
