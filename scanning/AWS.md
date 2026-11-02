@@ -49,3 +49,15 @@ Check attached IAM policies, and group inheritance:
 5. Try dep chain hacks, eg uploading some '{package}-utils' and (re)installing on compromised instance or cicd/git. 
 6. Scan the network for accessible resources and do lateral movement. 
 
+
+## API pentesting 
+
+- Endpoint discovery ~ wordlist fuzzing like /api/FUZZ/x, /api/product/1, 0, -1, INT_MAX 
+- HTTP methods ~ check against spec, check if unintended methods get blocked (eg PUT vs POST for uploads) 
+- Authentication ~ check bypass w/o token, expired tokens, alg:none etc 
+- Authorization ~ use A's token in B's req, try to mod params like is_admin, balance, price, etc 
+- BOLA ~ check whether user A can access user B's /api/orders/1001, 1002, ... 
+- Business logic ~ check against spec, eg can user access /api/checkout before /api/add_to_cart 
+- Rate limiting ~ check if spamming gets blocked 
+> Establish baseline, test the above & compare behaviour, verify impact and document. 
+
