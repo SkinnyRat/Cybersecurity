@@ -13,7 +13,7 @@ Check if origin access control is enforced, and block public access = on.
 
 ---- 
 
-#### Enumerating compromised profiles 
+#### Enumerating compromised profiles - run get-caller-identity first! 
 
 Check if target profile can run lambda functions: <br/> 
 `aws --profile target lambda invoke --function-name arn:aws:lambda:us-east-1:123456789012:function:nonexistent-function outfile` 
