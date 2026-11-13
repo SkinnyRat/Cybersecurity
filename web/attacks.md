@@ -376,3 +376,6 @@ jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0D%0A//</stYle/</
 # Wrapping Up
 
 SQLi: fingerprint the engine, confirm with `'`, then exploit **manually** (error-based → UNION → blind) and escalate to RCE (`xp_cmdshell` on MSSQL, `INTO OUTFILE` webshell on MySQL). **sqlmap/sqlninja are banned on the exam** — lab-only. XSS: find unsanitised reflection, break out of its context, and weaponise (stored admin-creation, cookie/credential theft, XSS-driven CSRF). Both are OWASP-Top-10 injection classes and stem from the same root cause — untrusted input reaching an interpreter unescaped. See [enumeration.md](enumeration.md) to find these inputs and [directories-and-files.md](directories-and-files.md) for the file/command-path attack classes.
+
+To decrypt Flask cookies (with FLASK_SECRET_KEY) try `pipx install flask-unsign`. 
+
